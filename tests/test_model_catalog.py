@@ -69,7 +69,7 @@ def test_platform_module_is_fresh():
 def test_release_root_builds_every_module():
     from linkml_runtime.utils.schemaview import SchemaView
     sv = SchemaView(str(ROOT / "schema" / "wsys.yaml"))
-    names = {s.name for s in sv.schema_map.values()}
+    names = {sv.schema_map[k].name for k in sv.imports_closure()}
     for m in ["wsys-core", "wsys-topology", "wsys-observation", "wsys-event", "wsys-coupling", "wsys-analysis-platform", "wsys-analysis", "wsys-model", "wsys-ml"]:
         assert m in names, f"{m} not imported by the release root"
     for c in ["Revision", "Attempt", "Composition", "SwmmConduit", "Conduit", "Observation", "Event", "MLModelVersion"]:
