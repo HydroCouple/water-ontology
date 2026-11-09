@@ -1,11 +1,11 @@
 # Water Systems Ontology build. `source ./activate.sh` first.
 SCHEMAS   := $(wildcard schema/*.yaml)
-ROOT      := schema/topology.yaml      # module that imports everything released so far
+ROOT      := schema/wsys.yaml          # release root: imports every module
 DIST      := dist
 
 .PHONY: all lint owl shacl sql docs clean test
 
-all: lint owl shacl sql delta
+all: model-check lint owl shacl sql delta
 
 lint:
 	linkml-lint --config .linkmllint.yaml $(SCHEMAS)
@@ -33,3 +33,11 @@ clean:
 
 delta: | $(DIST)
 	python -m generators.linkml_to_delta $(ROOT) --catalog water_core -o $(DIST)/delta
+
+CATALOG ?= ../openswmm.engine/python/openswmm/engine/catalog.json
+
+model:
+	python -m generators.catalog_to_linkml --catalog $(CATALOG)
+
+model-check:
+	python -m generators.catalog_to_linkml --catalog $(CATALOG) --check

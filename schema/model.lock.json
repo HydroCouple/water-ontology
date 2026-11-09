@@ -1,0 +1,17 @@
+{
+  "catalog_revision": 2,
+  "catalog_sha256": "b76c3ae5d79e0855ff93cfd5c0db750dd33bc377162ff3140ab4b0e0cda484dd",
+  "classes": 26,
+  "enums": 14,
+  "skipped_navigation_properties": [
+    "node.solver",
+    "link.solver",
+    "link.xsect",
+    "subcatchment.solver",
+    "gage.solver",
+    "pollutant.solver",
+    "pattern.solver",
+    "table.solver"
+  ],
+  "generated_at": "2026-11-09T12:51:24+00:00"
+}

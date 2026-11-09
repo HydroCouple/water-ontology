@@ -1,0 +1,69 @@
+id: https://w3id.org/wsys/analysis
+name: wsys-analysis
+title: Water Systems Ontology — Analysis artifacts
+description: >-
+  Model revisions, runs, attempts, studies and findings. Shapes mirror the
+  versioned hydrocouple.platform contracts (revision-manifest-1, run-request-1,
+  job-spec-1, attempt-manifest-1, study-view-1). STUB: Revision, Run and
+  Attempt carry the identity slots needed by other modules; the full classes
+  are generated from the platform JSON Schemas in Step 3.
+version: 0.1.0
+license: Apache-2.0
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  prov: http://www.w3.org/ns/prov#
+default_prefix: wsys
+default_range: string
+imports:
+  - linkml:types
+  - core
+
+slots:
+  revision_id:
+    range: string
+    required: true
+    description: hydrocouple.platform revision id of the immutable packaged composition.
+  run_id:
+    range: string
+    required: true
+    description: hydrocouple.platform run id.
+  attempt_id:
+    range: string
+    required: true
+    description: hydrocouple.platform attempt id; one run may have several attempts.
+  of_revision:
+    range: Revision
+    description: The revision a run executes.
+  of_run:
+    range: Run
+    description: The run an attempt belongs to.
+  workflow:
+    range: string
+    description: Approved platform workflow and version, e.g. swmm.simulation@1 or gym.evaluate@1.
+  tool_call_id:
+    range: string
+    description: The agent tool-call (MLflow span) that submitted the run; links the finding to its trace.
+  session_id:
+    range: string
+    description: The agent or GUI session that submitted the run.
+  manifest_sha256:
+    range: string
+    description: SHA-256 of the platform manifest this row was ingested from.
+
+classes:
+  Revision:
+    is_a: Entity
+    description: An immutable packaged model or HydroCouple composition (files, components, findings) as recorded by a hydrocouple.platform revision-manifest. Every SwmmElement row belongs to exactly one Revision.
+    slots: [revision_id, manifest_sha256]
+    exact_mappings: [prov:Entity]
+  Run:
+    is_a: DerivedEntity
+    description: A request to execute a workflow on a revision on a target (hydrocouple.platform run-request). Parameters and limits are in the job spec.
+    slots: [run_id, of_revision, workflow, tool_call_id, session_id]
+    exact_mappings: [prov:Activity]
+  Attempt:
+    is_a: DerivedEntity
+    description: One execution attempt of a run, with its HydroCouple run manifest, artifacts, provenance and quality (hydrocouple.platform attempt-manifest).
+    slots: [attempt_id, of_run, manifest_sha256]
+    exact_mappings: [prov:Activity]

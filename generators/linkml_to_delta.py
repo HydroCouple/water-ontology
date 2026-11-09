@@ -80,9 +80,20 @@ class DeltaGenerator:
     def fq(self, schema: str, table: str) -> str:
         return f"{self.catalog}.{schema}.{table}"
 
+    def has_identifier(self, cls_name: str) -> bool:
+        return any(s.identifier for s in self.sv.class_induced_slots(cls_name))
+
     def concrete_classes(self) -> list[str]:
         return [c.name for c in self.sv.all_classes().values()
-                if not c.abstract and not c.mixin and c.name != "Entity"]
+                if not c.abstract and not c.mixin and c.name != "Entity" and self.has_identifier(c.name)]
+
+    def struct_type(self, cls_name: str) -> str:
+        """A component view (inlined, no identifier) as a Delta STRUCT."""
+        fields = []
+        for s in self.sv.class_induced_slots(cls_name):
+            t, _ = self.sql_type(s)
+            fields.append(f"{s.name}: {t} COMMENT {q((s.description or '')[:200])}")
+        return "STRUCT<" + ", ".join(fields) + ">"
 
     def ordered_slots(self, cls_name: str):
         """Induced slots ordered root-first: Entity's identity columns, then each ancestor's, then the leaf's."""
@@ -101,7 +112,10 @@ class DeltaGenerator:
         if rng in self.sv.all_enums():
             base, kind = "STRING", "enum"
         elif rng in self.sv.all_classes():
-            base, kind = "STRING", "class"          # FK by IRI
+            if slot.inlined and not self.has_identifier(rng):
+                base, kind = self.struct_type(rng), "struct"
+            else:
+                base, kind = "STRING", "class"          # FK by IRI
         else:
             t = self.sv.get_type(rng)
             root = t.typeof or t.name if t else rng
@@ -158,6 +172,17 @@ class DeltaGenerator:
             if kind == "class":
                 comment += f" -> {self.fq(self.module_of(s.range), snake(s.range))}.iri"
                 fks.append((s.name, s.range))
+            if kind == "struct":
+                comment += f" (inlined {s.range})"
+            ann = {}
+            for k, v in (s.annotations._as_dict.items() if hasattr(s.annotations, "_as_dict") else dict(s.annotations or {}).items()):
+                val = v.get("value") if isinstance(v, dict) else getattr(v, "value", v)
+                ann[str(k)] = str(val)
+            tag_keys = [k for k in ("unit_kind", "access", "catalog_path", "python_type", "item_view") if k in ann]
+            if tag_keys:
+                if "unit_kind" in ann and not (s.unit and s.unit.ucum_code):
+                    comment += f" [{ann['unit_kind']}]"
+                tags.append(f"ALTER TABLE {t} ALTER COLUMN {s.name} SET TAGS (" + ", ".join(f"{q(k)} = {q(ann[k])}" for k in tag_keys) + ");")
             if kind == "enum" and not s.multivalued:
                 vals = ", ".join(q(pv) for pv in self.sv.get_enum(s.range).permissible_values)
                 checks.append(f"ALTER TABLE {t} ADD CONSTRAINT ck_{snake(cls_name)}_{s.name} CHECK ({s.name} IS NULL OR {s.name} IN ({vals}));")

@@ -1,0 +1,16 @@
+id: https://w3id.org/wsys
+name: wsys
+title: Water Systems Ontology — release root
+description: Imports every released module; the build targets point here.
+version: 0.1.0
+license: Apache-2.0
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+default_prefix: wsys
+imports:
+  - linkml:types
+  - core
+  - topology
+  - analysis
+  - model
