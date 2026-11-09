@@ -1,0 +1,24 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: HydroCouple/openswmm.engine
+          path: openswmm.engine
+          sparse-checkout: python/openswmm/engine/catalog.json
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e ".[dev]"
+      - name: model.yaml matches the pinned OpenSWMM catalog
+        run: python -m generators.catalog_to_linkml --catalog openswmm.engine/python/openswmm/engine/catalog.json --check
+      - run: linkml-lint --config .linkmllint.yaml schema/*.yaml
+      - run: CATALOG=openswmm.engine/python/openswmm/engine/catalog.json pytest -q
+      - run: make owl shacl sql delta ROOT=schema/wsys.yaml
+      - uses: actions/upload-artifact@v4
+        with: { name: dist, path: dist }

@@ -1,4 +1,8 @@
 .venv/
+.wheels/*.whl
+!.wheels/antlr4*.whl
+!.wheels/cfgraph*.whl
+!.wheels/pytest_logging*.whl
 dist/
 __pycache__/
 *.pyc

@@ -1,3 +1,5 @@
+Copyright 2026 HydroCouple Developers
+
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -199,3 +201,19 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+--------------------------------------------------------------------------------
+
+ADDENDUM: PUBLIC DOMAIN MATERIAL
+
+This project contains original material that has been released as part of
+various USEPA SWMM software distributions over the years. That material
+resides in the public domain and no copyright is claimed over it. This
+project also contains new material prepared by the United States Government
+for which domestic copyright protection is not available under 17 USC § 105.
+
+The Apache License, Version 2.0 above applies to the original contributions
+of the OpenSWMM authors. It does not, and cannot, extend copyright to the
+public domain material described in this addendum, nor does it restrict any
+rights the public already holds in that material. See the NOTICE file for
+further attribution details.
