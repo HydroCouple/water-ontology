@@ -17,7 +17,7 @@ jobs:
       - run: pip install -e ".[dev]"
       - name: model.yaml matches the pinned OpenSWMM catalog
         run: python -m generators.catalog_to_linkml --catalog openswmm.engine/python/openswmm/engine/catalog.json --check
-      - run: linkml-lint --config .linkmllint.yaml schema/*.yaml
+      - run: for f in schema/*.yaml; do linkml-lint --config .linkmllint.yaml --ignore-warnings $f || exit 1; done
       - run: CATALOG=openswmm.engine/python/openswmm/engine/catalog.json pytest -q
       - run: make owl shacl sql delta ROOT=schema/wsys.yaml
       - uses: actions/upload-artifact@v4

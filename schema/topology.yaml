@@ -1,13 +1,15 @@
 id: https://w3id.org/wsys/topology
 name: wsys-topology
-title: Water Systems Ontology — Topology
+title: Water Systems Ontology — Topology (collection and stormwater systems)
 description: >-
-  Physical assets of a water network and how they connect. Connectivity,
-  containment and attachment live in Edge rows (one directed graph), not on
-  the assets, following the Esri Utility Network associations pattern.
-  Devices with more than one port connect through Terminals so that
-  upstream/downstream traces are correct.
-version: 0.1.0
+  Physical assets of a drainage, sewer or stormwater network and how they
+  connect, following SWMM/OpenSWMM element semantics. Connectivity,
+  containment, attachment, drainage and zone membership live in Edge rows (one
+  directed graph), not on the assets, following the Esri Utility Network
+  associations pattern. Devices with more than one port connect through
+  Terminals so traces are directionally correct. Each asset is linked to its
+  SWMM model element in a given Revision by a REPRESENTED_BY edge.
+version: 0.2.0
 license: Apache-2.0
 
 prefixes:
@@ -16,6 +18,7 @@ prefixes:
   s4watr: https://saref.etsi.org/saref4watr/
   s4syst: https://saref.etsi.org/saref4syst/
   saref: https://saref.etsi.org/core/
+  swmm: https://w3id.org/wsys/model/
 default_prefix: wsys
 default_range: string
 
@@ -28,55 +31,138 @@ enums:
     description: The relation an Edge row asserts between two entities. One table, several relation kinds, so one traversal tool serves every relationship.
     permissible_values:
       CONNECTS_TO: {description: Hydraulic connectivity from the upstream end to the downstream end as modelled}
-      CONTAINED_IN: {description: Structural containment such as a meter inside a vault}
-      ATTACHED_TO: {description: A device mounted on another asset such as a pressure sensor on a pipe}
-      BELONGS_TO_ZONE: {description: Membership of a derived pressure zone or DMA}
-      FEEDS: {description: A source or tank that supplies a zone}
-      ISOLATED_BY: {description: A pipe or zone whose isolation depends on this valve}
+      DRAINS_TO: {description: Runoff routing from a Subcatchment to a Node or another Subcatchment}
+      CAPTURES_TO: {description: An Inlet captures street flow to a Node}
+      USES_GAGE: {description: A Subcatchment receives rainfall from a RainGage}
+      CONTAINED_IN: {description: Structural containment such as a flow meter inside a chamber}
+      ATTACHED_TO: {description: A device mounted on another asset such as a level sensor on a manhole}
+      BELONGS_TO_ZONE: {description: Membership of a derived sewershed or drainage area or CSO basin}
+      FEEDS: {description: A node or storage that supplies a zone or downstream system}
+      ISOLATED_BY: {description: A conduit or zone whose isolation depends on this gate or valve}
       PART_OF_SYSTEM: {description: Membership of a WaterSystem}
+      REPRESENTED_BY: {description: The SwmmElement in a given Revision that models this asset}
+      COUPLED_TO: {description: A HydroCouple exchange between two model components or domains}
 
   FlowDirection:
-    description: Permitted flow direction through a link or terminal.
     permissible_values:
       BIDIRECTIONAL: {}
       FORWARD: {description: From from_node to to_node only}
       REVERSE: {description: From to_node to from_node only}
-      NONE: {description: Flow blocked such as a closed valve}
+      NONE: {description: Flow blocked such as a closed gate}
 
-  ValveType:
+  ZoneKind:
     permissible_values:
-      ISOLATION: {description: Gate or butterfly valve used to isolate a section}
-      PRV: {description: Pressure reducing valve}
-      PSV: {description: Pressure sustaining valve}
-      FCV: {description: Flow control valve}
-      CHECK: {description: Non-return valve}
-      AIR_RELEASE: {}
-      BLOWOFF: {}
+      SEWERSHED: {}
+      DRAINAGE_AREA: {}
+      CSO_BASIN: {}
+      PRESSURE_ZONE: {description: Reserved for the distribution module}
+      SERVICE_AREA: {}
+
+  OutfallType:
+    permissible_values:
+      FREE: {}
+      NORMAL: {}
+      FIXED: {}
+      TIDAL: {}
+      TIMESERIES: {}
+
+  StorageShape:
+    permissible_values:
+      FUNCTIONAL: {}
+      TABULAR: {}
+      CYLINDRICAL: {}
+      CONICAL: {}
+      PARABOLOID: {}
+      PYRAMIDAL: {}
+
+  XSectShape:
+    description: Conduit cross-section shapes; mirrors SWMM XSectShape. Geometry parameters are in geom1..geom4.
+    permissible_values:
+      CIRCULAR: {}
+      FORCE_MAIN: {}
+      FILLED_CIRCULAR: {}
+      RECT_CLOSED: {}
+      RECT_OPEN: {}
+      TRAPEZOIDAL: {}
+      TRIANGULAR: {}
+      PARABOLIC: {}
+      POWER: {}
+      RECT_TRIANGULAR: {}
+      RECT_ROUND: {}
+      MODBASKET: {}
+      HORIZ_ELLIPSE: {}
+      VERT_ELLIPSE: {}
+      ARCH: {}
+      EGG: {}
+      HORSESHOE: {}
+      GOTHIC: {}
+      CATENARY: {}
+      SEMIELLIPTICAL: {}
+      BASKETHANDLE: {}
+      SEMICIRCULAR: {}
+      IRREGULAR: {description: Natural channel defined by a transect}
+      CUSTOM: {}
+      STREET: {}
+
+  OrificeType:
+    permissible_values:
+      SIDE: {}
+      BOTTOM: {}
+
+  WeirType:
+    permissible_values:
+      TRANSVERSE: {}
+      SIDEFLOW: {}
+      VNOTCH: {}
+      TRAPEZOIDAL: {}
+      ROADWAY: {}
 
   PumpControlMode:
     permissible_values:
       FIXED_SPEED: {}
       VARIABLE_SPEED: {}
 
-  PipeMaterial:
-    description: Common distribution pipe materials; extend per utility.
+  InfiltrationModel:
     permissible_values:
-      DI: {description: Ductile iron}
-      CI: {description: Cast iron}
+      HORTON: {}
+      MODIFIED_HORTON: {}
+      GREEN_AMPT: {}
+      MODIFIED_GREEN_AMPT: {}
+      CURVE_NUMBER: {}
+
+  LIDType:
+    permissible_values:
+      BIO_RETENTION_CELL: {}
+      RAIN_GARDEN: {}
+      GREEN_ROOF: {}
+      INFILTRATION_TRENCH: {}
+      PERMEABLE_PAVEMENT: {}
+      RAIN_BARREL: {}
+      ROOFTOP_DISCONNECTION: {}
+      VEGETATIVE_SWALE: {}
+
+  RainFormat:
+    permissible_values:
+      INTENSITY: {}
+      VOLUME: {}
+      CUMULATIVE: {}
+
+  ConduitMaterial:
+    description: Common sewer and storm conduit materials; extend per utility.
+    permissible_values:
+      RCP: {description: Reinforced concrete pipe}
+      VCP: {description: Vitrified clay pipe}
       PVC: {}
       HDPE: {}
-      AC: {description: Asbestos cement}
-      STEEL: {}
-      CONCRETE: {}
+      DI: {description: Ductile iron}
+      CI: {description: Cast iron}
+      CMP: {description: Corrugated metal pipe}
+      BRICK: {}
+      FRP: {}
       UNKNOWN: {}
 
-  ZoneKind:
-    permissible_values:
-      PRESSURE_ZONE: {}
-      DMA: {description: District metered area}
-      SERVICE_AREA: {}
-
 slots:
+  # --- edge -------------------------------------------------------------
   from_iri:
     range: IRI
     required: true
@@ -96,7 +182,9 @@ slots:
     description: Terminal on the head entity, when it has terminals.
   props:
     range: string
-    description: JSON object of relation-specific attributes (e.g. share of flow, confidence of inferred edge).
+    description: JSON object of relation-specific attributes (e.g. fraction of runoff routed, confidence of an inferred edge, match score of a REPRESENTED_BY link).
+
+  # --- network attributes -------------------------------------------------
   system:
     range: WaterSystem
     description: The water system this entity belongs to.
@@ -107,38 +195,86 @@ slots:
     description: True if closing or stopping this device isolates flow; drives isolation traces.
   is_subnetwork_controller:
     range: boolean
-    description: True for sources and tanks that define a pressure zone when subnetworks are computed.
+    description: True for outfalls and controlled storage that define a sewershed or drainage area when subnetworks are computed.
   normal_state_open:
     range: boolean
-    description: Normal operating position for valves; true if open.
-  elevation:
+    description: Normal operating position for gates and valves; true if open.
+
+  # --- node geometry ------------------------------------------------------
+  invert_elevation:
     range: float
     unit: {ucum_code: m}
-    description: Elevation of the node or invert, metres above datum.
-  diameter:
+    description: Invert elevation above datum.
+  max_depth:
     range: float
-    unit: {ucum_code: mm}
-    description: Nominal internal diameter.
+    unit: {ucum_code: m}
+    description: Depth from invert to rim or ground.
+  rim_elevation:
+    range: float
+    unit: {ucum_code: m}
+  initial_depth:
+    range: float
+    unit: {ucum_code: m}
+  surcharge_depth:
+    range: float
+    unit: {ucum_code: m}
+    description: Additional depth above max_depth before flooding occurs (sealed manhole).
+  ponded_area:
+    range: float
+    unit: {ucum_code: m2}
+    description: Surface area over which flooded water ponds.
+  outfall_type:
+    range: OutfallType
+  tide_gate:
+    range: boolean
+  storage_shape:
+    range: StorageShape
+  max_volume:
+    range: float
+    unit: {ucum_code: m3}
+  evaporation_factor:
+    range: float
+
+  # --- link geometry -------------------------------------------------------
   length:
     range: float
     unit: {ucum_code: m}
   roughness:
     range: float
-    description: Hazen-Williams C (dimensionless) unless the system declares another formula.
+    description: Manning's n.
+  xsect_shape:
+    range: XSectShape
+  geom1:
+    range: float
+    unit: {ucum_code: m}
+    description: Full height or diameter of the cross-section.
+  geom2:
+    range: float
+    unit: {ucum_code: m}
+    description: Width or second shape parameter.
+  geom3:
+    range: float
+  geom4:
+    range: float
+  diameter:
+    range: float
+    unit: {ucum_code: mm}
+    description: Nominal diameter for circular conduits; redundant with geom1 but kept for asset-register queries.
   material:
-    range: PipeMaterial
-  min_level:
+    range: ConduitMaterial
+  inlet_offset:
     range: float
     unit: {ucum_code: m}
-  max_level:
+    description: Height of the conduit inlet above the upstream node invert.
+  outlet_offset:
     range: float
     unit: {ucum_code: m}
-  volume:
+  design_flow:
     range: float
-    unit: {ucum_code: m3}
+    unit: {ucum_code: "m3/s"}
   rated_flow:
     range: float
-    unit: {ucum_code: "m3/h"}
+    unit: {ucum_code: "m3/s"}
   rated_head:
     range: float
     unit: {ucum_code: m}
@@ -147,55 +283,139 @@ slots:
     unit: {ucum_code: kW}
   control_mode:
     range: PumpControlMode
-  valve_type:
-    range: ValveType
-  setting:
+  startup_depth:
     range: float
-    description: Valve setting in the unit implied by valve_type (pressure in m for PRV/PSV, flow in m3/h for FCV).
+    unit: {ucum_code: m}
+  shutoff_depth:
+    range: float
+    unit: {ucum_code: m}
+  pump_curve:
+    range: IRI
+    description: Curve (SwmmTable in the linked revision, or a reference curve) describing head versus flow.
+  orifice_type:
+    range: OrificeType
+  weir_type:
+    range: WeirType
+  crest_height:
+    range: float
+    unit: {ucum_code: m}
+  opening_height:
+    range: float
+    unit: {ucum_code: m}
+  opening_width:
+    range: float
+    unit: {ucum_code: m}
+  discharge_coefficient:
+    range: float
+  flap_gate:
+    range: boolean
+  rating_curve:
+    range: IRI
+    description: Outlet rating curve (head or depth versus flow).
+
+  # --- subcatchment -----------------------------------------------------------
+  area:
+    range: float
+    unit: {ucum_code: ha}
+  width:
+    range: float
+    unit: {ucum_code: m}
+    description: Characteristic overland flow width.
+  slope:
+    range: float
+    unit: {ucum_code: "%"}
+  impervious_fraction:
+    range: float
+    minimum_value: 0
+    maximum_value: 1
+  n_impervious:
+    range: float
+    description: Manning's n for impervious overland flow.
+  n_pervious:
+    range: float
+  depression_storage_impervious:
+    range: float
+    unit: {ucum_code: mm}
+  depression_storage_pervious:
+    range: float
+    unit: {ucum_code: mm}
+  infiltration_model:
+    range: InfiltrationModel
+  land_use_fractions:
+    range: string
+    description: JSON map of LandUse IRI to areal fraction.
+
+  # --- gage, LID, aquifer, 2D -----------------------------------------------------
+  rain_format:
+    range: RainFormat
+  recording_interval:
+    range: string
+    description: ISO 8601 duration between rainfall records (PT5M, PT1H).
+  lid_type:
+    range: LIDType
+  lid_area:
+    range: float
+    unit: {ucum_code: m2}
+  drain_to:
+    range: IRI
+    description: Node or Subcatchment that receives LID underdrain or overflow.
+  bottom_elevation:
+    range: float
+    unit: {ucum_code: m}
+  water_table_elevation:
+    range: float
+    unit: {ucum_code: m}
+  cell_count:
+    range: integer
+  cell_area:
+    range: float
+    unit: {ucum_code: m2}
+  mesh:
+    range: Mesh2D
+  ground_elevation:
+    range: float
+    unit: {ucum_code: m}
+
+  # --- zone, terminal, structure --------------------------------------------------------
   zone_kind:
     range: ZoneKind
   derived_at:
     range: datetime
-    description: When zone membership was last computed from controllers and valve states.
+    description: When zone membership was last computed from subnetwork controllers and connectivity.
   terminal_name:
     range: string
-    description: Port name on the device (e.g. SUCTION, DISCHARGE, INLET, OUTLET).
+    description: Port name on the device (SUCTION, DISCHARGE, INLET, OUTLET).
   on_device:
     range: Asset
     required: true
     description: The device this terminal belongs to.
-  service_address:
-    range: string
-  meter_size:
-    range: float
-    unit: {ucum_code: mm}
 
 classes:
   WaterSystem:
     is_a: Entity
-    description: A hydraulically connected network operated as one system (e.g. one treatment plant and its distribution network).
-    exact_mappings: [s4watr:DistributionSystem]
+    description: A hydraulically connected drainage, sewer or stormwater network operated as one system, usually one SWMM model.
+    exact_mappings: [s4watr:WaterInfrastructure]
 
   Zone:
     is_a: SpatialEntity
-    description: A derived grouping of nodes and links such as a pressure zone or DMA. Membership is computed from subnetwork controllers and valve states, then materialised with a derived_at timestamp; never hand-edited.
+    description: A derived grouping of nodes, links and subcatchments such as a sewershed, drainage area or CSO basin. Membership is computed from subnetwork controllers and connectivity, then materialised with a derived_at timestamp; never hand-edited.
     slots: [zone_kind, system, derived_at]
     slot_usage:
       zone_kind: {required: true}
 
   Terminal:
     is_a: Entity
-    description: A named port on a device through which it connects. Required on pumps, multi-port valves and tanks so flow direction is unambiguous.
+    description: A named port on a device through which it connects. Required on pumps, multi-port regulators and storage so flow direction is unambiguous.
     slots: [terminal_name, on_device, flow_direction]
     slot_usage:
       terminal_name: {required: true}
 
   Structure:
     is_a: Asset
-    description: A vault, chamber, pump house or other enclosure that contains devices.
+    description: A chamber, vault, pump station building or other enclosure that contains devices.
 
   Edge:
-    description: One directed, typed relationship between two entities. All connectivity, containment, attachment and zone membership live here.
+    description: One directed, typed relationship between two entities. All connectivity, drainage routing, containment, attachment, zone membership and model representation live here.
     slots: [from_iri, to_iri, relation, from_terminal, to_terminal, valid_from, valid_to, props, source_system]
     exact_mappings: [s4syst:Connection]
 
@@ -203,78 +423,129 @@ classes:
   Node:
     abstract: true
     is_a: Asset
-    description: A point in the network where links meet or where water enters, leaves or is stored.
-    slots: [elevation, system, is_subnetwork_controller]
+    description: A point in the network where links meet or where flow enters, leaves or is stored. SWMM node.
+    slots: [invert_elevation, max_depth, rim_elevation, initial_depth, surcharge_depth, ponded_area, system, is_subnetwork_controller]
+    exact_mappings: [swmm:SwmmNode]
 
   Junction:
     is_a: Node
-    description: A pipe junction or demand node with no storage.
+    description: A manhole, catch basin or pipe junction with no storage volume beyond its shaft.
+    exact_mappings: [swmm:SwmmJunction]
 
-  Source:
+  Outfall:
     is_a: Node
-    description: A point where water enters the system (well, intake, interconnection).
+    description: A terminal node where flow leaves the system to a receiving water; defines a sewershed when used as a subnetwork controller.
+    slots: [outfall_type, tide_gate]
     slot_usage:
-      is_subnetwork_controller: {ifabsent: "true"}
+      is_subnetwork_controller: {ifabsent: "True"}
+    exact_mappings: [swmm:SwmmOutfall]
 
-  TreatmentPlant:
+  Divider:
     is_a: Node
-    description: A treatment facility, modelled as a node at the boundary of the distribution network.
+    description: A node that splits inflow between two downstream links by rule, weir or tabular relationship.
+    exact_mappings: [swmm:SwmmDivider]
 
-  Reservoir:
+  StorageUnit:
     is_a: Node
-    description: An external water body or infinite source at fixed head.
+    description: A wet well, detention basin, retention pond or tank with a depth-area or depth-volume relationship.
+    slots: [storage_shape, max_volume, evaporation_factor]
+    exact_mappings: [swmm:SwmmStorage]
+
+  LIDControl:
+    is_a: Node
+    description: A low-impact-development control (bioretention, permeable pavement, green roof, ...). Modelled as a storage node with its own outlet controls per OpenSWMM 6; placed inside a Subcatchment by a CONTAINED_IN edge.
+    slots: [lid_type, lid_area, drain_to]
     slot_usage:
-      is_subnetwork_controller: {ifabsent: "true"}
-
-  Tank:
-    is_a: Node
-    description: A storage tank with variable level.
-    slots: [min_level, max_level, volume, diameter]
-    slot_usage:
-      is_subnetwork_controller: {ifabsent: "true"}
-    exact_mappings: [s4watr:Tank]
-
-  Hydrant:
-    is_a: Node
-    description: A fire hydrant.
-
-  ServiceConnection:
-    is_a: Node
-    description: The point where a customer's service line leaves the main.
-    slots: [service_address]
+      lid_type: {required: true}
 
   # --- Links --------------------------------------------------------------
   Link:
     abstract: true
     is_a: Asset
-    description: A component that conveys water between two nodes. Endpoints are asserted by CONNECTS_TO edges, not stored here, so the graph has one source of truth.
-    slots: [system, flow_direction, is_isolating]
+    description: A component that conveys flow between two nodes. Endpoints are asserted by CONNECTS_TO edges, not stored here, so the graph has one source of truth. SWMM link.
+    slots: [system, flow_direction, is_isolating, inlet_offset, outlet_offset]
+    exact_mappings: [swmm:SwmmLink]
 
-  Pipe:
+  Conduit:
     is_a: Link
-    description: A closed conduit carrying water between two nodes.
-    slots: [diameter, length, material, roughness]
+    description: A gravity sewer, force main, culvert or open channel with a cross-section and roughness.
+    slots: [length, roughness, xsect_shape, geom1, geom2, geom3, geom4, diameter, material, design_flow]
     slot_usage:
-      diameter: {required: true}
-    exact_mappings: [s4watr:Pipe]
+      length: {required: true}
+      xsect_shape: {required: true}
+    exact_mappings: [swmm:SwmmConduit]
+
+  Street:
+    is_a: Conduit
+    description: A street cross-section conveying surface flow; inlets along it capture flow to the drainage network.
+    slot_usage:
+      xsect_shape: {description: Always STREET for a Street.}
 
   Pump:
     is_a: Link
     description: A pump; connects through SUCTION and DISCHARGE terminals.
-    slots: [rated_flow, rated_head, rated_power, control_mode]
+    slots: [rated_flow, rated_head, rated_power, control_mode, startup_depth, shutoff_depth, pump_curve]
     slot_usage:
-      flow_direction: {ifabsent: "FORWARD"}
+      flow_direction: {description: FORWARD from SUCTION to DISCHARGE unless stated otherwise.}
+    exact_mappings: [swmm:SwmmPump]
 
-  Valve:
+  Orifice:
     is_a: Link
-    description: A valve of any kind; isolation valves drive isolation traces, control valves carry a setting.
-    slots: [valve_type, setting, normal_state_open, diameter]
+    description: A side or bottom orifice regulating flow between nodes; may be gated.
+    slots: [orifice_type, xsect_shape, opening_height, opening_width, discharge_coefficient, flap_gate, normal_state_open]
     slot_usage:
-      valve_type: {required: true}
-      is_isolating: {ifabsent: "true"}
+      is_isolating: {ifabsent: "True"}
+    exact_mappings: [swmm:SwmmOrifice]
 
-  Meter:
+  Weir:
     is_a: Link
-    description: A flow meter on a main or a service; customer meters are ATTACHED_TO a ServiceConnection.
-    slots: [meter_size]
-    exact_mappings: [s4watr:WaterMeter]
+    description: A transverse, side-flow, V-notch, trapezoidal or roadway weir.
+    slots: [weir_type, crest_height, opening_height, opening_width, discharge_coefficient, flap_gate]
+    exact_mappings: [swmm:SwmmWeir]
+
+  Outlet:
+    is_a: Link
+    description: A flow regulator defined by a rating curve.
+    slots: [rating_curve, flap_gate]
+    exact_mappings: [swmm:SwmmOutlet]
+
+  # --- Other assets and spatial entities -------------------------------------
+  Inlet:
+    is_a: Asset
+    description: A curb, grate or combination inlet that captures street flow; CAPTURES_TO a Node and is ATTACHED_TO a Street.
+
+  RainGage:
+    is_a: Asset
+    description: A rain gage or the rainfall record it provides; Subcatchments reference it by USES_GAGE edges.
+    slots: [rain_format, recording_interval]
+    exact_mappings: [swmm:SwmmGage]
+
+  Subcatchment:
+    is_a: SpatialEntity
+    description: A land area whose runoff drains to one outlet node or subcatchment (DRAINS_TO edge). Hydrologic parameters mirror SWMM.
+    slots: [area, width, slope, impervious_fraction, n_impervious, n_pervious, depression_storage_impervious, depression_storage_pervious, infiltration_model, land_use_fractions, system, lifecycle_status]
+    slot_usage:
+      area: {required: true}
+    exact_mappings: [swmm:SwmmSubcatchment]
+
+  LandUse:
+    is_a: Entity
+    description: A land-use category used for pollutant buildup and washoff.
+    exact_mappings: [swmm:SwmmLanduse]
+
+  Aquifer:
+    is_a: SpatialEntity
+    description: A groundwater unit beneath subcatchments or a 2D mesh; exchanges with the drainage network.
+    slots: [bottom_elevation, water_table_elevation, system]
+
+  Mesh2D:
+    is_a: SpatialEntity
+    description: A finite-volume surface mesh for 2D overland flow coupled to the 1D network.
+    slots: [cell_count, system]
+
+  Cell2D:
+    is_a: SpatialEntity
+    description: One cell of a Mesh2D.
+    slots: [mesh, cell_area, ground_elevation]
+    slot_usage:
+      mesh: {required: true}

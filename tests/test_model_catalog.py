@@ -40,3 +40,14 @@ def test_subtypes_cover_node_and_link_enums(cat):
     classes = yaml.safe_load(OUT.read_text())["classes"]
     codes = {c["annotations"]["subtype_code"] for c in classes.values() if "subtype_code" in c.get("annotations", {})}
     assert set(cat["enums"]["NodeType"]) | set(cat["enums"]["LinkType"]) <= codes
+
+
+def test_swmm_mapping_targets_resolve_to_wsys_classes():
+    """Every wsys:X in swmm_to_wsys.yaml is a class in the release root (or in a module not yet released)."""
+    from linkml_runtime.utils.schemaview import SchemaView
+    sv = SchemaView(str(ROOT / "schema" / "wsys.yaml"))
+    classes = set(sv.all_classes())
+    pending = {"wsys:ObservedProperty", "wsys:Sensor"}      # observation.yaml, step 3.2
+    missing = [v for v in yaml.safe_load(MAPPINGS.read_text()).values()
+               if v not in pending and v.split(":", 1)[1] not in classes]
+    assert not missing, f"mapping targets not in the ontology: {missing}"

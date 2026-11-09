@@ -14,7 +14,8 @@ API catalog.
 | Path | What |
 | --- | --- |
 | `schema/core.yaml` | Entity, SpatialEntity, Asset, DerivedEntity; lifecycle and provenance slots; shared prefixes |
-| `schema/topology.yaml` | Nodes, links, terminals, zones, Edge (one directed graph for connectivity, containment, attachment, zone membership) |
+| `schema/topology.yaml` | SWMM-first: Junction, Outfall, Divider, StorageUnit, LIDControl, Conduit, Street, Pump, Orifice, Weir, Outlet, Inlet, RainGage, Subcatchment, LandUse, Aquifer, Mesh2D/Cell2D, Terminal, Structure, Zone; Edge (one directed graph: CONNECTS_TO, DRAINS_TO, CAPTURES_TO, USES_GAGE, CONTAINED_IN, ATTACHED_TO, BELONGS_TO_ZONE, REPRESENTED_BY, COUPLED_TO ...) |
+| `schema/distribution.yaml` | Pipe, Tank, Valve, Hydrant, ServiceConnection, Meter (stub; not in the release root until distribution is in scope) |
 | `schema/observation.yaml` | Sensors, observed properties, observations *(step 3)* |
 | `schema/event.yaml` | Event taxonomy, lifecycle states, evidence and causal links *(step 3)* |
 | `schema/model.yaml` | **Generated** from `openswmm.engine.catalog` by `make model`; do not edit. `model.lock.json` pins the catalog revision and hash |

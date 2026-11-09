@@ -1,0 +1,63 @@
+id: https://w3id.org/wsys/distribution
+name: wsys-distribution
+title: Water Systems Ontology — Potable distribution (stub, not released)
+description: >-
+  Pressurised distribution assets moved out of topology when the first release
+  was scoped to SWMM collection systems. Kept so the earlier design is not
+  lost; not imported by the release root until distribution is in scope.
+version: 0.1.0
+license: Apache-2.0
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  s4watr: https://saref.etsi.org/saref4watr/
+default_prefix: wsys
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - topology
+enums:
+  ValveType:
+    permissible_values:
+      ISOLATION: {}
+      PRV: {}
+      PSV: {}
+      FCV: {}
+      CHECK: {}
+      AIR_RELEASE: {}
+      BLOWOFF: {}
+slots:
+  valve_type: {range: ValveType}
+  setting: {range: float, description: Valve setting in the unit implied by valve_type.}
+  min_level: {range: float, unit: {ucum_code: m}}
+  max_level: {range: float, unit: {ucum_code: m}}
+  service_address: {range: string}
+  meter_size: {range: float, unit: {ucum_code: mm}}
+classes:
+  Pipe:
+    is_a: Link
+    description: A pressurised closed conduit.
+    slots: [length, diameter, material, roughness]
+    exact_mappings: [s4watr:Pipe]
+  Tank:
+    is_a: Node
+    description: A storage tank with variable level.
+    slots: [min_level, max_level, max_volume, diameter]
+    exact_mappings: [s4watr:Tank]
+  Valve:
+    is_a: Link
+    description: A valve of any kind.
+    slots: [valve_type, setting, normal_state_open, diameter]
+  Hydrant:
+    is_a: Node
+    description: A fire hydrant.
+  ServiceConnection:
+    is_a: Node
+    description: The point where a customer's service line leaves the main.
+    slots: [service_address]
+  Meter:
+    is_a: Link
+    description: A flow meter on a main or service.
+    slots: [meter_size]
+    exact_mappings: [s4watr:WaterMeter]

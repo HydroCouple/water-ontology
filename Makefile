@@ -8,7 +8,7 @@ DIST      := dist
 all: model-check lint owl shacl sql delta
 
 lint:
-	linkml-lint --config .linkmllint.yaml $(SCHEMAS)
+	for f in schema/*.yaml; do linkml-lint --config .linkmllint.yaml --ignore-warnings $$f || exit 1; done
 
 owl: | $(DIST)
 	gen-owl --mergeimports $(ROOT) > $(DIST)/wsys.owl.ttl

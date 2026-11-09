@@ -185,7 +185,7 @@ slots:
     description: Ontology slot or ObservedProperty IRI (wsys:prop/flow, wsys:Conduit/diameter).
   aggregation:
     range: FeatureAggregation
-    ifabsent: string(NONE)
+    description: Aggregation applied over window; NONE when the raw value is used.
   window:
     range: string
     description: Aggregation window as an ISO 8601 duration (PT1H, P30D).

@@ -35,7 +35,7 @@ LINKML_TO_SQL = {
 
 # UCUM -> QUDT unit IRI. Extend as slots acquire units; CI fails on a missing one.
 UCUM_TO_QUDT = {
-    "m": "unit:M", "mm": "unit:MilliM", "km": "unit:KiloM",
+    "m": "unit:M", "mm": "unit:MilliM", "km": "unit:KiloM", "m2": "unit:M2", "ha": "unit:HA", "mm/h": "unit:MilliM-PER-HR",
     "m3": "unit:M3", "m3/h": "unit:M3-PER-HR", "m3/s": "unit:M3-PER-SEC", "L/s": "unit:L-PER-SEC",
     "kW": "unit:KiloW", "kW.h": "unit:KiloW-HR", "kPa": "unit:KiloPA", "bar": "unit:BAR",
     "mg/L": "unit:MilliGM-PER-L", "Cel": "unit:DEG_C", "NTU": "unit:NTU", "[pH]": "unit:PH",
@@ -52,13 +52,16 @@ MODULE_TO_SCHEMA = {
     "wsys-analysis": "analysis",
     "wsys-model": "model",
     "wsys-ml": "ml",
+    "wsys-distribution": "distribution",
 }
 
 
 def snake(name: str) -> str:
     """CamelCase -> snake_case, keeping acronyms together: MLModelVersion -> ml_model_version, SwmmNodeStats -> swmm_node_stats."""
-    s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name).lower()
-    return re.sub(r"__+", "_", s)
+    s = re.sub(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name)
+    s = s.replace("XSect", "Xsect")   # SWMM spelling: xsect_shape, not x_sect_shape
+    s = re.sub(r"(?<=[A-Za-z])(?=\d)(?!\d*$)", "_", s)                        # digits inside a name get a separator
+    return re.sub(r"__+", "_", s).lower()
 
 
 def q(s: str | None) -> str:
