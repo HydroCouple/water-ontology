@@ -5,7 +5,7 @@ DIST      := dist
 
 .PHONY: all lint owl shacl sql docs clean test
 
-all: lint owl shacl sql
+all: lint owl shacl sql delta
 
 lint:
 	linkml-lint --config .linkmllint.yaml $(SCHEMAS)
@@ -30,3 +30,6 @@ $(DIST):
 
 clean:
 	rm -rf $(DIST)
+
+delta: | $(DIST)
+	python -m generators.linkml_to_delta $(ROOT) --catalog water_core -o $(DIST)/delta
