@@ -57,3 +57,18 @@ make test
 - referenced enums are copied verbatim; methods and services are behaviour and are only listed in the module annotations.
 
 `make model-check` (and `tests/test_model_catalog.py`) fail when the catalog moves and `model.yaml` was not regenerated.
+
+## ML module (`schema/ml.yaml`)
+
+Models are governed assets with meaning: `MLModel` (task, target `FeatureBinding`, applies-to class and scope) →
+`MLModelVersion` (framework SKLEARN / PYTORCH / LIGHTNING / ..., MLflow run and `models:/` URI, UC alias, `inputs`
+as FeatureBindings, `TrainingDataset`, metrics vs baseline, stage) → `Prediction` (entity, property, valid time,
+interval or probability, inputs used, out-of-scope flag) and `DriftCheck`. `FeatureBinding` ties each signature
+column to an ontology class and property with aggregation, window, lag and the edge relations walked to reach it.
+
+## Esri Utility Network (`schema/mappings/esri_un_to_wsys.yaml`)
+
+UN is the asset register; SWMM is the hydraulic model. The mapping file says which wsys class each UN feature
+class / Asset Group / Asset Type becomes, which `EdgeRelation` each association type is, how terminals, network
+attributes, lifecycle codes and subnetwork tiers map, and that UN rules generate SHACL shapes. Assets are linked to
+their `SwmmElement` by `REPRESENTED_BY` edges produced by a reconciliation job.

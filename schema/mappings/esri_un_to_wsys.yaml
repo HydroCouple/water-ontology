@@ -1,0 +1,96 @@
+# Hand-curated: how an ArcGIS Utility Network (Sewer / Stormwater / Water
+# Distribution Foundation) lands in the wsys ontology. Read by the UN ingestion
+# pipeline and by generators/un_to_shacl.py (step 3). Keys are UN domain
+# network names; values are the wsys class per Asset Group / Asset Type.
+#
+# Fusion principle: UN is the asset register (what exists, where, how it is
+# connected and contained). SWMM is the hydraulic model (how it behaves).
+# The same physical thing appears in both and is joined by a REPRESENTED_BY
+# edge from the wsys asset to the SwmmElement, never by sharing a table.
+
+feature_classes:
+  # UN feature class            -> wsys base class  (Asset Group/Type refine it below)
+  SewerDevice:                     Asset
+  SewerJunction:                   Junction
+  SewerLine:                       Conduit
+  SewerAssembly:                   Structure
+  StormwaterDevice:                Asset
+  StormwaterJunction:              Junction
+  StormwaterLine:                  Conduit
+  StormwaterAssembly:              Structure
+  StructureJunction:               Structure
+  StructureBoundary:               Structure
+  StructureLine:                   Structure
+  SubnetLine:                      Zone          # derived subnetwork geometry -> Zone.geometry
+
+asset_groups:                      # UN Asset Group (and Type where it matters) -> wsys class
+  Sewer:
+    Manhole:                       Junction
+    Cleanout:                      Junction
+    Outfall:                       Outfall
+    Pump:                          Pump
+    "Pump Station":                Structure
+    "Wet Well":                    StorageUnit
+    "Control Valve":               Orifice       # modelled as an orifice/outlet in SWMM; UN keeps it a device
+    Weir:                          Weir
+    "Gravity Main":                Conduit
+    "Force Main":                  Conduit
+    "Lateral":                     Conduit
+    "Service Connection":          Junction
+    "Flow Meter":                  Sensor
+    "Level Sensor":                Sensor
+  Stormwater:
+    Inlet:                         Inlet
+    "Catch Basin":                 Junction
+    Manhole:                       Junction
+    Outfall:                       Outfall
+    "Detention Basin":             StorageUnit
+    "Retention Pond":              StorageUnit
+    Culvert:                       Conduit
+    "Storm Main":                  Conduit
+    "Open Channel":                Conduit
+    Weir:                          Weir
+    Orifice:                       Orifice
+    "LID Facility":                LIDControl
+    "Rain Gauge":                  RainGage
+
+associations:                      # UN association type -> EdgeRelation
+  Connectivity:                    CONNECTS_TO
+  Containment:                     CONTAINED_IN
+  "Structural Attachment":         ATTACHED_TO
+  "Junction-Edge (from)":          CONNECTS_TO   # geometric coincidence, direction from edge geometry
+  "Junction-Edge (to)":            CONNECTS_TO
+
+terminals:                         # UN terminal configuration names -> wsys Terminal names
+  "Pump Terminals":                [SUCTION, DISCHARGE]
+  "Dual Terminal":                 [INLET, OUTLET]
+  "Single Terminal":               [PORT]
+
+network_attributes:                # UN network attribute -> wsys slot
+  "Lifecycle Status":              lifecycle_status
+  "Is Isolating":                  is_isolating
+  "Flow Direction":                flow_direction
+  "Is Subnetwork Controller":      is_subnetwork_controller
+  Diameter:                        diameter
+  Material:                        material
+  "Install Date":                  install_date
+  "Asset ID":                      alt_ids       # kept as source id; wsys mints its own IRI
+
+lifecycle_status_codes:            # UN coded domain -> LifecycleStatus
+  1: PROPOSED
+  2: UNDER_CONSTRUCTION
+  4: IN_SERVICE
+  8: OUT_OF_SERVICE
+  16: ABANDONED
+  32: REMOVED
+
+subnetworks:                       # UN tier -> Zone kind
+  "Sewershed":                     SEWERSHED
+  "Pressure Zone":                 PRESSURE_ZONE
+  "Drainage Area":                 DRAINAGE_AREA
+
+rules:                             # UN connectivity/containment rules -> SHACL shapes (generated)
+  # Each UN rule row (from_class, from_group, from_type, to_class, to_group, to_type, terminal)
+  # becomes one sh:NodeShape on the wsys from-class constraining allowed CONNECTS_TO / CONTAINED_IN targets.
+  generate_shapes: true
+  violations_table: water_core.reference.ontology_violation

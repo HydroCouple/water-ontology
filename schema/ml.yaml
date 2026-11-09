@@ -1,0 +1,347 @@
+id: https://w3id.org/wsys/ml
+name: wsys-ml
+title: Water Systems Ontology — ML models
+description: >-
+  Machine-learning models as governed, explainable assets. A model's inputs and
+  target are FeatureBindings to ontology classes and properties, so an agent can
+  say in domain terms what a model consumes and predicts, the verifier can check
+  that a model applies to the entity it is being asked about, and every
+  Prediction carries provenance to the exact model version, training data and
+  inputs. The registry of record is MLflow with Unity Catalog Models; this
+  module is the semantic layer over it, not a replacement.
+version: 0.1.0
+license: Apache-2.0
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  prov: http://www.w3.org/ns/prov#
+  mls: http://www.w3.org/ns/mls#
+  mlflow: https://mlflow.org/schema/
+default_prefix: wsys
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - analysis
+
+enums:
+  MLFramework:
+    description: Training framework. SKLEARN and PYTORCH/LIGHTNING are first-class; others are accepted when wrapped as an MLflow flavor.
+    permissible_values:
+      SKLEARN: {description: scikit-learn estimators and pipelines (mlflow.sklearn)}
+      PYTORCH: {description: Plain PyTorch nn.Module (mlflow.pytorch)}
+      LIGHTNING: {description: PyTorch Lightning LightningModule trained with a Trainer; checkpoint plus hparams (mlflow.pytorch with the Lightning autologger)}
+      XGBOOST: {}
+      LIGHTGBM: {}
+      STATSMODELS: {}
+      ONNX: {description: Exported graph for serving; framework of origin recorded in framework_origin}
+      PYFUNC: {description: Custom mlflow.pyfunc wrapper around any of the above or a rules-based model}
+
+  MLTask:
+    permissible_values:
+      REGRESSION: {}
+      CLASSIFICATION: {}
+      FORECASTING: {description: Multi-step prediction of a property over a horizon}
+      ANOMALY_DETECTION: {}
+      SURROGATE: {description: Emulates a simulation model (a Revision) for fast evaluation}
+      POLICY: {description: Control policy learned in an openswmm.gymnasium environment}
+      CLUSTERING: {}
+      LEAK_LOCALIZATION: {}
+      FAILURE_RISK: {description: Probability or hazard of asset failure over a horizon}
+
+  ModelStage:
+    description: Lifecycle of a model version; mirrors Unity Catalog model aliases.
+    permissible_values:
+      DEVELOPMENT: {}
+      VALIDATED: {description: Passed the tool-registry validation gates but not yet serving}
+      CHAMPION: {description: The version agents call by default (UC alias champion)}
+      CHALLENGER: {description: Shadow-evaluated against the champion}
+      ARCHIVED: {}
+
+  FeatureAggregation:
+    permissible_values:
+      NONE: {}
+      MEAN: {}
+      SUM: {}
+      MIN: {}
+      MAX: {}
+      LAST: {}
+      COUNT: {}
+      RATE_OF_CHANGE: {}
+      ROLLING_STD: {}
+
+  DataSplit:
+    permissible_values:
+      TRAIN: {}
+      VALIDATION: {}
+      TEST: {}
+      HOLDOUT_SPATIAL: {description: Entities never seen in training so spatial generalisation is tested}
+      HOLDOUT_TEMPORAL: {description: A later period never seen in training}
+
+  DriftStatus:
+    permissible_values:
+      OK: {}
+      WARNING: {}
+      DRIFTED: {}
+
+slots:
+  # --- identity and placement ------------------------------------------
+  task:
+    range: MLTask
+    required: true
+  framework:
+    range: MLFramework
+    required: true
+  framework_version:
+    range: string
+    description: e.g. scikit-learn 1.6.1, torch 2.6.0, lightning 2.5.0.
+  framework_origin:
+    range: MLFramework
+    description: For ONNX or PYFUNC versions, the framework the model was trained in.
+  mlflow_flavor:
+    range: string
+    description: MLflow model flavor used to log the version (sklearn, pytorch, pyfunc, onnx).
+  mlflow_run_id:
+    range: string
+    description: MLflow run that produced this version; the full training trace lives there.
+  mlflow_experiment:
+    range: string
+  model_uri:
+    range: string
+    description: models:/<catalog>.<schema>.<name>/<version> in Unity Catalog.
+  uc_model_name:
+    range: string
+    description: Three-level Unity Catalog model name the versions are registered under.
+  uc_alias:
+    range: string
+    description: Unity Catalog alias on this version (champion, challenger).
+  stage:
+    range: ModelStage
+    required: true
+  version_number:
+    range: integer
+    required: true
+  serving_endpoint:
+    range: string
+    description: Model Serving endpoint name that serves this version, if any.
+  of_model:
+    range: MLModel
+    required: true
+  of_version:
+    range: MLModelVersion
+    required: true
+  owner:
+    range: string
+    description: Team or person accountable for the model.
+  model_card_uri:
+    range: string
+    description: Model card (intended use, limits, data, evaluation) in a UC Volume.
+
+  # --- what it is about -------------------------------------------------
+  applies_to_class:
+    range: IRI
+    description: Ontology class whose instances the model is valid for (wsys:Conduit, wsys:Subcatchment, wsys:Zone).
+  applies_to_scope:
+    range: IRI
+    multivalued: true
+    description: WaterSystem or Zone IRIs the model was trained for; predictions outside them must be flagged.
+  target:
+    range: FeatureBinding
+    inlined: true
+    description: The property the model predicts, bound to an ontology class and property.
+  inputs:
+    range: FeatureBinding
+    multivalued: true
+    inlined_as_list: true
+    description: Input features in the order of the MLflow signature.
+  horizon:
+    range: string
+    description: Forecast horizon as an ISO 8601 duration (PT6H, P7D); null for nowcasts and classifiers.
+  resolution:
+    range: string
+    description: Temporal resolution of inputs and outputs as an ISO 8601 duration (PT15M, PT1H).
+  emulates:
+    range: Revision
+    description: For SURROGATE models, the packaged simulation revision this model emulates.
+  policy_env_spec:
+    range: string
+    description: For POLICY models, the openswmm.gymnasium environment spec name the policy was trained in.
+  uncertainty_method:
+    range: string
+    description: How uncertainty is produced (quantile regression, conformal, MC dropout, ensemble, none).
+
+  # --- feature binding ----------------------------------------------------
+  feature_name:
+    range: string
+    required: true
+    description: Column name in the feature table and the MLflow signature.
+  source_class:
+    range: IRI
+    required: true
+    description: Ontology class the feature is computed from (wsys:Conduit, wsys:RainGage, wsys:Observation).
+  source_property:
+    range: IRI
+    required: true
+    description: Ontology slot or ObservedProperty IRI (wsys:prop/flow, wsys:Conduit/diameter).
+  aggregation:
+    range: FeatureAggregation
+    ifabsent: string(NONE)
+  window:
+    range: string
+    description: Aggregation window as an ISO 8601 duration (PT1H, P30D).
+  lag:
+    range: string
+    description: Lag before valid_time as an ISO 8601 duration.
+  relation_path:
+    range: string
+    description: Edge relations walked from the target entity to reach the source entity, e.g. BELONGS_TO_ZONE/ATTACHED_TO; empty when the feature is on the entity itself.
+  transform:
+    range: string
+    description: Deterministic transform applied after aggregation (log1p, standardize, one_hot).
+  feature_unit:
+    range: IRI
+    description: QUDT unit IRI of the feature after transform.
+  feature_table:
+    range: string
+    description: Unity Catalog feature table (Feature Engineering in UC) holding the materialised feature.
+
+  # --- training data --------------------------------------------------------
+  trained_on:
+    range: TrainingDataset
+    required: true
+  source_tables:
+    range: string
+    multivalued: true
+    description: Fully qualified Delta tables with the version read, as table@vN.
+  time_start:
+    range: datetime
+  time_end:
+    range: datetime
+  entity_count:
+    range: integer
+  row_count:
+    range: integer
+  split_strategy:
+    range: string
+    description: How splits were formed (random, temporal cutoff 2025-01-01, spatial holdout by zone).
+  hyperparameters:
+    range: string
+    description: JSON of hyperparameters as logged to MLflow (Lightning hparams, sklearn get_params).
+
+  # --- evaluation and monitoring ---------------------------------------------
+  metrics:
+    range: EvaluationMetric
+    multivalued: true
+    inlined_as_list: true
+  metric_name:
+    range: string
+    required: true
+    description: rmse, mae, nse, kge, auroc, f1, brier, pinball_0.9, hypervolume.
+  metric_value:
+    range: float
+    required: true
+  baseline_value:
+    range: float
+    description: Same metric for the agreed baseline (persistence, climatology, previous champion, or the simulator for surrogates).
+  split:
+    range: DataSplit
+  checked_at:
+    range: datetime
+    required: true
+  drift_metric:
+    range: string
+    description: psi, ks_statistic, wasserstein, prediction_mean_shift, nse_rolling.
+  drift_value:
+    range: float
+  threshold:
+    range: float
+  drift_status:
+    range: DriftStatus
+    required: true
+
+  # --- prediction ----------------------------------------------------------------
+  target_entity:
+    range: IRI
+    required: true
+    description: The entity the prediction is about; its class_iri must match applies_to_class.
+  target_property:
+    range: IRI
+    required: true
+  valid_time:
+    range: datetime
+    required: true
+    description: The instant or interval start the prediction refers to.
+  issued_at:
+    range: datetime
+    required: true
+  value:
+    range: float
+    required: true
+  value_unit:
+    range: IRI
+    required: true
+  lower:
+    range: float
+    description: Lower bound of the prediction interval (see interval_level).
+  upper:
+    range: float
+  interval_level:
+    range: float
+    description: Coverage of the interval, e.g. 0.9.
+  probability:
+    range: float
+    minimum_value: 0
+    maximum_value: 1
+    description: For classifiers and FAILURE_RISK, the predicted probability.
+  input_snapshot:
+    range: string
+    description: JSON of the feature values used, or a reference to the feature-table rows, so the prediction can be reproduced.
+  out_of_scope:
+    range: boolean
+    description: True when target_entity is outside applies_to_scope or inputs were extrapolated; agents must disclose.
+
+classes:
+  MLModel:
+    is_a: Entity
+    description: A named modelling problem with a stable identity across versions, e.g. "6-hour CSO overflow forecast for the Elm Street basin". Says what is predicted, for which class of entity and where.
+    slots: [task, uc_model_name, applies_to_class, applies_to_scope, target, horizon, resolution, owner]
+    slot_usage:
+      target: {required: true}
+    exact_mappings: [mls:Algorithm]
+
+  MLModelVersion:
+    is_a: DerivedEntity
+    description: One trained artifact of an MLModel, registered in Unity Catalog through MLflow. Carries framework, signature as FeatureBindings, training data, metrics against a baseline, and lifecycle stage. Agents call only CHAMPION versions through registered tools.
+    slots: [of_model, version_number, stage, framework, framework_version, framework_origin, mlflow_flavor, mlflow_run_id, mlflow_experiment, model_uri, uc_alias, serving_endpoint, inputs, trained_on, hyperparameters, metrics, uncertainty_method, emulates, policy_env_spec, model_card_uri]
+    slot_usage:
+      inputs: {required: true}
+      metrics: {required: true}
+    exact_mappings: [mls:Model, mlflow:ModelVersion]
+
+  FeatureBinding:
+    description: Binds one model input or target to the ontology - which class, which property, how aggregated, over what window, reached through which relations. The MLflow signature names the column; this says what the column means.
+    slots: [feature_name, source_class, source_property, relation_path, aggregation, window, lag, transform, feature_unit, feature_table]
+    exact_mappings: [mls:Feature]
+
+  TrainingDataset:
+    is_a: DerivedEntity
+    description: The exact data a version was trained and evaluated on - tables at Delta versions, time window, entities, split strategy - so training is reproducible and leakage is auditable.
+    slots: [source_tables, time_start, time_end, entity_count, row_count, split_strategy, feature_table]
+    slot_usage:
+      source_tables: {required: true}
+    exact_mappings: [mls:Dataset]
+
+  EvaluationMetric:
+    description: One metric on one split, with the baseline value it must beat.
+    slots: [metric_name, metric_value, baseline_value, split]
+    exact_mappings: [mls:ModelEvaluation]
+
+  Prediction:
+    is_a: DerivedEntity
+    description: One predicted value for one entity, property and valid time from one model version, with interval or probability, the inputs used and an out-of-scope flag. was_generated_by points at the serving call or batch job.
+    slots: [of_version, target_entity, target_property, valid_time, issued_at, value, value_unit, lower, upper, interval_level, probability, input_snapshot, out_of_scope]
+
+  DriftCheck:
+    is_a: DerivedEntity
+    description: A scheduled comparison of live inputs or predictions against the training distribution or recent observations (Lakehouse Monitoring); DRIFTED versions are demoted from CHAMPION by the registry workflow.
+    slots: [of_version, checked_at, drift_metric, drift_value, threshold, drift_status]

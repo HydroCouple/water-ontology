@@ -51,11 +51,13 @@ MODULE_TO_SCHEMA = {
     "wsys-operations": "operations",
     "wsys-analysis": "analysis",
     "wsys-model": "model",
+    "wsys-ml": "ml",
 }
 
 
 def snake(name: str) -> str:
-    s = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+    """CamelCase -> snake_case, keeping acronyms together: MLModelVersion -> ml_model_version, SwmmNodeStats -> swmm_node_stats."""
+    s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name).lower()
     return re.sub(r"__+", "_", s)
 
 
