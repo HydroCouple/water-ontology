@@ -1,0 +1,180 @@
+id: https://w3id.org/wsys/core
+name: wsys-core
+title: Water Systems Ontology — Core
+description: >-
+  Base classes, identifiers, lifecycle and provenance slots shared by every
+  module. Physical assets, observations, events and analysis artifacts all
+  specialise Entity. The LinkML source here is the single source of truth;
+  OWL, SHACL, Delta DDL and Unity Catalog metadata are generated from it.
+version: 0.1.0
+license: Apache-2.0
+
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  saref: https://saref.etsi.org/core/
+  s4watr: https://saref.etsi.org/saref4watr/
+  s4syst: https://saref.etsi.org/saref4syst/
+  sosa: http://www.w3.org/ns/sosa/
+  prov: http://www.w3.org/ns/prov#
+  time: http://www.w3.org/2006/time#
+  qudt: http://qudt.org/schema/qudt/
+  unit: http://qudt.org/vocab/unit/
+  geo: http://www.opengis.net/ont/geosparql#
+  skos: http://www.w3.org/2004/02/skos/core#
+default_prefix: wsys
+default_range: string
+
+imports:
+  - linkml:types
+
+# ---------------------------------------------------------------------------
+# Types
+# ---------------------------------------------------------------------------
+types:
+  IRI:
+    typeof: uriorcurie
+    description: A stable, resolvable identifier for an entity. Primary key in Delta.
+  WKT:
+    typeof: string
+    description: Well-known text geometry (GeoSPARQL wktLiteral).
+    uri: geo:wktLiteral
+
+# ---------------------------------------------------------------------------
+# Enumerations (each becomes a reference table in Unity Catalog)
+# ---------------------------------------------------------------------------
+enums:
+  LifecycleStatus:
+    description: Where an asset is in its life. Traversal tools exclude anything not IN_SERVICE unless a scenario asks otherwise. Mirrors Esri Utility Network lifecycle status.
+    permissible_values:
+      PROPOSED: {description: Designed but not built}
+      UNDER_CONSTRUCTION: {}
+      IN_SERVICE: {description: Installed and part of the operating network}
+      OUT_OF_SERVICE: {description: Installed but isolated or disabled and expected to return}
+      ABANDONED: {description: Left in place and permanently disconnected}
+      REMOVED: {description: Physically removed}
+
+  Confidence:
+    description: Qualitative confidence attached to derived values and findings.
+    permissible_values:
+      HIGH: {}
+      MEDIUM: {}
+      LOW: {}
+      UNKNOWN: {}
+
+# ---------------------------------------------------------------------------
+# Slots (shared)
+# ---------------------------------------------------------------------------
+slots:
+  iri:
+    identifier: true
+    range: IRI
+    description: Stable identifier; the same value is the Delta primary key and the glossary external id.
+  class_iri:
+    range: IRI
+    description: The most specific wsys class of this entity, written to the row so hierarchy joins need no code.
+  label:
+    range: string
+    slot_uri: skos:prefLabel
+    description: Human-readable name as operators use it.
+  description:
+    range: string
+    slot_uri: skos:definition
+  alt_ids:
+    range: string
+    multivalued: true
+    description: Identifiers in source systems (GIS object id, SCADA tag, CMMS asset number, EPANET/SWMM id).
+  utility:
+    range: Utility
+    description: The organisation that owns or operates the entity.
+  valid_from:
+    range: datetime
+    description: Start of the period this version of the entity is true (SCD2).
+  valid_to:
+    range: datetime
+    description: End of the period this version is true; null for the current version (SCD2).
+  geometry:
+    range: WKT
+    slot_uri: geo:asWKT
+    description: Geometry in WKT, EPSG:4326 unless the system declares otherwise.
+  h3_cell:
+    range: string
+    description: H3 cell (resolution 9) for spatial joins and proximity questions.
+  lifecycle_status:
+    range: LifecycleStatus
+    description: Lifecycle status; a formal network attribute, not free text.
+  source_system:
+    range: string
+    description: System of record this row was conformed from.
+  was_derived_from:
+    range: IRI
+    multivalued: true
+    slot_uri: prov:wasDerivedFrom
+    description: Inputs this entity was derived from.
+  was_generated_by:
+    range: IRI
+    slot_uri: prov:wasGeneratedBy
+    description: The activity (model run, pipeline, agent step) that produced this entity.
+  generated_at:
+    range: datetime
+    slot_uri: prov:generatedAtTime
+
+  install_date:
+    range: date
+    description: Date the asset entered service.
+  manufacturer:
+    range: string
+  model_number:
+    range: string
+  criticality:
+    range: integer
+    minimum_value: 1
+    maximum_value: 5
+    description: Consequence-of-failure score, 1 (low) to 5 (critical), per the utility's asset management plan.
+  confidence:
+    range: Confidence
+    description: Qualitative confidence in a derived value.
+
+# ---------------------------------------------------------------------------
+# Classes
+# ---------------------------------------------------------------------------
+classes:
+  Entity:
+    abstract: true
+    description: Anything with a stable IRI. Root of the hierarchy.
+    slots: [iri, class_iri, label, description, alt_ids, utility, source_system, valid_from, valid_to]
+    slot_usage:
+      iri: {required: true}
+      class_iri: {required: true}
+
+  SpatialEntity:
+    abstract: true
+    is_a: Entity
+    description: An entity with a location or footprint.
+    slots: [geometry, h3_cell]
+    exact_mappings: [geo:Feature]
+
+  Asset:
+    abstract: true
+    is_a: SpatialEntity
+    description: A physical component of a water system that is owned, maintained and can fail. Kept shallow on purpose; variants are attributes, not subclasses.
+    slots: [lifecycle_status, install_date, manufacturer, model_number, criticality]
+    slot_usage:
+      lifecycle_status: {required: true}
+    exact_mappings: [s4watr:WaterInfrastructure]
+    close_mappings: [saref:Device]
+
+  DerivedEntity:
+    abstract: true
+    is_a: Entity
+    description: Anything produced by a computation, pipeline or agent. Carries PROV links so a reviewer can reproduce it.
+    slots: [was_derived_from, was_generated_by, generated_at, confidence]
+    slot_usage:
+      was_generated_by: {required: true}
+    exact_mappings: [prov:Entity]
+
+  Utility:
+    is_a: Entity
+    description: A water utility or operating organisation.
+    exact_mappings: [schema:Organization]

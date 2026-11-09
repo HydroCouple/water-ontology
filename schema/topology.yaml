@@ -1,0 +1,280 @@
+id: https://w3id.org/wsys/topology
+name: wsys-topology
+title: Water Systems Ontology — Topology
+description: >-
+  Physical assets of a water network and how they connect. Connectivity,
+  containment and attachment live in Edge rows (one directed graph), not on
+  the assets, following the Esri Utility Network associations pattern.
+  Devices with more than one port connect through Terminals so that
+  upstream/downstream traces are correct.
+version: 0.1.0
+license: Apache-2.0
+
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  s4watr: https://saref.etsi.org/saref4watr/
+  s4syst: https://saref.etsi.org/saref4syst/
+  saref: https://saref.etsi.org/core/
+default_prefix: wsys
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+enums:
+  EdgeRelation:
+    description: The relation an Edge row asserts between two entities. One table, several relation kinds, so one traversal tool serves every relationship.
+    permissible_values:
+      CONNECTS_TO: {description: Hydraulic connectivity from the upstream end to the downstream end as modelled}
+      CONTAINED_IN: {description: Structural containment such as a meter inside a vault}
+      ATTACHED_TO: {description: A device mounted on another asset such as a pressure sensor on a pipe}
+      BELONGS_TO_ZONE: {description: Membership of a derived pressure zone or DMA}
+      FEEDS: {description: A source or tank that supplies a zone}
+      ISOLATED_BY: {description: A pipe or zone whose isolation depends on this valve}
+      PART_OF_SYSTEM: {description: Membership of a WaterSystem}
+
+  FlowDirection:
+    description: Permitted flow direction through a link or terminal.
+    permissible_values:
+      BIDIRECTIONAL: {}
+      FORWARD: {description: From from_node to to_node only}
+      REVERSE: {description: From to_node to from_node only}
+      NONE: {description: Flow blocked such as a closed valve}
+
+  ValveType:
+    permissible_values:
+      ISOLATION: {description: Gate or butterfly valve used to isolate a section}
+      PRV: {description: Pressure reducing valve}
+      PSV: {description: Pressure sustaining valve}
+      FCV: {description: Flow control valve}
+      CHECK: {description: Non-return valve}
+      AIR_RELEASE: {}
+      BLOWOFF: {}
+
+  PumpControlMode:
+    permissible_values:
+      FIXED_SPEED: {}
+      VARIABLE_SPEED: {}
+
+  PipeMaterial:
+    description: Common distribution pipe materials; extend per utility.
+    permissible_values:
+      DI: {description: Ductile iron}
+      CI: {description: Cast iron}
+      PVC: {}
+      HDPE: {}
+      AC: {description: Asbestos cement}
+      STEEL: {}
+      CONCRETE: {}
+      UNKNOWN: {}
+
+  ZoneKind:
+    permissible_values:
+      PRESSURE_ZONE: {}
+      DMA: {description: District metered area}
+      SERVICE_AREA: {}
+
+slots:
+  from_iri:
+    range: IRI
+    required: true
+    description: Tail of the directed edge.
+  to_iri:
+    range: IRI
+    required: true
+    description: Head of the directed edge.
+  relation:
+    range: EdgeRelation
+    required: true
+  from_terminal:
+    range: Terminal
+    description: Terminal on the tail entity, when it has terminals.
+  to_terminal:
+    range: Terminal
+    description: Terminal on the head entity, when it has terminals.
+  props:
+    range: string
+    description: JSON object of relation-specific attributes (e.g. share of flow, confidence of inferred edge).
+  system:
+    range: WaterSystem
+    description: The water system this entity belongs to.
+  flow_direction:
+    range: FlowDirection
+  is_isolating:
+    range: boolean
+    description: True if closing or stopping this device isolates flow; drives isolation traces.
+  is_subnetwork_controller:
+    range: boolean
+    description: True for sources and tanks that define a pressure zone when subnetworks are computed.
+  normal_state_open:
+    range: boolean
+    description: Normal operating position for valves; true if open.
+  elevation:
+    range: float
+    unit: {ucum_code: m}
+    description: Elevation of the node or invert, metres above datum.
+  diameter:
+    range: float
+    unit: {ucum_code: mm}
+    description: Nominal internal diameter.
+  length:
+    range: float
+    unit: {ucum_code: m}
+  roughness:
+    range: float
+    description: Hazen-Williams C (dimensionless) unless the system declares another formula.
+  material:
+    range: PipeMaterial
+  min_level:
+    range: float
+    unit: {ucum_code: m}
+  max_level:
+    range: float
+    unit: {ucum_code: m}
+  volume:
+    range: float
+    unit: {ucum_code: m3}
+  rated_flow:
+    range: float
+    unit: {ucum_code: "m3/h"}
+  rated_head:
+    range: float
+    unit: {ucum_code: m}
+  rated_power:
+    range: float
+    unit: {ucum_code: kW}
+  control_mode:
+    range: PumpControlMode
+  valve_type:
+    range: ValveType
+  setting:
+    range: float
+    description: Valve setting in the unit implied by valve_type (pressure in m for PRV/PSV, flow in m3/h for FCV).
+  zone_kind:
+    range: ZoneKind
+  derived_at:
+    range: datetime
+    description: When zone membership was last computed from controllers and valve states.
+  terminal_name:
+    range: string
+    description: Port name on the device (e.g. SUCTION, DISCHARGE, INLET, OUTLET).
+  on_device:
+    range: Asset
+    required: true
+    description: The device this terminal belongs to.
+  service_address:
+    range: string
+  meter_size:
+    range: float
+    unit: {ucum_code: mm}
+
+classes:
+  WaterSystem:
+    is_a: Entity
+    description: A hydraulically connected network operated as one system (e.g. one treatment plant and its distribution network).
+    exact_mappings: [s4watr:DistributionSystem]
+
+  Zone:
+    is_a: SpatialEntity
+    description: A derived grouping of nodes and links such as a pressure zone or DMA. Membership is computed from subnetwork controllers and valve states, then materialised with a derived_at timestamp; never hand-edited.
+    slots: [zone_kind, system, derived_at]
+    slot_usage:
+      zone_kind: {required: true}
+
+  Terminal:
+    is_a: Entity
+    description: A named port on a device through which it connects. Required on pumps, multi-port valves and tanks so flow direction is unambiguous.
+    slots: [terminal_name, on_device, flow_direction]
+    slot_usage:
+      terminal_name: {required: true}
+
+  Structure:
+    is_a: Asset
+    description: A vault, chamber, pump house or other enclosure that contains devices.
+
+  Edge:
+    description: One directed, typed relationship between two entities. All connectivity, containment, attachment and zone membership live here.
+    slots: [from_iri, to_iri, relation, from_terminal, to_terminal, valid_from, valid_to, props, source_system]
+    exact_mappings: [s4syst:Connection]
+
+  # --- Nodes --------------------------------------------------------------
+  Node:
+    abstract: true
+    is_a: Asset
+    description: A point in the network where links meet or where water enters, leaves or is stored.
+    slots: [elevation, system, is_subnetwork_controller]
+
+  Junction:
+    is_a: Node
+    description: A pipe junction or demand node with no storage.
+
+  Source:
+    is_a: Node
+    description: A point where water enters the system (well, intake, interconnection).
+    slot_usage:
+      is_subnetwork_controller: {ifabsent: "true"}
+
+  TreatmentPlant:
+    is_a: Node
+    description: A treatment facility, modelled as a node at the boundary of the distribution network.
+
+  Reservoir:
+    is_a: Node
+    description: An external water body or infinite source at fixed head.
+    slot_usage:
+      is_subnetwork_controller: {ifabsent: "true"}
+
+  Tank:
+    is_a: Node
+    description: A storage tank with variable level.
+    slots: [min_level, max_level, volume, diameter]
+    slot_usage:
+      is_subnetwork_controller: {ifabsent: "true"}
+    exact_mappings: [s4watr:Tank]
+
+  Hydrant:
+    is_a: Node
+    description: A fire hydrant.
+
+  ServiceConnection:
+    is_a: Node
+    description: The point where a customer's service line leaves the main.
+    slots: [service_address]
+
+  # --- Links --------------------------------------------------------------
+  Link:
+    abstract: true
+    is_a: Asset
+    description: A component that conveys water between two nodes. Endpoints are asserted by CONNECTS_TO edges, not stored here, so the graph has one source of truth.
+    slots: [system, flow_direction, is_isolating]
+
+  Pipe:
+    is_a: Link
+    description: A closed conduit carrying water between two nodes.
+    slots: [diameter, length, material, roughness]
+    slot_usage:
+      diameter: {required: true}
+    exact_mappings: [s4watr:Pipe]
+
+  Pump:
+    is_a: Link
+    description: A pump; connects through SUCTION and DISCHARGE terminals.
+    slots: [rated_flow, rated_head, rated_power, control_mode]
+    slot_usage:
+      flow_direction: {ifabsent: "FORWARD"}
+
+  Valve:
+    is_a: Link
+    description: A valve of any kind; isolation valves drive isolation traces, control valves carry a setting.
+    slots: [valve_type, setting, normal_state_open, diameter]
+    slot_usage:
+      valve_type: {required: true}
+      is_isolating: {ifabsent: "true"}
+
+  Meter:
+    is_a: Link
+    description: A flow meter on a main or a service; customer meters are ATTACHED_TO a ServiceConnection.
+    slots: [meter_size]
+    exact_mappings: [s4watr:WaterMeter]

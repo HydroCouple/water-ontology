@@ -1,0 +1,7 @@
+extends: recommended
+rules:
+  standard_naming:
+    level: warning
+    permissible_values_upper_case: true
+  no_xsd_int_type:
+    level: error
