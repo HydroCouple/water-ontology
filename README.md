@@ -25,6 +25,7 @@ API catalog.
 | `schema/coupling.yaml` | HydroCouple: `ModelComponent`, `ComponentArgument`, `ExchangeItem` → `Input` / `Output` / `AdaptedOutput`, `Composition`, `ComponentConnection` |
 | `schema/wsys.yaml` | Release root that imports every module; build targets point here |
 | `generators/` | LinkML → Delta DDL + UC metadata, catalog → LinkML, LinkML → prompt |
+| `vendor/` | Pinned copies of the inputs the generators read: `openswmm/catalog.json` and `hydrocouple.platform/schemas/*.json`, each with a `SOURCE.yaml` naming repo, branch and commit; refresh with `make update-vendor` |
 | `imports/` | Pinned copies of SAREF4WATR, SOSA, PROV-O for mapping checks |
 | `tests/` | Lint, SHACL over fixtures, catalog round-trip |
 | `dist/` | Build output (gitignored) |
@@ -34,8 +35,8 @@ API catalog.
 ```bash
 source ./activate.sh     # venv on PATH; caches kept inside the repo
 make                     # model-check + lint + owl + shacl + sql + delta into dist/
-make model               # regenerate schema/model.yaml from the OpenSWMM catalog (CATALOG=path/to/catalog.json)
-make platform            # regenerate schema/analysis_platform.yaml from hydrocouple.platform JSON Schemas (PLATFORM_SCHEMAS=dir)
+make update-vendor       # copy catalog.json and platform schemas from sibling checkouts, record their commits, regenerate
+make model platform      # regenerate the generated modules from vendor/ (CATALOG= / PLATFORM_SCHEMAS= to override)
 make delta               # Delta DDL + Unity Catalog metadata into dist/delta
 make test
 ```

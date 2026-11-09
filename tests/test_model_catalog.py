@@ -9,7 +9,7 @@ import yaml
 from generators.catalog_to_linkml import CatalogToLinkML, MAPPINGS, OUT, LOCK, load_catalog
 
 ROOT = Path(__file__).resolve().parent.parent
-CATALOG = os.environ.get("CATALOG", str(ROOT.parent / "openswmm.engine/python/openswmm/engine/catalog.json"))
+CATALOG = os.environ.get("CATALOG", str(ROOT / "vendor/openswmm/catalog.json"))
 
 
 @pytest.fixture(scope="module")
@@ -53,7 +53,7 @@ def test_swmm_mapping_targets_resolve_to_wsys_classes():
     assert not missing, f"mapping targets not in the ontology: {missing}"
 
 
-PLATFORM = os.environ.get("PLATFORM_SCHEMAS", str(ROOT.parent / "hydrocouple.platform/src/hydrocouple_platform/schemas/platform"))
+PLATFORM = os.environ.get("PLATFORM_SCHEMAS", str(ROOT / "vendor/hydrocouple.platform/schemas"))
 
 
 def test_platform_module_is_fresh():

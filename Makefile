@@ -34,12 +34,14 @@ clean:
 delta: | $(DIST)
 	python -m generators.linkml_to_delta $(ROOT) --catalog water_core -o $(DIST)/delta
 
-CATALOG ?= ../openswmm.engine/python/openswmm/engine/catalog.json
+CATALOG ?= vendor/openswmm/catalog.json
+ENGINE_REPO ?= ../openswmm.engine
 
 model:
 	python -m generators.catalog_to_linkml --catalog $(CATALOG)
 
-PLATFORM_SCHEMAS ?= ../hydrocouple.platform/src/hydrocouple_platform/schemas/platform
+PLATFORM_SCHEMAS ?= vendor/hydrocouple.platform/schemas
+PLATFORM_REPO ?= ../hydrocouple.platform
 
 platform:
 	python -m generators.platform_to_linkml --schemas $(PLATFORM_SCHEMAS)
@@ -49,3 +51,11 @@ platform-check:
 
 model-check:
 	python -m generators.catalog_to_linkml --catalog $(CATALOG) --check
+
+# Refresh the vendored inputs from sibling checkouts, then regenerate. Review the diff before committing.
+update-vendor:
+	cp $(ENGINE_REPO)/python/openswmm/engine/catalog.json vendor/openswmm/catalog.json
+	cd $(ENGINE_REPO) && printf 'repo: HydroCouple/openswmm.engine\nbranch: %s\ncommit: %s\npath: python/openswmm/engine/catalog.json\n' "$$(git branch --show-current)" "$$(git rev-parse HEAD)" > $(CURDIR)/vendor/openswmm/SOURCE.yaml
+	cp $(PLATFORM_REPO)/src/hydrocouple_platform/schemas/platform/*.json vendor/hydrocouple.platform/schemas/
+	cd $(PLATFORM_REPO) && printf 'repo: HydroCouple/hydrocouple.platform\nbranch: %s\ncommit: %s\npath: src/hydrocouple_platform/schemas/platform\n' "$$(git branch --show-current)" "$$(git rev-parse HEAD)" > $(CURDIR)/vendor/hydrocouple.platform/SOURCE.yaml
+	$(MAKE) model platform
