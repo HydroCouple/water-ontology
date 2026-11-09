@@ -1,0 +1,207 @@
+id: https://w3id.org/wsys/observation
+name: wsys-observation
+title: Water Systems Ontology — Observations
+description: >-
+  Sensors, observed properties, datastreams and the observations, forecasts
+  and setpoints they carry. Aligned with W3C SOSA/SSN and OGC SensorThings.
+  Observations are one tall table keyed by (entity, property, time) with the
+  unit as an IRI; a Sensor is ATTACHED_TO the asset it measures (Edge), and a
+  Datastream binds one sensor to one property of one feature of interest.
+version: 0.1.0
+license: Apache-2.0
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  sosa: http://www.w3.org/ns/sosa/
+  ssn: http://www.w3.org/ns/ssn/
+  qudt: http://qudt.org/schema/qudt/
+  s4watr: https://saref.etsi.org/saref4watr/
+  saref: https://saref.etsi.org/core/
+default_prefix: wsys
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - topology
+
+enums:
+  QualityFlag:
+    description: Data quality of a single observation, set by the ingestion or QA pipeline; agents must disclose anything but GOOD.
+    permissible_values:
+      GOOD: {}
+      SUSPECT: {}
+      BAD: {}
+      MISSING: {}
+      ESTIMATED: {description: Gap-filled or interpolated}
+      STALE: {description: Older than the property's staleness threshold at query time}
+      OUT_OF_RANGE: {}
+      MANUAL: {description: Entered by a person rather than telemetered}
+
+  SensorKind:
+    permissible_values:
+      FLOW_METER: {}
+      LEVEL_SENSOR: {}
+      PRESSURE_SENSOR: {}
+      RAIN_GAGE: {}
+      WATER_QUALITY_PROBE: {}
+      TEMPERATURE_SENSOR: {}
+      VELOCITY_SENSOR: {}
+      POWER_METER: {}
+      CAMERA: {}
+      VIRTUAL: {description: A computed or model-derived stream presented as a sensor}
+
+  PropertyKind:
+    description: Physical kind of an ObservedProperty; what unit family it takes.
+    permissible_values:
+      FLOW: {}
+      DEPTH: {}
+      LEVEL: {}
+      HEAD: {}
+      PRESSURE: {}
+      VELOCITY: {}
+      VOLUME: {}
+      RAINFALL_INTENSITY: {}
+      RAINFALL_DEPTH: {}
+      TEMPERATURE: {}
+      CONCENTRATION: {}
+      TURBIDITY: {}
+      PH: {}
+      DISSOLVED_OXYGEN: {}
+      CONDUCTIVITY: {}
+      ENERGY: {}
+      POWER: {}
+      STATE: {description: Discrete state such as pump on/off or gate position}
+      COUNT: {}
+
+  ResultKind:
+    permissible_values:
+      MEASUREMENT: {}
+      FORECAST: {}
+      SETPOINT: {}
+      SIMULATION:
+        description: A simulated value from a model attempt, kept in the same shape for comparison
+      AGGREGATE: {description: A materialised aggregate such as hourly mean or daily max}
+
+slots:
+  sensor_kind:
+    range: SensorKind
+  serial_number:
+    range: string
+  datasource_tag:
+    range: string
+    description: Historian or SCADA tag that identifies the raw stream.
+  sampling_interval:
+    range: string
+    description: Nominal interval between readings as an ISO 8601 duration.
+  staleness_threshold:
+    range: string
+    description: ISO 8601 duration after which a latest value is STALE for this property or stream.
+  property_kind:
+    range: PropertyKind
+    required: true
+  default_unit:
+    range: IRI
+    description: QUDT unit IRI observations of this property are normalised to.
+  pollutant:
+    range: IRI
+    description: For CONCENTRATION properties, the SwmmPollutant or chemical identifier.
+  sensor:
+    range: Sensor
+    required: true
+  observed_property:
+    range: ObservedProperty
+    required: true
+  feature_of_interest:
+    range: IRI
+    required: true
+    description: The asset, subcatchment, zone or cell the stream is about.
+  datastream:
+    range: Datastream
+  entity_iri:
+    range: IRI
+    required: true
+    description: Feature of interest, denormalised onto the observation row for fast filtering.
+  property_iri:
+    range: IRI
+    required: true
+  phenomenon_time:
+    range: datetime
+    required: true
+    description: When the observed condition held (SOSA phenomenonTime).
+  result_time:
+    range: datetime
+    description: When the result became available (SOSA resultTime); differs from phenomenon_time for forecasts and late data.
+  value:
+    range: float
+    required: true
+  unit:
+    range: IRI
+    required: true
+    description: QUDT unit IRI of value.
+  quality_flag:
+    range: QualityFlag
+    required: true
+  result_kind:
+    range: ResultKind
+    required: true
+  issued_at:
+    range: datetime
+    description: For forecasts and setpoints, when they were issued.
+  horizon:
+    range: string
+    description: For forecasts, lead time as an ISO 8601 duration.
+  lower:
+    range: float
+  upper:
+    range: float
+  interval_level:
+    range: float
+  aggregation:
+    range: string
+    description: For AGGREGATE rows, the function and window (mean/PT1H, max/P1D).
+  target_entity:
+    range: IRI
+    required: true
+  target_property:
+    range: IRI
+    required: true
+  effective_from:
+    range: datetime
+    required: true
+  effective_to:
+    range: datetime
+  set_by:
+    range: string
+    description: Operator, control rule or agent proposal id that set the setpoint.
+  approved_by:
+    range: string
+
+classes:
+  Sensor:
+    is_a: Asset
+    description: A physical or virtual device that observes a property of an asset or area. Mounted on its feature of interest by an ATTACHED_TO edge.
+    slots: [sensor_kind, serial_number, datasource_tag, sampling_interval]
+    exact_mappings: [sosa:Sensor, saref:Device]
+
+  ObservedProperty:
+    is_a: Entity
+    description: A measurable property such as flow, depth or TSS concentration, with its physical kind and default unit. Pollutants from a SWMM model map here.
+    slots: [property_kind, default_unit, pollutant, staleness_threshold]
+    exact_mappings: [sosa:ObservableProperty, saref:Property]
+
+  Datastream:
+    is_a: Entity
+    description: One sensor observing one property of one feature of interest over time; the unit of telemetry ingestion and the thing a staleness threshold applies to.
+    slots: [sensor, observed_property, feature_of_interest, sampling_interval, staleness_threshold, datasource_tag]
+    exact_mappings: [ssn:System, sosa:ObservationCollection]
+
+  Observation:
+    is_a: DerivedEntity
+    description: One value of one property for one entity at one time. Measurements, forecasts, simulation results and aggregates share this shape, distinguished by result_kind, so they can be compared in one query. was_generated_by is the ingestion job, forecast model version or simulation attempt.
+    slots: [datastream, entity_iri, property_iri, phenomenon_time, result_time, value, unit, quality_flag, result_kind, issued_at, horizon, lower, upper, interval_level, aggregation]
+    exact_mappings: [sosa:Observation, saref:Measurement]
+
+  Setpoint:
+    is_a: DerivedEntity
+    description: A target value for a controllable property (pump speed, gate opening, tank level band) effective over a period. Agents only propose setpoints; set_by and approved_by record who made them real.
+    slots: [target_entity, target_property, value, unit, effective_from, effective_to, set_by, approved_by]

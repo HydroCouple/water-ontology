@@ -12,6 +12,8 @@ imports:
   - linkml:types
   - core
   - topology
+  - observation
+  - event
   - analysis
   - model
   - ml

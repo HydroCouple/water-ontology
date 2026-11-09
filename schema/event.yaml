@@ -1,0 +1,189 @@
+id: https://w3id.org/wsys/event
+name: wsys-event
+title: Water Systems Ontology — Events
+description: >-
+  Things that happen to the system: alarms, detected anomalies, flooding,
+  surcharge, CSO/SSO discharges, blockages, water-quality exceedances,
+  customer reports, control actions and maintenance. Each event has a type,
+  a source, separate occurred/detected/reported times, an instant or
+  interval, and a lifecycle state whose transitions carry provenance.
+  Events link to what they affect, their evidence, their causes and their
+  resolution through EventLink rows. Aligned with OWL-Time and the Simple
+  Event Model.
+version: 0.1.0
+license: Apache-2.0
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  time: http://www.w3.org/2006/time#
+  sem: http://semanticweb.cs.vu.nl/2009/11/sem/
+  prov: http://www.w3.org/ns/prov#
+default_prefix: wsys
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - topology
+
+enums:
+  EventType:
+    permissible_values:
+      ALARM: {description: Raised by SCADA or the historian on a threshold}
+      DETECTED_ANOMALY: {description: Raised by an ML detector or statistical rule}
+      FLOODING: {description: Water leaving the system at a node}
+      SURCHARGE: {description: Pressurised flow in a gravity conduit or node above crown}
+      CSO_EVENT: {description: Combined sewer overflow discharge at a regulator or outfall}
+      SSO_EVENT: {description: Sanitary sewer overflow}
+      BLOCKAGE: {}
+      PUMP_FAILURE: {}
+      POWER_LOSS: {}
+      WATER_QUALITY_EXCEEDANCE: {}
+      PRESSURE_EXCURSION: {}
+      CUSTOMER_REPORT: {}
+      CONTROL_ACTION: {description: A setpoint or state change applied to an actuator}
+      MAINTENANCE_EVENT: {}
+      STORM: {description: A rainfall event over a threshold used to group other events}
+      MODEL_RUN_COMPLETED: {description: A platform attempt finished; links results to the events it explains}
+
+  EventSource:
+    permissible_values:
+      SCADA: {}
+      HISTORIAN: {}
+      ML_DETECTOR: {}
+      SIMULATION: {}
+      INSPECTOR: {}
+      CUSTOMER: {}
+      OPERATOR: {}
+      AGENT: {description: Proposed or flagged by an AI agent; never confirmed by one}
+      REGULATOR: {}
+
+  Severity:
+    permissible_values:
+      INFO: {}
+      LOW: {}
+      MEDIUM: {}
+      HIGH: {}
+      CRITICAL: {description: Public-health or safety consequence; human review before surfacing}
+
+  EventLifecycleState:
+    permissible_values:
+      DETECTED: {}
+      CONFIRMED: {}
+      IN_PROGRESS: {}
+      RESOLVED: {}
+      FALSE_POSITIVE: {}
+      SUPERSEDED: {description: Merged into another event}
+
+  EventLinkRelation:
+    description: How an event relates to another entity.
+    permissible_values:
+      AFFECTS: {description: Asset or zone or cell or customer set impacted}
+      LOCATED_AT: {description: The asset or location where it occurred}
+      EVIDENCE_FOR:
+        description: An observation, anomaly or report supporting this event (link from evidence to event)
+      CAUSED_BY: {description: Another event or condition that caused this one}
+      PART_OF: {description: Child event of a larger one (e.g. flooding within a storm)}
+      RESOLVED_BY: {description: Work order or control action that resolved it}
+      TRIGGERED: {description: A control action or alarm this event triggered}
+      EXPLAINED_BY: {description: A model attempt or finding that explains it}
+      REPORTED_IN: {description: Regulatory report or notice}
+
+slots:
+  event_type:
+    range: EventType
+    required: true
+  event_source:
+    range: EventSource
+    required: true
+  severity:
+    range: Severity
+    required: true
+  lifecycle_state:
+    range: EventLifecycleState
+    required: true
+  occurred_at:
+    range: datetime
+    description: When the condition began in the world; may be unknown or estimated.
+  detected_at:
+    range: datetime
+    required: true
+    description: When a system or person first noticed it.
+  reported_at:
+    range: datetime
+    description: When it was reported to the utility or the regulator.
+  ended_at:
+    range: datetime
+    description: End of the interval; null while ongoing or for instantaneous events.
+  occurred_at_estimated:
+    range: boolean
+    description: True when occurred_at is inferred rather than observed.
+  primary_entity:
+    range: IRI
+    description: The main asset or location, denormalised from LOCATED_AT for fast filtering.
+  zone:
+    range: Zone
+    description: Zone the event falls in, denormalised for aggregation.
+  system:
+    range: WaterSystem
+  estimated_volume:
+    range: float
+    unit: {ucum_code: m3}
+    description: Volume discharged, flooded or lost, where applicable.
+  peak_value:
+    range: float
+    description: Peak of the driving measurement (depth, flow, concentration) in peak_unit.
+  peak_unit:
+    range: IRI
+  confirmed_by:
+    range: string
+    description: Person or system that moved the event to CONFIRMED; required for that state.
+  external_id:
+    range: string
+    description: Id in SCADA, CMMS, CIS or the regulator's system.
+  summary:
+    range: string
+    description: One-line human description.
+  event:
+    range: Event
+    required: true
+  target_iri:
+    range: IRI
+    required: true
+  link_relation:
+    range: EventLinkRelation
+    required: true
+  weight:
+    range: float
+    description: Strength or share for AFFECTS and CAUSED_BY (0 to 1).
+  from_state:
+    range: EventLifecycleState
+  to_state:
+    range: EventLifecycleState
+    required: true
+  changed_at:
+    range: datetime
+    required: true
+  changed_by:
+    range: string
+    required: true
+    description: Person, system or agent id that made the transition.
+  reason:
+    range: string
+
+classes:
+  Event:
+    is_a: SpatialEntity
+    description: Something that happened to the system. One row per event; evidence, causes, impacts and resolution are EventLink rows; state changes are EventStateChange rows. Agents may create DETECTED events with source AGENT but never CONFIRMED ones.
+    slots: [event_type, event_source, severity, lifecycle_state, occurred_at, occurred_at_estimated, detected_at, reported_at, ended_at, primary_entity, zone, system, estimated_volume, peak_value, peak_unit, confirmed_by, external_id, summary]
+    exact_mappings: [sem:Event]
+    close_mappings: [time:TemporalEntity]
+
+  EventLink:
+    description: A typed link from an event to an asset, zone, observation, work order, attempt or other event.
+    slots: [event, target_iri, link_relation, weight, valid_from, source_system]
+
+  EventStateChange:
+    is_a: DerivedEntity
+    description: One lifecycle transition of an event with who, when and why; the PROV activity behind every state the event has been in.
+    slots: [event, from_state, to_state, changed_at, changed_by, reason]
+    exact_mappings: [prov:Activity]

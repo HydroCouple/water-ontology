@@ -88,9 +88,19 @@ class DeltaGenerator:
     def has_identifier(self, cls_name: str) -> bool:
         return any(s.identifier for s in self.sv.class_induced_slots(cls_name))
 
+    def inlined_targets(self) -> set[str]:
+        """Classes only ever used as inlined component values (rendered as STRUCT, never as tables)."""
+        out = set()
+        for cls in self.sv.all_classes():
+            for s in self.sv.class_induced_slots(cls):
+                if (s.inlined or s.inlined_as_list) and s.range in self.sv.all_classes() and not self.has_identifier(s.range):
+                    out.add(s.range)
+        return out
+
     def concrete_classes(self) -> list[str]:
+        inl = self.inlined_targets()
         return [c.name for c in self.sv.all_classes().values()
-                if not c.abstract and not c.mixin and c.name != "Entity" and self.has_identifier(c.name)]
+                if not c.abstract and not c.mixin and c.name != "Entity" and c.name not in inl]
 
     def struct_type(self, cls_name: str) -> str:
         """A component view (inlined, no identifier) as a Delta STRUCT."""
@@ -201,6 +211,9 @@ class DeltaGenerator:
         pk = next((s.name for s in self.sv.class_induced_slots(cls_name) if s.identifier), None)
         if pk:
             cols.append(f"  CONSTRAINT pk_{snake(cls_name)} PRIMARY KEY ({pk})")
+        else:
+            req = [s.name for s in self.ordered_slots(cls_name) if s.required][:3]
+            cols.append(f"  CONSTRAINT pk_{snake(cls_name)} PRIMARY KEY ({', '.join(req)})" if req else "  -- link table: no single-column identifier")
         props = {
             "wsys_class": self.sv.get_uri(cls, expand=True),
             "wsys_parent": self.sv.get_uri(self.sv.get_class(cls.is_a), expand=True) if cls.is_a else "",
