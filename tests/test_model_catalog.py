@@ -51,3 +51,26 @@ def test_swmm_mapping_targets_resolve_to_wsys_classes():
     missing = [v for v in yaml.safe_load(MAPPINGS.read_text()).values()
                if v not in pending and v.split(":", 1)[1] not in classes]
     assert not missing, f"mapping targets not in the ontology: {missing}"
+
+
+PLATFORM = os.environ.get("PLATFORM_SCHEMAS", str(ROOT.parent / "hydrocouple.platform/src/hydrocouple_platform/schemas/platform"))
+
+
+def test_platform_module_is_fresh():
+    from generators.platform_to_linkml import SchemaToLinkML, CONTRACTS, OUT as POUT
+    d = Path(PLATFORM)
+    if not d.exists():
+        pytest.skip(f"platform schemas not found at {d}; set PLATFORM_SCHEMAS=")
+    schemas = {p.stem: json.loads(p.read_text()) for p in sorted(d.glob("*.json")) if p.stem in CONTRACTS}
+    expected = yaml.safe_dump(SchemaToLinkML(schemas).build(), sort_keys=False, allow_unicode=True, width=120)
+    assert POUT.read_text() == expected, "schema/analysis_platform.yaml is stale: run `make platform`"
+
+
+def test_release_root_builds_every_module():
+    from linkml_runtime.utils.schemaview import SchemaView
+    sv = SchemaView(str(ROOT / "schema" / "wsys.yaml"))
+    names = {s.name for s in sv.schema_map.values()}
+    for m in ["wsys-core", "wsys-topology", "wsys-observation", "wsys-event", "wsys-coupling", "wsys-analysis-platform", "wsys-analysis", "wsys-model", "wsys-ml"]:
+        assert m in names, f"{m} not imported by the release root"
+    for c in ["Revision", "Attempt", "Composition", "SwmmConduit", "Conduit", "Observation", "Event", "MLModelVersion"]:
+        assert c in sv.all_classes()

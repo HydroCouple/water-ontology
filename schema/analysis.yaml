@@ -2,12 +2,12 @@ id: https://w3id.org/wsys/analysis
 name: wsys-analysis
 title: Water Systems Ontology — Analysis artifacts
 description: >-
-  Model revisions, runs, attempts, studies and findings. Shapes mirror the
-  versioned hydrocouple.platform contracts (revision-manifest-1, run-request-1,
-  job-spec-1, attempt-manifest-1, study-view-1). STUB: Revision, Run and
-  Attempt carry the identity slots needed by other modules; the full classes
-  are generated from the platform JSON Schemas in Step 3.
-version: 0.1.0
+  Model revisions, runs, attempts, studies and agent findings. Each curated
+  class embeds the matching hydrocouple.platform contract (generated in
+  analysis_platform.yaml) as its manifest, adds wsys identity and PROV links,
+  and is what other modules reference. Nothing here invents a shape the
+  platform does not publish.
+version: 0.2.0
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -18,6 +18,23 @@ default_range: string
 imports:
   - linkml:types
   - core
+  - coupling
+  - analysis_platform
+
+enums:
+  FindingKind:
+    permissible_values:
+      ANSWER: {description: A direct answer to a question}
+      DIAGNOSIS: {description: An explanation of an event or anomaly}
+      RECOMMENDATION: {description: A proposed action; never executed by the agent}
+      ALERT: {description: A condition the agent flags for human attention}
+      COMPARISON: {description: Scenario or model comparison}
+  ReviewState:
+    permissible_values:
+      UNREVIEWED: {}
+      ACCEPTED: {}
+      REJECTED: {}
+      CORRECTED: {}
 
 slots:
   revision_id:
@@ -27,17 +44,23 @@ slots:
   run_id:
     range: string
     required: true
-    description: hydrocouple.platform run id.
   attempt_id:
     range: string
     required: true
-    description: hydrocouple.platform attempt id; one run may have several attempts.
+    description: One run may have several attempts.
+  study_id:
+    range: string
+    required: true
   of_revision:
     range: Revision
     description: The revision a run executes.
   of_run:
     range: Run
-    description: The run an attempt belongs to.
+  of_study:
+    range: Study
+  of_composition:
+    range: Composition
+    description: The composition this revision packages.
   workflow:
     range: string
     description: Approved platform workflow and version, e.g. swmm.simulation@1 or gym.evaluate@1.
@@ -46,24 +69,100 @@ slots:
     description: The agent tool-call (MLflow span) that submitted the run; links the finding to its trace.
   session_id:
     range: string
-    description: The agent or GUI session that submitted the run.
   manifest_sha256:
     range: string
     description: SHA-256 of the platform manifest this row was ingested from.
+  revision_manifest:
+    range: PlatformRevisionManifest
+    inlined: true
+  run_request:
+    range: PlatformRunRequest
+    inlined: true
+  job_spec:
+    range: PlatformJobSpec
+    inlined: true
+  attempt_manifest:
+    range: PlatformAttemptManifest
+    inlined: true
+  study_view:
+    range: PlatformStudyView
+    inlined: true
+  trace_id:
+    range: string
+    required: true
+    description: MLflow trace id of the agent run that produced the finding.
+  finding_kind:
+    range: FindingKind
+    required: true
+  question:
+    range: string
+  statement:
+    range: string
+    required: true
+    description: The finding in one to three sentences, as surfaced to the user.
+  subjects:
+    range: IRI
+    multivalued: true
+    description: Entities the finding is about.
+  evidence:
+    range: IRI
+    multivalued: true
+    description: Observations, attempts, predictions and events cited; every quantitative claim must have one.
+  tools_used:
+    range: string
+    multivalued: true
+    description: tool name@version for each registered tool called.
+  assumptions:
+    range: string
+    multivalued: true
+  verifier_passed:
+    range: boolean
+    required: true
+  review_state:
+    range: ReviewState
+  reviewed_by:
+    range: string
+  candidate_index:
+    range: integer
+  parameters:
+    range: string
+    description: JSON of decision variables.
+  objective_values:
+    range: string
+    description: JSON of objective name to value.
+  is_pareto:
+    range: boolean
 
 classes:
   Revision:
     is_a: Entity
-    description: An immutable packaged model or HydroCouple composition (files, components, findings) as recorded by a hydrocouple.platform revision-manifest. Every SwmmElement row belongs to exactly one Revision.
-    slots: [revision_id, manifest_sha256]
+    description: An immutable packaged composition (files, components, findings) recorded by a hydrocouple.platform revision manifest. Every SwmmElement row belongs to exactly one Revision.
+    slots: [revision_id, of_composition, revision_manifest, manifest_sha256]
     exact_mappings: [prov:Entity]
+
   Run:
     is_a: DerivedEntity
-    description: A request to execute a workflow on a revision on a target (hydrocouple.platform run-request). Parameters and limits are in the job spec.
-    slots: [run_id, of_revision, workflow, tool_call_id, session_id]
+    description: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).
+    slots: [run_id, of_revision, of_study, workflow, tool_call_id, session_id, run_request, job_spec]
     exact_mappings: [prov:Activity]
+
   Attempt:
     is_a: DerivedEntity
-    description: One execution attempt of a run, with its HydroCouple run manifest, artifacts, provenance and quality (hydrocouple.platform attempt-manifest).
-    slots: [attempt_id, of_run, manifest_sha256]
+    description: One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest). Simulation results ingested as Observations of result_kind SIMULATION point here through was_generated_by.
+    slots: [attempt_id, of_run, attempt_manifest, manifest_sha256]
     exact_mappings: [prov:Activity]
+
+  Study:
+    is_a: DerivedEntity
+    description: "An ask/tell optimisation over an evaluator pool (platform study view): objectives, budget, state and the Pareto set."
+    slots: [study_id, of_revision, workflow, session_id, study_view]
+
+  Candidate:
+    is_a: DerivedEntity
+    description: One evaluated design or policy in a study, with its decision variables and objective values.
+    slots: [of_study, candidate_index, parameters, objective_values, is_pareto, of_run]
+
+  AgentFinding:
+    is_a: DerivedEntity
+    description: What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict. Recommendations are proposals only.
+    slots: [trace_id, finding_kind, question, statement, subjects, evidence, tools_used, assumptions, verifier_passed, review_state, reviewed_by]

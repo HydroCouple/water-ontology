@@ -1,0 +1,1203 @@
+id: https://w3id.org/wsys/analysis-platform
+name: wsys-analysis-platform
+title: Water Systems Ontology — hydrocouple.platform contracts (generated)
+description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
+  contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
+  embeds these as manifests.
+version: platform-46e9e17185f9
+license: Apache-2.0
+prefixes:
+  wsys: https://w3id.org/wsys/
+  hcp: https://w3id.org/wsys/platform/
+  linkml: https://w3id.org/linkml/
+default_prefix: hcp
+default_range: string
+imports:
+- linkml:types
+enums:
+  FileRole:
+    description: hydrocouple.platform enum FileRole.
+    permissible_values:
+      COMPOSITION:
+        description: platform value 'composition'
+      MODEL:
+        description: platform value 'model'
+      INPUT:
+        description: platform value 'input'
+      SIDECAR:
+        description: platform value 'sidecar'
+  EgressPolicy:
+    description: What an agent lets leave the execution site in events and results.
+    permissible_values:
+      METRICS_ONLY:
+        description: platform value 'metrics-only'
+      SUMMARIES:
+        description: platform value 'summaries'
+      FULL:
+        description: platform value 'full'
+  PlatformPlacementInterruption:
+    description: hydrocouple.platform enum PlatformPlacementInterruption.
+    permissible_values:
+      STANDARD:
+        description: platform value 'standard'
+      INTERRUPTIBLE:
+        description: platform value 'interruptible'
+  JobClass:
+    description: hydrocouple.platform enum JobClass.
+    permissible_values:
+      SINGLE:
+        description: platform value 'single'
+      EVALUATOR_POOL:
+        description: platform value 'evaluator-pool'
+      MULTI_RANK:
+        description: platform value 'multi-rank'
+      ANALYSIS:
+        description: platform value 'analysis'
+  ArtifactKind:
+    description: hydrocouple.platform enum ArtifactKind.
+    permissible_values:
+      RUN_MANIFEST:
+        description: platform value 'run_manifest'
+      REPORT:
+        description: platform value 'report'
+      BINARY_OUTPUT:
+        description: platform value 'binary_output'
+      LOG:
+        description: platform value 'log'
+      SUMMARY:
+        description: platform value 'summary'
+      EVALUATIONS:
+        description: platform value 'evaluations'
+      OTHER:
+        description: platform value 'other'
+  PlatformAttemptManifestStatus:
+    description: hydrocouple.platform enum PlatformAttemptManifestStatus.
+    permissible_values:
+      COMPLETED:
+        description: platform value 'completed'
+      FAILED:
+        description: platform value 'failed'
+      STOPPED:
+        description: platform value 'stopped'
+  PlatformObjectiveDirection:
+    description: hydrocouple.platform enum PlatformObjectiveDirection.
+    permissible_values:
+      MINIMIZE:
+        description: platform value 'minimize'
+      MAXIMIZE:
+        description: platform value 'maximize'
+  FailurePolicy:
+    description: 'What a failed candidate does, as in ``openswmm_gymnasium.optimize``.
+
+
+      ``fail`` ends the study; ``penalty`` records the candidate with every
+
+      objective set to the study''s ``failure_penalty`` and continues.'
+    permissible_values:
+      FAIL:
+        description: platform value 'fail'
+      PENALTY:
+        description: platform value 'penalty'
+  StudyState:
+    description: hydrocouple.platform enum StudyState.
+    permissible_values:
+      PENDING_APPROVAL:
+        description: platform value 'PENDING_APPROVAL'
+      OPEN:
+        description: platform value 'OPEN'
+      CLOSED:
+        description: platform value 'CLOSED'
+      COMPLETED:
+        description: platform value 'COMPLETED'
+      CANCELLED:
+        description: platform value 'CANCELLED'
+      FAILED:
+        description: platform value 'FAILED'
+      REJECTED:
+        description: platform value 'REJECTED'
+  EventKind:
+    description: hydrocouple.platform enum EventKind.
+    permissible_values:
+      LIFECYCLE:
+        description: platform value 'lifecycle'
+      PROGRESS:
+        description: platform value 'progress'
+      WARNING:
+        description: platform value 'warning'
+      LOG:
+        description: platform value 'log'
+  ErrorCode:
+    description: hydrocouple.platform enum ErrorCode.
+    permissible_values:
+      UNAUTHENTICATED:
+        description: platform value 'UNAUTHENTICATED'
+      FORBIDDEN:
+        description: platform value 'FORBIDDEN'
+      NOT_FOUND:
+        description: platform value 'NOT_FOUND'
+      VALIDATION_ERROR:
+        description: platform value 'VALIDATION_ERROR'
+      CONFLICT:
+        description: platform value 'CONFLICT'
+      INVALID_TRANSITION:
+        description: platform value 'INVALID_TRANSITION'
+      STALE_ATTEMPT:
+        description: platform value 'STALE_ATTEMPT'
+      CAPABILITY_UNSUPPORTED:
+        description: platform value 'CAPABILITY_UNSUPPORTED'
+      NOT_READY:
+        description: platform value 'NOT_READY'
+      TARGET_REVOKED:
+        description: platform value 'TARGET_REVOKED'
+classes:
+  PlatformRevisionManifest:
+    description: RevisionManifest
+    attributes:
+      components:
+        description: component_info_id of every component
+        range: string
+        multivalued: true
+        required: true
+        annotations:
+          json_property: components
+      composition:
+        description: Composition
+        range: string
+        annotations:
+          json_property: composition
+      created_at:
+        description: Created At
+        range: datetime
+        required: true
+        annotations:
+          json_property: created_at
+      files:
+        description: Files
+        range: PlatformManifestFile
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        required: true
+        annotations:
+          json_property: files
+      findings:
+        description: Non-blocking observations recorded at packaging.
+        range: string
+        multivalued: true
+        annotations:
+          json_property: findings
+      packaged_by:
+        description: Packaged By
+        range: string
+        required: true
+        annotations:
+          json_property: packaged_by
+      schema:
+        description: Schema
+        range: string
+        annotations:
+          const: hydrocouple.platform/revision-manifest/1
+          json_property: schema
+      total_bytes:
+        description: Total Bytes
+        range: integer
+        minimum_value: 0
+        required: true
+        annotations:
+          json_property: total_bytes
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/revision-manifest-1.json
+      platform_contract: 'true'
+      schema_file: revision-manifest-1.json
+  PlatformManifestFile:
+    description: ManifestFile
+    attributes:
+      path:
+        description: Path
+        range: string
+        required: true
+        annotations:
+          json_property: path
+      role:
+        description: PlatformManifestFile.role
+        range: FileRole
+        required: true
+        annotations:
+          json_property: role
+      sha256:
+        description: Sha256
+        range: string
+        required: true
+        annotations:
+          json_property: sha256
+      size:
+        description: Size
+        range: integer
+        minimum_value: 0
+        required: true
+        annotations:
+          json_property: size
+      source:
+        description: Original reference as written in the model, for review.
+        range: string
+        annotations:
+          json_property: source
+    annotations:
+      json_schema_id: ManifestFile
+      platform_contract: 'true'
+  PlatformRunRequest:
+    description: RunRequest
+    attributes:
+      estimated_runtime_seconds:
+        description: Estimated Runtime Seconds
+        range: float
+        annotations:
+          json_property: estimated_runtime_seconds
+      parameters:
+        description: Parameters
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: parameters
+      profile:
+        description: Profile
+        range: string
+        annotations:
+          json_property: profile
+      project_id:
+        description: Project Id
+        range: string
+        required: true
+        annotations:
+          json_property: project_id
+      retry_budget:
+        description: Retry Budget
+        range: integer
+        minimum_value: 0
+        maximum_value: 10
+        annotations:
+          json_property: retry_budget
+      revision_id:
+        description: Revision Id
+        range: string
+        required: true
+        annotations:
+          json_property: revision_id
+      session_id:
+        description: Session Id
+        range: string
+        annotations:
+          json_property: session_id
+      target_id:
+        description: Target Id
+        range: string
+        required: true
+        annotations:
+          json_property: target_id
+      tool_call_id:
+        description: Tool Call Id
+        range: string
+        annotations:
+          json_property: tool_call_id
+      workflow:
+        description: Workflow
+        range: string
+        required: true
+        annotations:
+          json_property: workflow
+      workflow_version:
+        description: Workflow Version
+        range: string
+        required: true
+        annotations:
+          json_property: workflow_version
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/run-request-1.json
+      platform_contract: 'true'
+      schema_file: run-request-1.json
+  PlatformJobSpec:
+    description: JobSpec
+    attributes:
+      actor:
+        description: PlatformJobSpec.actor
+        range: PlatformActor
+        inlined: true
+        required: true
+        annotations:
+          json_property: actor
+      inputs:
+        description: PlatformJobSpec.inputs
+        range: PlatformInputs
+        inlined: true
+        required: true
+        annotations:
+          json_property: inputs
+      job_id:
+        description: Job Id
+        range: string
+        required: true
+        annotations:
+          json_property: job_id
+      limits:
+        description: PlatformJobSpec.limits
+        range: PlatformLimits
+        inlined: true
+        required: true
+        annotations:
+          json_property: limits
+      organization_id:
+        description: Organization Id
+        range: string
+        required: true
+        annotations:
+          json_property: organization_id
+      outputs:
+        description: PlatformJobSpec.outputs
+        range: PlatformOutputs
+        inlined: true
+        required: true
+        annotations:
+          json_property: outputs
+      placement:
+        description: PlatformJobSpec.placement
+        range: PlatformPlacement
+        inlined: true
+        required: true
+        annotations:
+          json_property: placement
+      project_id:
+        description: Project Id
+        range: string
+        required: true
+        annotations:
+          json_property: project_id
+      recovery:
+        description: Recovery
+        range: string
+        annotations:
+          const: restart
+          json_property: recovery
+      resources:
+        description: PlatformJobSpec.resources
+        range: PlatformResources
+        inlined: true
+        required: true
+        annotations:
+          json_property: resources
+      run_id:
+        description: Run Id
+        range: string
+        required: true
+        annotations:
+          json_property: run_id
+      runtime:
+        description: PlatformJobSpec.runtime
+        range: PlatformRuntime
+        inlined: true
+        required: true
+        annotations:
+          json_property: runtime
+      spec_version:
+        description: Spec Version
+        range: string
+        annotations:
+          const: '1'
+          json_property: spec_version
+      workload:
+        description: PlatformJobSpec.workload
+        range: PlatformWorkload
+        inlined: true
+        required: true
+        annotations:
+          json_property: workload
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/job-spec-1.json
+      platform_contract: 'true'
+      schema_file: job-spec-1.json
+  PlatformActor:
+    description: 'Who asked for the work: the human principal and, optionally, an AI agent.'
+    attributes:
+      agent_client:
+        description: Agent Client
+        range: string
+        annotations:
+          json_property: agent_client
+      agent_client_version:
+        description: Agent Client Version
+        range: string
+        annotations:
+          json_property: agent_client_version
+      agent_session_id:
+        description: Agent Session Id
+        range: string
+        annotations:
+          json_property: agent_session_id
+      conversation_ref:
+        description: Conversation Ref
+        range: string
+        annotations:
+          json_property: conversation_ref
+      human_subject:
+        description: Human Subject
+        range: string
+        required: true
+        annotations:
+          json_property: human_subject
+      model:
+        description: Model
+        range: string
+        annotations:
+          json_property: model
+      tool_call_id:
+        description: Tool Call Id
+        range: string
+        annotations:
+          json_property: tool_call_id
+    annotations:
+      json_schema_id: Actor
+      platform_contract: 'true'
+  PlatformInputs:
+    description: Inputs
+    attributes:
+      composition:
+        description: Composition
+        range: string
+        annotations:
+          json_property: composition
+      files:
+        description: Files
+        range: PlatformInputFile
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        required: true
+        annotations:
+          json_property: files
+      manifest_sha256:
+        description: Manifest Sha256
+        range: string
+        required: true
+        annotations:
+          json_property: manifest_sha256
+      revision_id:
+        description: Revision Id
+        range: string
+        required: true
+        annotations:
+          json_property: revision_id
+      storage_prefix:
+        description: Storage Prefix
+        range: string
+        required: true
+        annotations:
+          json_property: storage_prefix
+    annotations:
+      json_schema_id: Inputs
+      platform_contract: 'true'
+  PlatformInputFile:
+    description: InputFile
+    attributes:
+      path:
+        description: Path
+        range: string
+        required: true
+        annotations:
+          json_property: path
+      sha256:
+        description: Sha256
+        range: string
+        required: true
+        annotations:
+          json_property: sha256
+      size:
+        description: Size
+        range: integer
+        minimum_value: 0
+        required: true
+        annotations:
+          json_property: size
+    annotations:
+      json_schema_id: InputFile
+      platform_contract: 'true'
+  PlatformLimits:
+    description: Limits
+    attributes:
+      estimated_runtime_seconds:
+        description: Estimated Runtime Seconds
+        range: float
+        annotations:
+          json_property: estimated_runtime_seconds
+      execution_timeout_seconds:
+        description: Execution Timeout Seconds
+        range: integer
+        annotations:
+          json_property: execution_timeout_seconds
+      queue_deadline_seconds:
+        description: Queue Deadline Seconds
+        range: integer
+        annotations:
+          json_property: queue_deadline_seconds
+      retry_budget:
+        description: Retry Budget
+        range: integer
+        minimum_value: 0
+        annotations:
+          json_property: retry_budget
+    annotations:
+      json_schema_id: Limits
+      platform_contract: 'true'
+  PlatformOutputs:
+    description: Outputs
+    attributes:
+      egress_policy:
+        description: PlatformOutputs.egress_policy
+        range: EgressPolicy
+        annotations:
+          json_property: egress_policy
+      required_artifacts:
+        description: Required Artifacts
+        range: string
+        multivalued: true
+        required: true
+        annotations:
+          json_property: required_artifacts
+      retention_days:
+        description: Retention Days
+        range: integer
+        annotations:
+          json_property: retention_days
+      storage_prefix:
+        description: Storage Prefix
+        range: string
+        required: true
+        annotations:
+          json_property: storage_prefix
+    annotations:
+      json_schema_id: Outputs
+      platform_contract: 'true'
+  PlatformPlacement:
+    description: Placement
+    attributes:
+      interruption:
+        description: Interruption
+        range: PlatformPlacementInterruption
+        annotations:
+          json_property: interruption
+      target_id:
+        description: Target Id
+        range: string
+        required: true
+        annotations:
+          json_property: target_id
+    annotations:
+      json_schema_id: Placement
+      platform_contract: 'true'
+  PlatformResources:
+    description: Resources
+    attributes:
+      cpu:
+        description: Cpu
+        range: float
+        annotations:
+          json_property: cpu
+      gpu:
+        description: Gpu
+        range: string
+        annotations:
+          json_property: gpu
+      job_class:
+        description: PlatformResources.job_class
+        range: JobClass
+        annotations:
+          json_property: job_class
+      memory_gib:
+        description: Memory Gib
+        range: float
+        annotations:
+          json_property: memory_gib
+      pool_size:
+        description: Pool Size
+        range: integer
+        minimum_value: 1
+        annotations:
+          json_property: pool_size
+      profile:
+        description: Profile
+        range: string
+        annotations:
+          json_property: profile
+      ranks:
+        description: Ranks
+        range: integer
+        minimum_value: 1
+        annotations:
+          json_property: ranks
+      scratch_gib:
+        description: Scratch Gib
+        range: float
+        minimum_value: 0
+        annotations:
+          json_property: scratch_gib
+    annotations:
+      json_schema_id: Resources
+      platform_contract: 'true'
+  PlatformRuntime:
+    description: Runtime
+    attributes:
+      architecture:
+        description: Architecture
+        range: string
+        annotations:
+          json_property: architecture
+      image:
+        description: Image
+        range: string
+        annotations:
+          json_property: image
+      threads:
+        description: Threads
+        range: integer
+        minimum_value: 1
+        annotations:
+          json_property: threads
+    annotations:
+      json_schema_id: Runtime
+      platform_contract: 'true'
+  PlatformWorkload:
+    description: Workload
+    attributes:
+      parameters:
+        description: Parameters
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: parameters
+      workflow:
+        description: Workflow
+        range: string
+        required: true
+        annotations:
+          json_property: workflow
+      workflow_version:
+        description: Workflow Version
+        range: string
+        required: true
+        annotations:
+          json_property: workflow_version
+    annotations:
+      json_schema_id: Workload
+      platform_contract: 'true'
+  PlatformAttemptManifest:
+    description: AttemptManifest
+    attributes:
+      artifacts:
+        description: Artifacts
+        range: PlatformArtifactEntry
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        required: true
+        annotations:
+          json_property: artifacts
+      provenance:
+        description: PlatformAttemptManifest.provenance
+        range: PlatformProvenance
+        inlined: true
+        required: true
+        annotations:
+          json_property: provenance
+      quality:
+        description: Quality
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: quality
+      run_manifest:
+        description: Run Manifest
+        range: string
+        annotations:
+          json_property: run_manifest
+      run_manifest_sha256:
+        description: Run Manifest Sha256
+        range: string
+        required: true
+        annotations:
+          json_property: run_manifest_sha256
+      schema:
+        description: Schema
+        range: string
+        annotations:
+          const: hydrocouple.platform/attempt-manifest/1
+          json_property: schema
+      platform_status:
+        description: Status
+        range: PlatformAttemptManifestStatus
+        required: true
+        annotations:
+          json_property: status
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/attempt-manifest-1.json
+      platform_contract: 'true'
+      schema_file: attempt-manifest-1.json
+  PlatformArtifactEntry:
+    description: ArtifactEntry
+    attributes:
+      format:
+        description: Format
+        range: string
+        required: true
+        annotations:
+          json_property: format
+      kind:
+        description: PlatformArtifactEntry.kind
+        range: ArtifactKind
+        required: true
+        annotations:
+          json_property: kind
+      path:
+        description: Path
+        range: string
+        required: true
+        annotations:
+          json_property: path
+      sha256:
+        description: Sha256
+        range: string
+        required: true
+        annotations:
+          json_property: sha256
+      size:
+        description: Size
+        range: integer
+        minimum_value: 0
+        required: true
+        annotations:
+          json_property: size
+    annotations:
+      json_schema_id: ArtifactEntry
+      platform_contract: 'true'
+  PlatformProvenance:
+    description: Execution provenance; ``to_prov`` renders it in W3C PROV-JSON terms.
+    attributes:
+      actor:
+        description: PlatformProvenance.actor
+        range: PlatformActor
+        inlined: true
+        required: true
+        annotations:
+          json_property: actor
+      attempt_id:
+        description: Attempt Id
+        range: string
+        required: true
+        annotations:
+          json_property: attempt_id
+      attempt_number:
+        description: Attempt Number
+        range: integer
+        required: true
+        annotations:
+          json_property: attempt_number
+      composition_sha256:
+        description: Composition Sha256
+        range: string
+        required: true
+        annotations:
+          json_property: composition_sha256
+      finished_at:
+        description: Finished At
+        range: datetime
+        required: true
+        annotations:
+          json_property: finished_at
+      inputs:
+        description: Package path to sha256 of every input used
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: inputs
+        required: true
+      job_id:
+        description: Job Id
+        range: string
+        required: true
+        annotations:
+          json_property: job_id
+      parameters:
+        description: Parameters
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: parameters
+        required: true
+      profile:
+        description: Profile
+        range: string
+        annotations:
+          const: hydrocouple.platform/provenance/1
+          json_property: profile
+      revision_id:
+        description: Revision Id
+        range: string
+        required: true
+        annotations:
+          json_property: revision_id
+      revision_manifest_sha256:
+        description: Revision Manifest Sha256
+        range: string
+        required: true
+        annotations:
+          json_property: revision_manifest_sha256
+      run_id:
+        description: Run Id
+        range: string
+        required: true
+        annotations:
+          json_property: run_id
+      runtime:
+        description: PlatformProvenance.runtime
+        range: PlatformRuntimeVersions
+        inlined: true
+        required: true
+        annotations:
+          json_property: runtime
+      seeds:
+        description: Seeds
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: seeds
+      started_at:
+        description: Started At
+        range: datetime
+        required: true
+        annotations:
+          json_property: started_at
+      threads:
+        description: Threads
+        range: integer
+        required: true
+        annotations:
+          json_property: threads
+      workflow:
+        description: Workflow
+        range: string
+        required: true
+        annotations:
+          json_property: workflow
+      workflow_version:
+        description: Workflow Version
+        range: string
+        required: true
+        annotations:
+          json_property: workflow_version
+    annotations:
+      json_schema_id: Provenance
+      platform_contract: 'true'
+  PlatformRuntimeVersions:
+    description: RuntimeVersions
+    attributes:
+      engine:
+        description: Engine
+        range: string
+        annotations:
+          json_property: engine
+      host:
+        description: Host
+        range: string
+        annotations:
+          json_property: host
+      image:
+        description: Image
+        range: string
+        annotations:
+          json_property: image
+      platform:
+        description: Platform
+        range: string
+        required: true
+        annotations:
+          json_property: platform
+      python:
+        description: Python
+        range: string
+        required: true
+        annotations:
+          json_property: python
+    annotations:
+      json_schema_id: RuntimeVersions
+      platform_contract: 'true'
+  PlatformStudyView:
+    description: StudyView
+    attributes:
+      approval_id:
+        description: Approval Id
+        range: string
+        annotations:
+          json_property: approval_id
+      batches:
+        description: Batches
+        range: integer
+        required: true
+        annotations:
+          json_property: batches
+      created_at:
+        description: Created At
+        range: datetime
+        required: true
+        annotations:
+          json_property: created_at
+      dimensions:
+        description: Dimensions
+        range: integer
+        required: true
+        annotations:
+          json_property: dimensions
+      evaluations_completed:
+        description: Evaluations Completed
+        range: integer
+        required: true
+        annotations:
+          json_property: evaluations_completed
+      evaluations_failed:
+        description: Evaluations Failed
+        range: integer
+        required: true
+        annotations:
+          json_property: evaluations_failed
+      evaluations_submitted:
+        description: Evaluations Submitted
+        range: integer
+        required: true
+        annotations:
+          json_property: evaluations_submitted
+      failure:
+        description: Failure
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: failure
+      max_evaluations:
+        description: Max Evaluations
+        range: integer
+        required: true
+        annotations:
+          json_property: max_evaluations
+      next_action:
+        description: Next Action
+        range: string
+        annotations:
+          json_property: next_action
+      objectives:
+        description: Objectives
+        range: PlatformObjective
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        required: true
+        annotations:
+          json_property: objectives
+      on_failure:
+        description: PlatformStudyView.on_failure
+        range: FailurePolicy
+        required: true
+        annotations:
+          json_property: on_failure
+      pool:
+        description: Pool
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: pool
+        multivalued: true
+      pool_size:
+        description: Pool Size
+        range: integer
+        required: true
+        annotations:
+          json_property: pool_size
+      project_id:
+        description: Project Id
+        range: string
+        required: true
+        annotations:
+          json_property: project_id
+      revision_id:
+        description: Revision Id
+        range: string
+        required: true
+        annotations:
+          json_property: revision_id
+      run_id:
+        description: Run Id
+        range: string
+        required: true
+        annotations:
+          json_property: run_id
+      seed:
+        description: Seed
+        range: integer
+        required: true
+        annotations:
+          json_property: seed
+      session_id:
+        description: Session Id
+        range: string
+        required: true
+        annotations:
+          json_property: session_id
+      state:
+        description: PlatformStudyView.state
+        range: StudyState
+        required: true
+        annotations:
+          json_property: state
+      study_id:
+        description: Study Id
+        range: string
+        required: true
+        annotations:
+          json_property: study_id
+      target_id:
+        description: Target Id
+        range: string
+        required: true
+        annotations:
+          json_property: target_id
+      updated_at:
+        description: Updated At
+        range: datetime
+        required: true
+        annotations:
+          json_property: updated_at
+      workflow:
+        description: Workflow
+        range: string
+        required: true
+        annotations:
+          json_property: workflow
+      workflow_version:
+        description: Workflow Version
+        range: string
+        required: true
+        annotations:
+          json_property: workflow_version
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/study-view-1.json
+      platform_contract: 'true'
+      schema_file: study-view-1.json
+  PlatformObjective:
+    description: Objective
+    attributes:
+      direction:
+        description: Direction
+        range: PlatformObjectiveDirection
+        required: true
+        annotations:
+          json_property: direction
+      name:
+        description: Name
+        range: string
+        required: true
+        annotations:
+          json_property: name
+    annotations:
+      json_schema_id: Objective
+      platform_contract: 'true'
+  PlatformEvent:
+    description: Event
+    attributes:
+      agent_clock_seconds:
+        description: Agent monotonic clock, robust to wall-clock skew.
+        range: float
+        annotations:
+          json_property: agent_clock_seconds
+      completed:
+        description: Completed
+        range: float
+        annotations:
+          json_property: completed
+      event_id:
+        description: Event Id
+        range: string
+        required: true
+        annotations:
+          json_property: event_id
+      kind:
+        description: PlatformEvent.kind
+        range: EventKind
+        required: true
+        annotations:
+          json_property: kind
+      message:
+        description: Message
+        range: string
+        annotations:
+          json_property: message
+      occurred_at:
+        description: Occurred At
+        range: datetime
+        required: true
+        annotations:
+          json_property: occurred_at
+      phase:
+        description: Phase
+        range: string
+        annotations:
+          json_property: phase
+      sequence:
+        description: Sequence
+        range: integer
+        minimum_value: 0
+        required: true
+        annotations:
+          json_property: sequence
+      total:
+        description: Total
+        range: float
+        annotations:
+          json_property: total
+      platform_unit:
+        description: Unit
+        range: string
+        annotations:
+          json_property: unit
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/event-1.json
+      platform_contract: 'true'
+      schema_file: event-1.json
+  PlatformError:
+    description: ErrorBody
+    attributes:
+      code:
+        description: PlatformError.code
+        range: ErrorCode
+        required: true
+        annotations:
+          json_property: code
+      details:
+        description: Details
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: details
+      message:
+        description: Message
+        range: string
+        required: true
+        annotations:
+          json_property: message
+      next_action:
+        description: Next Action
+        range: string
+        annotations:
+          json_property: next_action
+      retryable:
+        description: Retryable
+        range: boolean
+        annotations:
+          json_property: retryable
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/error-1.json
+      platform_contract: 'true'
+      schema_file: error-1.json

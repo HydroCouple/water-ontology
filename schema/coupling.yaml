@@ -1,0 +1,214 @@
+id: https://w3id.org/wsys/coupling
+name: wsys-coupling
+title: Water Systems Ontology — HydroCouple coupling
+description: >-
+  Model components, their exchange items and the compositions that couple
+  them, mirroring the HydroCouple SDK interfaces (IModelComponent,
+  IComponentInfo, IArgument, IExchangeItem, IInput, IOutput, IAdaptedOutput,
+  IValueDefinition, IDimension). A Composition is the unit hydrocouple.platform
+  packages into a Revision and runs; a ComponentConnection is a typed link
+  from a provider Output to a consumer Input, optionally through an
+  AdaptedOutput, and is also asserted as a COUPLED_TO Edge for traversal.
+version: 0.1.0
+license: Apache-2.0
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  hc: https://hydrocouple.org/ns/
+  prov: http://www.w3.org/ns/prov#
+default_prefix: wsys
+default_range: string
+imports:
+  - linkml:types
+  - core
+
+enums:
+  ComponentKind:
+    permissible_values:
+      SWMM:
+        description: An OpenSWMM engine component (1D network, hydrology, quality)
+      SURFACE_2D: {description: 2D overland flow mesh component}
+      GROUNDWATER: {}
+      HEAT: {}
+      DATA:
+        description: Reads time series, rasters or geometries from files or services
+      ADAPTER:
+        description: Adapted-output factory component (time or space interpolation, unit conversion)
+      WORKFLOW: {description: Orchestrates the composition's time stepping}
+      ML_SURROGATE: {description: A registered ML model wrapped as a component}
+      EXTERNAL: {description: Any other OpenMI/HydroCouple-compliant component}
+
+  ComponentStatus:
+    description: HydroCouple IModelComponent::ComponentStatus.
+    permissible_values:
+      CREATED: {}
+      INITIALIZING: {}
+      INITIALIZED: {}
+      VALIDATING: {}
+      VALID: {}
+      INVALID: {}
+      PREPARING: {}
+      UPDATED: {}
+      UPDATING: {}
+      WAITING_FOR_DATA: {}
+      DONE: {}
+      FINISHING: {}
+      FINISHED: {}
+      FAILED: {}
+
+  DataItemGeometry:
+    description: Spatial structure of an exchange item's values (HydroCouple IComponentDataItem family).
+    permissible_values:
+      ID_BASED: {description: Values keyed by identifier only}
+      TIME_SERIES: {}
+      GEOMETRY:
+        description: Values on points, lines or polygons
+      NETWORK: {description: Values on network nodes or edges}
+      MESH: {description: Values on 2D mesh cells or vertices}
+      LAYERED_MESH: {}
+      POLYHEDRAL_SURFACE: {}
+      TIN: {}
+      RASTER: {}
+      TIME_GEOMETRY: {description: Geometry varying in time}
+
+  ValueKind:
+    permissible_values:
+      QUANTITY: {description: Numeric with a unit (IQuantity)}
+      QUALITY: {description: Categorical or ordinal (IQuality)}
+
+slots:
+  component_kind:
+    range: ComponentKind
+    required: true
+  component_status:
+    range: ComponentStatus
+  info_id:
+    range: string
+    description: IComponentInfo id (library identifier).
+  info_version:
+    range: string
+  vendor:
+    range: string
+  library_path:
+    range: string
+    description: Plugin library or package that provides the component.
+  arguments:
+    range: ComponentArgument
+    multivalued: true
+    inlined_as_list: true
+  argument_name:
+    range: string
+    required: true
+  argument_value:
+    range: string
+    description: Value as a string or JSON; file arguments hold the path inside the revision.
+  argument_type:
+    range: string
+  is_file:
+    range: boolean
+  component:
+    range: ModelComponent
+    required: true
+  item_id:
+    range: string
+    required: true
+    description: IExchangeItem id within its component.
+  value_kind:
+    range: ValueKind
+    required: true
+  quantity:
+    range: IRI
+    description: ObservedProperty IRI the item carries (flow, depth, concentration ...).
+  item_unit:
+    range: IRI
+    description: QUDT unit IRI.
+  data_geometry:
+    range: DataItemGeometry
+    required: true
+  dimensions:
+    range: string
+    multivalued: true
+    description: IDimension names in order (time, element, layer ...).
+  time_span_start:
+    range: datetime
+  time_span_end:
+    range: datetime
+  multi_input:
+    range: boolean
+    description: Accepts several providers (IMultiInput).
+  adapts_output:
+    range: Output
+    description: The provider output this adapted output wraps.
+  adapter_factory:
+    range: string
+    description: IAdaptedOutputFactory id.
+  composition:
+    range: Composition
+    required: true
+  components:
+    range: ModelComponent
+    multivalued: true
+  workflow_component:
+    range: ModelComponent
+  provider:
+    range: Output
+    required: true
+  consumer:
+    range: Input
+    required: true
+  via_adapter:
+    range: AdaptedOutput
+  composition_file:
+    range: string
+    description: Path of the composition definition inside the revision (revision-manifest composition field).
+  wsys_feature:
+    range: IRI
+    description: The wsys asset or domain (WaterSystem, Mesh2D, Aquifer) this component or item represents, for joining coupled results to the topology.
+
+classes:
+  ModelComponent:
+    is_a: Entity
+    description: A configured instance of a HydroCouple model component inside a composition - a SWMM model, a 2D mesh, a data reader, an adapter factory or a workflow.
+    slots: [component_kind, info_id, info_version, vendor, library_path, arguments, component_status, composition, wsys_feature]
+    exact_mappings: [hc:IModelComponent]
+
+  ComponentArgument:
+    description: One IArgument of a component as configured (name, value or file path, type).
+    slots: [argument_name, argument_value, argument_type, is_file]
+    exact_mappings: [hc:IArgument]
+
+  ExchangeItem:
+    abstract: true
+    is_a: Entity
+    description: An input or output of a component with its value definition (quantity and unit), dimensions and spatial structure.
+    slots: [component, item_id, value_kind, quantity, item_unit, data_geometry, dimensions, time_span_start, time_span_end, wsys_feature]
+    exact_mappings: [hc:IExchangeItem]
+
+  Input:
+    is_a: ExchangeItem
+    description: A consumer of values.
+    slots: [multi_input]
+    exact_mappings: [hc:IInput]
+
+  Output:
+    is_a: ExchangeItem
+    description: A provider of values.
+    exact_mappings: [hc:IOutput]
+
+  AdaptedOutput:
+    is_a: Output
+    description: An output transformed in time, space or unit from a provider output by an adapter factory.
+    slots: [adapts_output, adapter_factory, arguments]
+    slot_usage:
+      adapts_output: {required: true}
+    exact_mappings: [hc:IAdaptedOutput]
+
+  Composition:
+    is_a: Entity
+    description: The set of components and connections run together; what hydrocouple.platform packages into a Revision. A single SWMM .inp is a one-component composition.
+    slots: [components, workflow_component, composition_file]
+    exact_mappings: [prov:Plan]
+
+  ComponentConnection:
+    description: A typed link from a provider Output to a consumer Input, optionally through an AdaptedOutput. Also written as a COUPLED_TO Edge between the components for traversal.
+    slots: [composition, provider, consumer, via_adapter]

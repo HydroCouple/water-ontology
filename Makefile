@@ -5,7 +5,7 @@ DIST      := dist
 
 .PHONY: all lint owl shacl sql docs clean test
 
-all: model-check lint owl shacl sql delta
+all: model-check platform-check lint owl shacl sql delta
 
 lint:
 	for f in schema/*.yaml; do linkml-lint --config .linkmllint.yaml --ignore-warnings $$f || exit 1; done
@@ -38,6 +38,14 @@ CATALOG ?= ../openswmm.engine/python/openswmm/engine/catalog.json
 
 model:
 	python -m generators.catalog_to_linkml --catalog $(CATALOG)
+
+PLATFORM_SCHEMAS ?= ../hydrocouple.platform/src/hydrocouple_platform/schemas/platform
+
+platform:
+	python -m generators.platform_to_linkml --schemas $(PLATFORM_SCHEMAS)
+
+platform-check:
+	python -m generators.platform_to_linkml --schemas $(PLATFORM_SCHEMAS) --check
 
 model-check:
 	python -m generators.catalog_to_linkml --catalog $(CATALOG) --check

@@ -50,6 +50,8 @@ MODULE_TO_SCHEMA = {
     "wsys-event": "event",
     "wsys-operations": "operations",
     "wsys-analysis": "analysis",
+    "wsys-analysis-platform": "analysis",
+    "wsys-coupling": "coupling",
     "wsys-model": "model",
     "wsys-ml": "ml",
     "wsys-distribution": "distribution",

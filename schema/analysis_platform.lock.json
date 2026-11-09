@@ -1,0 +1,15 @@
+{
+  "schemas_sha256": "46e9e17185f9efdbc5e4a8a10d35b08db1eeb59da6fd3d74231ed011dae29c00",
+  "contracts": [
+    "attempt-manifest-1",
+    "error-1",
+    "event-1",
+    "job-spec-1",
+    "revision-manifest-1",
+    "run-request-1",
+    "study-view-1"
+  ],
+  "classes": 21,
+  "enums": 11,
+  "generated_at": "2026-11-09T18:24:35+00:00"
+}

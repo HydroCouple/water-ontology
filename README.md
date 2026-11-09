@@ -20,7 +20,9 @@ API catalog.
 | `schema/event.yaml` | Event (type, source, severity, occurred/detected/reported/ended, lifecycle state), EventLink (affects, evidence, cause, resolution), EventStateChange (PROV per transition) |
 | `schema/model.yaml` | **Generated** from `openswmm.engine.catalog` by `make model`; do not edit. `model.lock.json` pins the catalog revision and hash |
 | `schema/mappings/swmm_to_wsys.yaml` | Hand-curated: which `wsys:` topology class each generated `Swmm*` class means |
-| `schema/analysis.yaml` | `Revision`, `Run`, `Attempt` (stub; full classes generated from hydrocouple.platform JSON Schemas in step 3) |
+| `schema/analysis_platform.yaml` | **Generated** from hydrocouple.platform JSON Schemas by `make platform`: `Platform*` contract classes (revision manifest, run request, job spec, attempt manifest, study view, event, error) with `$defs` inlined |
+| `schema/analysis.yaml` | Curated: `Revision`, `Run`, `Attempt`, `Study`, `Candidate`, `AgentFinding`; each embeds its platform contract as a manifest and adds wsys identity and PROV |
+| `schema/coupling.yaml` | HydroCouple: `ModelComponent`, `ComponentArgument`, `ExchangeItem` → `Input` / `Output` / `AdaptedOutput`, `Composition`, `ComponentConnection` |
 | `schema/wsys.yaml` | Release root that imports every module; build targets point here |
 | `generators/` | LinkML → Delta DDL + UC metadata, catalog → LinkML, LinkML → prompt |
 | `imports/` | Pinned copies of SAREF4WATR, SOSA, PROV-O for mapping checks |
@@ -33,6 +35,7 @@ API catalog.
 source ./activate.sh     # venv on PATH; caches kept inside the repo
 make                     # model-check + lint + owl + shacl + sql + delta into dist/
 make model               # regenerate schema/model.yaml from the OpenSWMM catalog (CATALOG=path/to/catalog.json)
+make platform            # regenerate schema/analysis_platform.yaml from hydrocouple.platform JSON Schemas (PLATFORM_SCHEMAS=dir)
 make delta               # Delta DDL + Unity Catalog metadata into dist/delta
 make test
 ```
