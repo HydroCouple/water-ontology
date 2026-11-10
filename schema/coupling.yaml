@@ -10,7 +10,9 @@ description: >-
   from a provider Output to a consumer Input, optionally through an
   AdaptedOutput, and is also asserted as a COUPLED_TO Edge for traversal.
 version: 0.1.0
-license: Apache-2.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
 prefixes:
   wsys: https://w3id.org/wsys/
   linkml: https://w3id.org/linkml/
@@ -21,6 +23,7 @@ default_range: string
 imports:
   - linkml:types
   - core
+  - provenance
 
 enums:
   ComponentKind:
@@ -205,6 +208,7 @@ classes:
 
   Composition:
     is_a: Entity
+    mixins: [Attributed]
     description: The set of components and connections run together; what hydrocouple.platform packages into a Revision. A single SWMM .inp is a one-component composition.
     slots: [components, workflow_component, composition_file]
     exact_mappings: [prov:Plan]

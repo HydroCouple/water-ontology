@@ -38,7 +38,7 @@ classDiagram
     FeatureBinding target*
     string horizon
     string resolution
-    string owner
+    Agent owner
   }
   class MLModelVersion {
     MLModel of_model*
@@ -85,6 +85,7 @@ classDiagram
   DriftCheck --> "1" MLModelVersion : of_version
   Entity <|-- MLModel
   MLModel *-- "1" FeatureBinding : target
+  MLModel --> "1" Agent : owner
   DerivedEntity <|-- MLModelVersion
   MLModelVersion --> "1" MLModel : of_model
   MLModelVersion *-- "*" FeatureBinding : inputs

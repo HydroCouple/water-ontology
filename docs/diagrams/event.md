@@ -34,15 +34,17 @@ classDiagram
     EventLifecycleState from_state
     EventLifecycleState to_state*
     datetime changed_at*
-    string changed_by*
+    Agent changed_by*
     string reason
   }
   SpatialEntity <|-- Event
   Event --> "1" Zone : zone
   Event --> "1" WaterSystem : system
+  Event --> "1" Agent : confirmed_by
   EventLink --> "1" Event : event
   DerivedEntity <|-- EventStateChange
   EventStateChange --> "1" Event : event
+  EventStateChange --> "1" Agent : changed_by
 ```
 
 ## Classes

@@ -10,7 +10,9 @@ description: >-
   Terminals so traces are directionally correct. Each asset is linked to its
   SWMM model element in a given Revision by a REPRESENTED_BY edge.
 version: 0.2.0
-license: Apache-2.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
 
 prefixes:
   wsys: https://w3id.org/wsys/

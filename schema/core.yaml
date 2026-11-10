@@ -7,7 +7,9 @@ description: >-
   specialise Entity. The LinkML source here is the single source of truth;
   OWL, SHACL, Delta DDL and Unity Catalog metadata are generated from it.
 version: 0.1.0
-license: Apache-2.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
 
 prefixes:
   wsys: https://w3id.org/wsys/

@@ -1,0 +1,158 @@
+id: https://w3id.org/wsys/provenance
+name: wsys-provenance
+title: Water Systems Ontology — Provenance agents and descriptive metadata
+description: >-
+  Completes the PROV-O picture (who or what produced each derived thing) and
+  adds Dublin Core descriptive metadata and DCAT alignment for dataset-like
+  classes. PROV-O carries lineage, Dublin Core carries description, DCAT
+  carries discoverability; nothing here duplicates what Unity Catalog or
+  MLflow already record, it names it in a standard way.
+version: 0.1.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  prov: http://www.w3.org/ns/prov#
+  dcterms: http://purl.org/dc/terms/
+  dcat: http://www.w3.org/ns/dcat#
+  foaf: http://xmlns.com/foaf/0.1/
+  schema: http://schema.org/
+default_prefix: wsys
+default_range: string
+imports:
+  - linkml:types
+  - core
+
+enums:
+  AgentKind:
+    permissible_values:
+      PERSON:
+        description: An operator, engineer or reviewer
+      ORGANIZATION: {}
+      SERVICE_PRINCIPAL: {description: A workload identity such as a Databricks service principal or platform execution agent}
+      AI_AGENT:
+        description: An LLM-based agent deployment, identified by its MLflow model name and version
+      ML_MODEL: {description: A registered MLModelVersion acting as the producer of predictions}
+      SOFTWARE:
+        description: Any other software (ingestion pipeline, control system, simulation engine)
+
+slots:
+  agent_kind:
+    range: AgentKind
+    required: true
+  external_identity:
+    range: string
+    description: The identity string the source system uses (email, SP application id, MLflow model name@version, pipeline id).
+  acts_on_behalf_of:
+    range: Agent
+    slot_uri: prov:actedOnBehalfOf
+    description: The person or organisation an AI agent or service principal was delegated by.
+  was_attributed_to:
+    range: Agent
+    slot_uri: prov:wasAttributedTo
+    description: The agent responsible for a derived entity.
+  was_associated_with:
+    range: Agent
+    slot_uri: prov:wasAssociatedWith
+    description: The agent that carried out an activity.
+  used:
+    range: IRI
+    multivalued: true
+    slot_uri: prov:used
+    description: Entities an activity consumed (revision, inputs, tables at versions).
+  started_at:
+    range: datetime
+    slot_uri: prov:startedAtTime
+  ended_at:
+    range: datetime
+    slot_uri: prov:endedAtTime
+
+  # Dublin Core descriptive metadata
+  dc_title:
+    range: string
+    slot_uri: dcterms:title
+  dc_created:
+    range: datetime
+    slot_uri: dcterms:created
+  dc_modified:
+    range: datetime
+    slot_uri: dcterms:modified
+  dc_creator:
+    range: Agent
+    slot_uri: dcterms:creator
+  dc_publisher:
+    range: Agent
+    slot_uri: dcterms:publisher
+  dc_license:
+    range: string
+    slot_uri: dcterms:license
+    description: SPDX identifier or URL.
+  dc_conforms_to:
+    range: string
+    multivalued: true
+    slot_uri: dcterms:conformsTo
+    description: Standards or schema versions the thing conforms to (ontology release, catalog revision, platform schema id).
+  dc_source:
+    range: IRI
+    multivalued: true
+    slot_uri: dcterms:source
+  dc_rights:
+    range: string
+    slot_uri: dcterms:rights
+    description: Access or sharing restriction, e.g. critical-infrastructure detail not for external release.
+
+  # DCAT distribution of a dataset-like entity
+  distributions:
+    range: Distribution
+    multivalued: true
+    inlined_as_list: true
+    slot_uri: dcat:distribution
+  access_url:
+    range: string
+    slot_uri: dcat:accessURL
+    description: Where the distribution lives (UC table name, Volume path, models:/ URI, object-store URL).
+  media_type:
+    range: string
+    slot_uri: dcat:mediaType
+  byte_size:
+    range: integer
+    slot_uri: dcat:byteSize
+  checksum:
+    range: string
+    slot_uri: dcat:checksum
+    description: SHA-256 of the distribution.
+  delta_version:
+    range: integer
+    description: Delta table version when the distribution is a Unity Catalog table.
+
+classes:
+  Agent:
+    is_a: Entity
+    description: Someone or something responsible for an entity or activity (PROV-O Agent). People, organisations, service principals, AI agents, ML model versions and other software all appear here so attribution is uniform.
+    slots: [agent_kind, external_identity, acts_on_behalf_of]
+    exact_mappings: [prov:Agent]
+    close_mappings: [foaf:Agent, schema:Thing]
+
+  Distribution:
+    description: One concrete form of a dataset-like entity - a Delta table at a version, a file in a Volume, a model artifact.
+    slots: [access_url, media_type, byte_size, checksum, delta_version, dc_license]
+    exact_mappings: [dcat:Distribution]
+
+  Attributed:
+    mixin: true
+    description: Mixin for anything PROV-attributed and Dublin-Core-described.
+    slots: [was_attributed_to, dc_title, dc_created, dc_modified, dc_creator, dc_license, dc_conforms_to, dc_rights]
+
+  Activity:
+    mixin: true
+    description: Mixin for activities (runs, attempts, state changes, pipeline executions).
+    slots: [was_associated_with, used, started_at, ended_at]
+    exact_mappings: [prov:Activity]
+
+  Dataset:
+    mixin: true
+    description: Mixin for dataset-like entities that should be discoverable - training data, revisions, datastreams, the repo's own releases.
+    slots: [distributions, dc_publisher, dc_source]
+    exact_mappings: [dcat:Dataset]

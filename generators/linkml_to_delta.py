@@ -45,6 +45,7 @@ UCUM_TO_QUDT = {
 # Which Unity Catalog schema each LinkML module lands in.
 MODULE_TO_SCHEMA = {
     "wsys-core": "reference",      # Utility etc.
+    "wsys-provenance": "reference",
     "wsys-topology": "topology",
     "wsys-observation": "observation",
     "wsys-event": "event",

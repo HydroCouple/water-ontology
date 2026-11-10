@@ -44,7 +44,7 @@ VIEWS = {
 }
 
 MODULE_LABEL = {
-    "wsys-core": "core", "wsys-topology": "topology", "wsys-observation": "observation", "wsys-event": "event",
+    "wsys-core": "core", "wsys-provenance": "provenance", "wsys-topology": "topology", "wsys-observation": "observation", "wsys-event": "event",
     "wsys-coupling": "coupling", "wsys-analysis": "analysis", "wsys-analysis-platform": "platform contracts (generated)",
     "wsys-model": "SWMM model (generated)", "wsys-ml": "ml",
 }

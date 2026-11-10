@@ -8,13 +8,6 @@ Assets form a directed graph through Edge rows; each asset is REPRESENTED_BY its
 
 ```mermaid
 flowchart TB
-  subgraph wsys_model["SWMM model (generated)"]
-    SwmmElement(["SwmmElement"])
-    SwmmGage["SwmmGage"]
-    SwmmLink(["SwmmLink"])
-    SwmmNode(["SwmmNode"])
-    SwmmSubcatchment["SwmmSubcatchment"]
-  end
   subgraph wsys_topology["topology"]
     Conduit["Conduit"]
     Edge["Edge"]
@@ -35,6 +28,13 @@ flowchart TB
     WaterSystem["WaterSystem"]
     Weir["Weir"]
     Zone["Zone"]
+  end
+  subgraph wsys_model["SWMM model (generated)"]
+    SwmmElement(["SwmmElement"])
+    SwmmGage["SwmmGage"]
+    SwmmLink(["SwmmLink"])
+    SwmmNode(["SwmmNode"])
+    SwmmSubcatchment["SwmmSubcatchment"]
   end
   subgraph wsys_analysis["analysis"]
     Revision["Revision"]
@@ -92,6 +92,10 @@ A Sensor is ATTACHED_TO an asset; its Datastream carries Observations; Observati
 
 ```mermaid
 flowchart TB
+  subgraph wsys_topology["topology"]
+    Structure["Structure"]
+    Zone["Zone"]
+  end
   subgraph wsys_observation["observation"]
     Datastream["Datastream"]
     Observation["Observation"]
@@ -99,21 +103,17 @@ flowchart TB
     Sensor["Sensor"]
     Setpoint["Setpoint"]
   end
-  subgraph wsys_analysis["analysis"]
-    AgentFinding["AgentFinding"]
-    Attempt["Attempt"]
-  end
   subgraph wsys_event["event"]
     Event["Event"]
     EventLink["EventLink"]
     EventStateChange["EventStateChange"]
   end
+  subgraph wsys_analysis["analysis"]
+    AgentFinding["AgentFinding"]
+    Attempt["Attempt"]
+  end
   subgraph wsys_core["core"]
     Asset(["Asset"])
-  end
-  subgraph wsys_topology["topology"]
-    Structure["Structure"]
-    Zone["Zone"]
   end
   Sensor -.-> Asset
   Structure -.-> Asset
@@ -151,16 +151,6 @@ flowchart TB
   subgraph wsys_observation["observation"]
     Observation["Observation"]
   end
-  subgraph wsys_coupling["coupling"]
-    AdaptedOutput["AdaptedOutput"]
-    ComponentArgument["ComponentArgument"]
-    ComponentConnection["ComponentConnection"]
-    Composition["Composition"]
-    ExchangeItem(["ExchangeItem"])
-    Input["Input"]
-    ModelComponent["ModelComponent"]
-    Output["Output"]
-  end
   subgraph wsys_analysis["analysis"]
     Attempt["Attempt"]
     Candidate["Candidate"]
@@ -172,6 +162,16 @@ flowchart TB
     Aquifer["Aquifer"]
     Mesh2D["Mesh2D"]
     WaterSystem["WaterSystem"]
+  end
+  subgraph wsys_coupling["coupling"]
+    AdaptedOutput["AdaptedOutput"]
+    ComponentArgument["ComponentArgument"]
+    ComponentConnection["ComponentConnection"]
+    Composition["Composition"]
+    ExchangeItem(["ExchangeItem"])
+    Input["Input"]
+    ModelComponent["ModelComponent"]
+    Output["Output"]
   end
   AdaptedOutput -.-> Output
   Input -.-> ExchangeItem
@@ -209,6 +209,9 @@ An MLModel's target and inputs are FeatureBindings to ontology classes and prope
 
 ```mermaid
 flowchart TB
+  subgraph wsys_event["event"]
+    Event["Event"]
+  end
   subgraph wsys_ml["ml"]
     DriftCheck["DriftCheck"]
     EvaluationMetric["EvaluationMetric"]
@@ -218,17 +221,14 @@ flowchart TB
     Prediction["Prediction"]
     TrainingDataset["TrainingDataset"]
   end
-  subgraph wsys_event["event"]
-    Event["Event"]
-  end
-  subgraph wsys_core["core"]
-    Asset(["Asset"])
+  subgraph wsys_analysis["analysis"]
+    Revision["Revision"]
   end
   subgraph wsys_topology["topology"]
     Zone["Zone"]
   end
-  subgraph wsys_analysis["analysis"]
-    Revision["Revision"]
+  subgraph wsys_core["core"]
+    Asset(["Asset"])
   end
   DriftCheck -- of_version --> MLModelVersion
   Event -- zone --> Zone
@@ -254,23 +254,23 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-  subgraph wsys_coupling["coupling"]
-    AdaptedOutput["AdaptedOutput"]
-    ComponentArgument["ComponentArgument"]
-    ComponentConnection["ComponentConnection"]
-    Composition["Composition"]
-    ExchangeItem(["ExchangeItem"])
-    Input["Input"]
-    ModelComponent["ModelComponent"]
-    Output["Output"]
+  subgraph wsys_provenance["provenance"]
+    Activity["Activity"]
+    Agent["Agent"]
+    Attributed["Attributed"]
+    Dataset["Dataset"]
+    Distribution["Distribution"]
   end
-  subgraph wsys_model["SWMM model (generated)"]
-    SwmmElement(["SwmmElement"])
-    SwmmGage["SwmmGage"]
-    SwmmLink(["SwmmLink"])
-    SwmmNode(["SwmmNode"])
-    SwmmPollutant["SwmmPollutant"]
-    SwmmSubcatchment["SwmmSubcatchment"]
+  subgraph wsys_event["event"]
+    Event["Event"]
+    EventLink["EventLink"]
+    EventStateChange["EventStateChange"]
+  end
+  subgraph wsys_core["core"]
+    Asset(["Asset"])
+    DerivedEntity(["DerivedEntity"])
+    SpatialEntity(["SpatialEntity"])
+    Utility["Utility"]
   end
   subgraph wsys_topology["topology"]
     Aquifer["Aquifer"]
@@ -299,17 +299,31 @@ flowchart TB
     Weir["Weir"]
     Zone["Zone"]
   end
-  subgraph wsys_event["event"]
-    Event["Event"]
-    EventLink["EventLink"]
-    EventStateChange["EventStateChange"]
+  subgraph wsys_analysis["analysis"]
+    AgentFinding["AgentFinding"]
+    Attempt["Attempt"]
+    Candidate["Candidate"]
+    Revision["Revision"]
+    Run["Run"]
+    Study["Study"]
   end
-  subgraph wsys_observation["observation"]
-    Datastream["Datastream"]
-    Observation["Observation"]
-    ObservedProperty["ObservedProperty"]
-    Sensor["Sensor"]
-    Setpoint["Setpoint"]
+  subgraph wsys_coupling["coupling"]
+    AdaptedOutput["AdaptedOutput"]
+    ComponentArgument["ComponentArgument"]
+    ComponentConnection["ComponentConnection"]
+    Composition["Composition"]
+    ExchangeItem(["ExchangeItem"])
+    Input["Input"]
+    ModelComponent["ModelComponent"]
+    Output["Output"]
+  end
+  subgraph wsys_model["SWMM model (generated)"]
+    SwmmElement(["SwmmElement"])
+    SwmmGage["SwmmGage"]
+    SwmmLink(["SwmmLink"])
+    SwmmNode(["SwmmNode"])
+    SwmmPollutant["SwmmPollutant"]
+    SwmmSubcatchment["SwmmSubcatchment"]
   end
   subgraph wsys_ml["ml"]
     DriftCheck["DriftCheck"]
@@ -320,19 +334,12 @@ flowchart TB
     Prediction["Prediction"]
     TrainingDataset["TrainingDataset"]
   end
-  subgraph wsys_analysis["analysis"]
-    AgentFinding["AgentFinding"]
-    Attempt["Attempt"]
-    Candidate["Candidate"]
-    Revision["Revision"]
-    Run["Run"]
-    Study["Study"]
-  end
-  subgraph wsys_core["core"]
-    Asset(["Asset"])
-    DerivedEntity(["DerivedEntity"])
-    SpatialEntity(["SpatialEntity"])
-    Utility["Utility"]
+  subgraph wsys_observation["observation"]
+    Datastream["Datastream"]
+    Observation["Observation"]
+    ObservedProperty["ObservedProperty"]
+    Sensor["Sensor"]
+    Setpoint["Setpoint"]
   end
   AdaptedOutput -.-> Output
   AgentFinding -.-> DerivedEntity
@@ -378,9 +385,13 @@ flowchart TB
   TrainingDataset -.-> DerivedEntity
   Weir -.-> Link
   Zone -.-> SpatialEntity
+  Activity -- was_associated_with --> Agent
   AdaptedOutput -- adapts_output --> Output
+  AgentFinding -- reviewed_by --> Agent
   Aquifer -- system --> WaterSystem
   Attempt -- of_run --> Run
+  Attributed -- was_attributed_to --> Agent
+  Attributed -- dc_creator --> Agent
   Candidate -- of_study --> Study
   Candidate -- of_run --> Run
   Cell2D -- mesh --> Mesh2D
@@ -390,6 +401,7 @@ flowchart TB
   ComponentConnection -- via_adapter --> AdaptedOutput
   Composition -- components --> ModelComponent
   Composition -- workflow_component --> ModelComponent
+  Dataset -- dc_publisher --> Agent
   Datastream -- sensor --> Sensor
   Datastream -- observed_property --> ObservedProperty
   DriftCheck -- of_version --> MLModelVersion
@@ -397,10 +409,13 @@ flowchart TB
   Edge -- to_terminal --> Terminal
   Event -- zone --> Zone
   Event -- system --> WaterSystem
+  Event -- confirmed_by --> Agent
   EventLink -- event --> Event
   EventStateChange -- event --> Event
+  EventStateChange -- changed_by --> Agent
   ExchangeItem -- component --> ModelComponent
   Link -- system --> WaterSystem
+  MLModel -- owner --> Agent
   MLModelVersion -- of_model --> MLModel
   MLModelVersion -- trained_on --> TrainingDataset
   MLModelVersion -- emulates --> Revision
@@ -412,6 +427,8 @@ flowchart TB
   Revision -- of_composition --> Composition
   Run -- of_revision --> Revision
   Run -- of_study --> Study
+  Setpoint -- set_by --> Agent
+  Setpoint -- approved_by --> Agent
   Study -- of_revision --> Revision
   Subcatchment -- system --> WaterSystem
   SwmmElement -- revision --> Revision

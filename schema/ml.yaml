@@ -10,7 +10,9 @@ description: >-
   inputs. The registry of record is MLflow with Unity Catalog Models; this
   module is the semantic layer over it, not a replacement.
 version: 0.1.0
-license: Apache-2.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
 prefixes:
   wsys: https://w3id.org/wsys/
   linkml: https://w3id.org/linkml/
@@ -22,6 +24,7 @@ default_range: string
 imports:
   - linkml:types
   - core
+  - provenance
   - analysis
 
 enums:
@@ -131,7 +134,7 @@ slots:
     range: MLModelVersion
     required: true
   owner:
-    range: string
+    range: Agent
     description: Team or person accountable for the model.
   model_card_uri:
     range: string
@@ -311,6 +314,7 @@ classes:
 
   MLModelVersion:
     is_a: DerivedEntity
+    mixins: [Attributed, Dataset]
     description: One trained artifact of an MLModel, registered in Unity Catalog through MLflow. Carries framework, signature as FeatureBindings, training data, metrics against a baseline, and lifecycle stage. Agents call only CHAMPION versions through registered tools.
     slots: [of_model, version_number, stage, framework, framework_version, framework_origin, mlflow_flavor, mlflow_run_id, mlflow_experiment, model_uri, uc_alias, serving_endpoint, inputs, trained_on, hyperparameters, metrics, uncertainty_method, emulates, policy_env_spec, model_card_uri]
     slot_usage:
@@ -325,6 +329,7 @@ classes:
 
   TrainingDataset:
     is_a: DerivedEntity
+    mixins: [Attributed, Dataset]
     description: The exact data a version was trained and evaluated on - tables at Delta versions, time window, entities, split strategy - so training is reproducible and leakage is auditable.
     slots: [source_tables, time_start, time_end, entity_count, row_count, split_strategy, feature_table]
     slot_usage:
@@ -338,6 +343,7 @@ classes:
 
   Prediction:
     is_a: DerivedEntity
+    mixins: [Attributed]
     description: One predicted value for one entity, property and valid time from one model version, with interval or probability, the inputs used and an out-of-scope flag. was_generated_by points at the serving call or batch job.
     slots: [of_version, target_entity, target_property, valid_time, issued_at, value, value_unit, lower, upper, interval_level, probability, input_snapshot, out_of_scope]
 

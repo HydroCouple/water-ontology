@@ -11,7 +11,9 @@ description: >-
   resolution through EventLink rows. Aligned with OWL-Time and the Simple
   Event Model.
 version: 0.1.0
-license: Apache-2.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
 prefixes:
   wsys: https://w3id.org/wsys/
   linkml: https://w3id.org/linkml/
@@ -23,6 +25,7 @@ default_range: string
 imports:
   - linkml:types
   - core
+  - provenance
   - topology
 
 enums:
@@ -135,7 +138,7 @@ slots:
   peak_unit:
     range: IRI
   confirmed_by:
-    range: string
+    range: Agent
     description: Person or system that moved the event to CONFIRMED; required for that state.
   external_id:
     range: string
@@ -164,9 +167,9 @@ slots:
     range: datetime
     required: true
   changed_by:
-    range: string
+    range: Agent
     required: true
-    description: Person, system or agent id that made the transition.
+    description: Person, system or agent that made the transition (PROV agent).
   reason:
     range: string
 
@@ -184,6 +187,7 @@ classes:
 
   EventStateChange:
     is_a: DerivedEntity
+    mixins: [Activity]
     description: One lifecycle transition of an event with who, when and why; the PROV activity behind every state the event has been in.
     slots: [event, from_state, to_state, changed_at, changed_by, reason]
     exact_mappings: [prov:Activity]

@@ -48,8 +48,8 @@ classDiagram
     IRI unit*
     datetime effective_from*
     datetime effective_to
-    string set_by
-    string approved_by
+    Agent set_by
+    Agent approved_by
   }
   Entity <|-- Datastream
   Datastream --> "1" Sensor : sensor
@@ -59,6 +59,8 @@ classDiagram
   Entity <|-- ObservedProperty
   Asset <|-- Sensor
   DerivedEntity <|-- Setpoint
+  Setpoint --> "1" Agent : set_by
+  Setpoint --> "1" Agent : approved_by
 ```
 
 ## Classes

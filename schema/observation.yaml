@@ -8,7 +8,9 @@ description: >-
   unit as an IRI; a Sensor is ATTACHED_TO the asset it measures (Edge), and a
   Datastream binds one sensor to one property of one feature of interest.
 version: 0.1.0
-license: Apache-2.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
 prefixes:
   wsys: https://w3id.org/wsys/
   linkml: https://w3id.org/linkml/
@@ -22,6 +24,7 @@ default_range: string
 imports:
   - linkml:types
   - core
+  - provenance
   - topology
 
 enums:
@@ -171,10 +174,10 @@ slots:
   effective_to:
     range: datetime
   set_by:
-    range: string
+    range: Agent
     description: Operator, control rule or agent proposal id that set the setpoint.
   approved_by:
-    range: string
+    range: Agent
 
 classes:
   Sensor:
@@ -191,6 +194,7 @@ classes:
 
   Datastream:
     is_a: Entity
+    mixins: [Dataset]
     description: One sensor observing one property of one feature of interest over time; the unit of telemetry ingestion and the thing a staleness threshold applies to.
     slots: [sensor, observed_property, feature_of_interest, sampling_interval, staleness_threshold, datasource_tag]
     exact_mappings: [ssn:System, sosa:ObservationCollection]
@@ -203,5 +207,6 @@ classes:
 
   Setpoint:
     is_a: DerivedEntity
+    mixins: [Attributed]
     description: A target value for a controllable property (pump speed, gate opening, tank level band) effective over a period. Agents only propose setpoints; set_by and approved_by record who made them real.
     slots: [target_entity, target_property, value, unit, effective_from, effective_to, set_by, approved_by]

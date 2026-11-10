@@ -116,6 +116,7 @@ flowchart LR
 
 | Path | What |
 | --- | --- |
+| `schema/provenance.yaml` | PROV-O agents (`Agent`: person, organisation, service principal, AI agent, ML model, software), `Attributed` / `Activity` / `Dataset` mixins carrying `prov:*`, `dcterms:*` and `dcat:distribution`; applied to revisions, runs, attempts, studies, findings, model versions, training data, datastreams |
 | `schema/core.yaml` | Entity, SpatialEntity, Asset, DerivedEntity; lifecycle and provenance slots; shared prefixes |
 | `schema/topology.yaml` | SWMM-first: Junction, Outfall, Divider, StorageUnit, LIDControl, Conduit, Street, Pump, Orifice, Weir, Outlet, Inlet, RainGage, Subcatchment, LandUse, Aquifer, Mesh2D/Cell2D, Terminal, Structure, Zone; Edge (one directed graph: CONNECTS_TO, DRAINS_TO, CAPTURES_TO, USES_GAGE, CONTAINED_IN, ATTACHED_TO, BELONGS_TO_ZONE, REPRESENTED_BY, COUPLED_TO ...) |
 | `schema/distribution.yaml` | Pipe, Tank, Valve, Hydrant, ServiceConnection, Meter (stub; not in the release root until distribution is in scope) |
@@ -181,3 +182,12 @@ UN is the asset register; SWMM is the hydraulic model. The mapping file says whi
 class / Asset Group / Asset Type becomes, which `EdgeRelation` each association type is, how terminals, network
 attributes, lifecycle codes and subnetwork tiers map, and that UN rules generate SHACL shapes. Assets are linked to
 their `SwmmElement` by `REPRESENTED_BY` edges produced by a reconciliation job.
+
+## Ontological frameworks
+
+| Framework | Role | How it appears |
+| --- | --- | --- |
+| **PROV-O** | Lineage: what was derived from what, by which activity, attributed to which agent | `DerivedEntity` (`wasDerivedFrom`, `wasGeneratedBy`); `Activity` mixin (`wasAssociatedWith`, `used`, `startedAtTime`); `Attributed` mixin (`wasAttributedTo`); `Agent` class with `actedOnBehalfOf` |
+| **Dublin Core (dcterms)** | Description: title, created/modified, creator, publisher, license, conformsTo, rights | Schema headers (`license`, `created_by`, `source`) and `dc_*` slots on dataset-like classes |
+| **DCAT** | Discoverability: datasets and their distributions | `Dataset` mixin with `Distribution` (access URL, media type, checksum, Delta version) on `Revision`, `Attempt`, `TrainingDataset`, `MLModelVersion`, `Datastream` |
+| SOSA/SSN, OWL-Time, SEM, QUDT, GeoSPARQL, SKOS, SAREF4WATR, ML-Schema, HydroCouple | Domain vocabularies | `exact_mappings` / `slot_uri` throughout; see each module |

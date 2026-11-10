@@ -15,7 +15,7 @@ classDiagram
     string assumptions
     boolean verifier_passed*
     ReviewState review_state
-    string reviewed_by
+    Agent reviewed_by
   }
   class Attempt {
     string attempt_id*
@@ -55,6 +55,7 @@ classDiagram
     PlatformStudyView study_view
   }
   DerivedEntity <|-- AgentFinding
+  AgentFinding --> "1" Agent : reviewed_by
   DerivedEntity <|-- Attempt
   Attempt --> "1" Run : of_run
   Attempt *-- "1" PlatformAttemptManifest : attempt_manifest

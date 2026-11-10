@@ -21,6 +21,7 @@ nav:
   - Module map: diagrams/modules.md
   - Modules:
       - core: diagrams/core.md
+      - provenance: diagrams/provenance.md
       - topology: diagrams/topology.md
       - observation: diagrams/observation.md
       - event: diagrams/event.md

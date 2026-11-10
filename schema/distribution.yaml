@@ -6,7 +6,9 @@ description: >-
   was scoped to SWMM collection systems. Kept so the earlier design is not
   lost; not imported by the release root until distribution is in scope.
 version: 0.1.0
-license: Apache-2.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
 prefixes:
   wsys: https://w3id.org/wsys/
   linkml: https://w3id.org/linkml/
