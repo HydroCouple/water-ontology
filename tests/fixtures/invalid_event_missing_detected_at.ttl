@@ -1,0 +1,3 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix ex:   <https://w3id.org/wsys/asset/demo/> .
+ex:EV9 a wsys:Event ; wsys:class_iri wsys:Event ; wsys:event_type "CSO_EVENT" ; wsys:event_source "AGENT" ; wsys:severity "CRITICAL" ; wsys:lifecycle_state "DETECTED" .

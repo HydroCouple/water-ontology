@@ -5,7 +5,7 @@ DIST      := dist
 
 .PHONY: all lint owl shacl sql docs clean test
 
-all: model-check platform-check lint owl shacl sql delta diagrams
+all: model-check platform-check lint owl shacl sql delta assertions diagrams
 
 lint:
 	for f in schema/*.yaml; do linkml-lint --config .linkmllint.yaml --ignore-warnings $$f || exit 1; done
@@ -65,3 +65,7 @@ diagrams:
 
 docs-serve:
 	mkdocs serve
+
+assertions: | $(DIST)
+	python -m generators.linkml_to_assertions $(ROOT) --catalog water_core -o $(DIST)/assertions
+	cp $(DIST)/assertions/RULES.md docs/rules.md

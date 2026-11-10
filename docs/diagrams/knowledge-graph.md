@@ -8,6 +8,13 @@ Assets form a directed graph through Edge rows; each asset is REPRESENTED_BY its
 
 ```mermaid
 flowchart TB
+  subgraph wsys_model["SWMM model (generated)"]
+    SwmmElement(["SwmmElement"])
+    SwmmGage["SwmmGage"]
+    SwmmLink(["SwmmLink"])
+    SwmmNode(["SwmmNode"])
+    SwmmSubcatchment["SwmmSubcatchment"]
+  end
   subgraph wsys_topology["topology"]
     Conduit["Conduit"]
     Edge["Edge"]
@@ -28,13 +35,6 @@ flowchart TB
     WaterSystem["WaterSystem"]
     Weir["Weir"]
     Zone["Zone"]
-  end
-  subgraph wsys_model["SWMM model (generated)"]
-    SwmmElement(["SwmmElement"])
-    SwmmGage["SwmmGage"]
-    SwmmLink(["SwmmLink"])
-    SwmmNode(["SwmmNode"])
-    SwmmSubcatchment["SwmmSubcatchment"]
   end
   subgraph wsys_analysis["analysis"]
     Revision["Revision"]
@@ -92,10 +92,6 @@ A Sensor is ATTACHED_TO an asset; its Datastream carries Observations; Observati
 
 ```mermaid
 flowchart TB
-  subgraph wsys_topology["topology"]
-    Structure["Structure"]
-    Zone["Zone"]
-  end
   subgraph wsys_observation["observation"]
     Datastream["Datastream"]
     Observation["Observation"]
@@ -103,14 +99,18 @@ flowchart TB
     Sensor["Sensor"]
     Setpoint["Setpoint"]
   end
+  subgraph wsys_analysis["analysis"]
+    AgentFinding["AgentFinding"]
+    Attempt["Attempt"]
+  end
   subgraph wsys_event["event"]
     Event["Event"]
     EventLink["EventLink"]
     EventStateChange["EventStateChange"]
   end
-  subgraph wsys_analysis["analysis"]
-    AgentFinding["AgentFinding"]
-    Attempt["Attempt"]
+  subgraph wsys_topology["topology"]
+    Structure["Structure"]
+    Zone["Zone"]
   end
   subgraph wsys_core["core"]
     Asset(["Asset"])
@@ -148,16 +148,6 @@ A Composition of ModelComponents is packaged as a Revision, executed as Runs and
 
 ```mermaid
 flowchart TB
-  subgraph wsys_observation["observation"]
-    Observation["Observation"]
-  end
-  subgraph wsys_analysis["analysis"]
-    Attempt["Attempt"]
-    Candidate["Candidate"]
-    Revision["Revision"]
-    Run["Run"]
-    Study["Study"]
-  end
   subgraph wsys_topology["topology"]
     Aquifer["Aquifer"]
     Mesh2D["Mesh2D"]
@@ -172,6 +162,16 @@ flowchart TB
     Input["Input"]
     ModelComponent["ModelComponent"]
     Output["Output"]
+  end
+  subgraph wsys_analysis["analysis"]
+    Attempt["Attempt"]
+    Candidate["Candidate"]
+    Revision["Revision"]
+    Run["Run"]
+    Study["Study"]
+  end
+  subgraph wsys_observation["observation"]
+    Observation["Observation"]
   end
   AdaptedOutput -.-> Output
   Input -.-> ExchangeItem
@@ -221,14 +221,14 @@ flowchart TB
     Prediction["Prediction"]
     TrainingDataset["TrainingDataset"]
   end
-  subgraph wsys_analysis["analysis"]
-    Revision["Revision"]
-  end
   subgraph wsys_topology["topology"]
     Zone["Zone"]
   end
   subgraph wsys_core["core"]
     Asset(["Asset"])
+  end
+  subgraph wsys_analysis["analysis"]
+    Revision["Revision"]
   end
   DriftCheck -- of_version --> MLModelVersion
   Event -- zone --> Zone
@@ -254,24 +254,6 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-  subgraph wsys_provenance["provenance"]
-    Activity["Activity"]
-    Agent["Agent"]
-    Attributed["Attributed"]
-    Dataset["Dataset"]
-    Distribution["Distribution"]
-  end
-  subgraph wsys_event["event"]
-    Event["Event"]
-    EventLink["EventLink"]
-    EventStateChange["EventStateChange"]
-  end
-  subgraph wsys_core["core"]
-    Asset(["Asset"])
-    DerivedEntity(["DerivedEntity"])
-    SpatialEntity(["SpatialEntity"])
-    Utility["Utility"]
-  end
   subgraph wsys_topology["topology"]
     Aquifer["Aquifer"]
     Cell2D["Cell2D"]
@@ -299,6 +281,13 @@ flowchart TB
     Weir["Weir"]
     Zone["Zone"]
   end
+  subgraph wsys_provenance["provenance"]
+    Activity["Activity"]
+    Agent["Agent"]
+    Attributed["Attributed"]
+    Dataset["Dataset"]
+    Distribution["Distribution"]
+  end
   subgraph wsys_analysis["analysis"]
     AgentFinding["AgentFinding"]
     Attempt["Attempt"]
@@ -306,6 +295,14 @@ flowchart TB
     Revision["Revision"]
     Run["Run"]
     Study["Study"]
+  end
+  subgraph wsys_model["SWMM model (generated)"]
+    SwmmElement(["SwmmElement"])
+    SwmmGage["SwmmGage"]
+    SwmmLink(["SwmmLink"])
+    SwmmNode(["SwmmNode"])
+    SwmmPollutant["SwmmPollutant"]
+    SwmmSubcatchment["SwmmSubcatchment"]
   end
   subgraph wsys_coupling["coupling"]
     AdaptedOutput["AdaptedOutput"]
@@ -316,14 +313,6 @@ flowchart TB
     Input["Input"]
     ModelComponent["ModelComponent"]
     Output["Output"]
-  end
-  subgraph wsys_model["SWMM model (generated)"]
-    SwmmElement(["SwmmElement"])
-    SwmmGage["SwmmGage"]
-    SwmmLink(["SwmmLink"])
-    SwmmNode(["SwmmNode"])
-    SwmmPollutant["SwmmPollutant"]
-    SwmmSubcatchment["SwmmSubcatchment"]
   end
   subgraph wsys_ml["ml"]
     DriftCheck["DriftCheck"]
@@ -340,6 +329,17 @@ flowchart TB
     ObservedProperty["ObservedProperty"]
     Sensor["Sensor"]
     Setpoint["Setpoint"]
+  end
+  subgraph wsys_core["core"]
+    Asset(["Asset"])
+    DerivedEntity(["DerivedEntity"])
+    SpatialEntity(["SpatialEntity"])
+    Utility["Utility"]
+  end
+  subgraph wsys_event["event"]
+    Event["Event"]
+    EventLink["EventLink"]
+    EventStateChange["EventStateChange"]
   end
   AdaptedOutput -.-> Output
   AgentFinding -.-> DerivedEntity

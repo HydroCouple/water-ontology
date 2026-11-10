@@ -13,10 +13,10 @@ jobs:
       - name: generated modules match the vendored OpenSWMM catalog and platform schemas
         run: make model-check platform-check
       - run: make lint
+      - run: make owl shacl sql delta assertions diagrams
       - run: pytest -q
-      - run: make owl shacl sql delta diagrams
       - name: generated diagrams are committed
-        run: git diff --exit-code -- docs/diagrams
+        run: git diff --exit-code -- docs/diagrams docs/rules.md
       - uses: actions/upload-artifact@v4
         with: { name: dist, path: dist }
 

@@ -1,0 +1,6 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix ex:   <https://w3id.org/wsys/asset/demo/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+# from_node on an asset: connectivity must be an Edge row, never a property of the conduit
+ex:C8 a wsys:Conduit ; wsys:class_iri wsys:Conduit ; wsys:lifecycle_status "IN_SERVICE" ; wsys:xsect_shape "CIRCULAR" ;
+      wsys:length "10.0"^^xsd:float ; wsys:from_node ex:J1 .

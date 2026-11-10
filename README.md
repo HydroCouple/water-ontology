@@ -191,3 +191,10 @@ their `SwmmElement` by `REPRESENTED_BY` edges produced by a reconciliation job.
 | **Dublin Core (dcterms)** | Description: title, created/modified, creator, publisher, license, conformsTo, rights | Schema headers (`license`, `created_by`, `source`) and `dc_*` slots on dataset-like classes |
 | **DCAT** | Discoverability: datasets and their distributions | `Dataset` mixin with `Distribution` (access URL, media type, checksum, Delta version) on `Revision`, `Attempt`, `TrainingDataset`, `MLModelVersion`, `Datastream` |
 | SOSA/SSN, OWL-Time, SEM, QUDT, GeoSPARQL, SKOS, SAREF4WATR, ML-Schema, HydroCouple | Domain vocabularies | `exact_mappings` / `slot_uri` throughout; see each module |
+
+## Validation
+
+Two layers, both generated:
+
+- **SHACL** (`dist/wsys.shacl.ttl`): per-node checks - required slots, enum values, datatypes, closed shapes. `tests/fixtures/` holds a valid mini-network and invalid variants; `tests/test_shacl.py` asserts each fails for the intended reason.
+- **SQL assertions** (`dist/assertions/`, from `generators/linkml_to_assertions.py`): cross-row rules that need joins - edge endpoints exist, each relation only connects the classes `edge_domains.yaml` allows, every link has one upstream and one downstream node, subcatchments drain somewhere, sensors are attached, resolved events have a resolution, AI agents never confirm events, predictions target the model's class, one champion per model. Each rule is a view `reference.v_violation_<rule>`; `99_refresh_violations.sql` rebuilds `reference.ontology_violation`. See [docs/rules.md](docs/rules.md).

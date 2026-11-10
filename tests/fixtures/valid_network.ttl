@@ -1,0 +1,25 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix ex:   <https://w3id.org/wsys/asset/demo/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# rain gage -> subcatchment -> junction -> conduit -> outfall, one level sensor, one flooding event
+ex:SYS  a wsys:WaterSystem ; wsys:class_iri wsys:WaterSystem ; skos:prefLabel "Demo sewershed" .
+ex:RG1  a wsys:RainGage ; wsys:class_iri wsys:RainGage ; wsys:lifecycle_status "IN_SERVICE" ; wsys:rain_format "INTENSITY" .
+ex:S1   a wsys:Subcatchment ; wsys:class_iri wsys:Subcatchment ; wsys:area "4.2"^^xsd:float ; wsys:impervious_fraction "0.55"^^xsd:float ; wsys:system ex:SYS .
+ex:J1   a wsys:Junction ; wsys:class_iri wsys:Junction ; wsys:lifecycle_status "IN_SERVICE" ; wsys:invert_elevation "101.3"^^xsd:float ; wsys:max_depth "2.4"^^xsd:float ; wsys:system ex:SYS .
+ex:O1   a wsys:Outfall ; wsys:class_iri wsys:Outfall ; wsys:lifecycle_status "IN_SERVICE" ; wsys:outfall_type "FREE" ; wsys:system ex:SYS .
+ex:C1   a wsys:Conduit ; wsys:class_iri wsys:Conduit ; wsys:lifecycle_status "IN_SERVICE" ; wsys:length "120.0"^^xsd:float ;
+        wsys:xsect_shape "CIRCULAR" ; wsys:geom1 "0.6"^^xsd:float ; wsys:roughness "0.013"^^xsd:float ; wsys:material "RCP" ; wsys:system ex:SYS .
+ex:LS1  a wsys:Sensor ; wsys:class_iri wsys:Sensor ; wsys:lifecycle_status "IN_SERVICE" ; wsys:sensor_kind "LEVEL_SENSOR" .
+
+[] a wsys:Edge ; wsys:from_iri ex:S1 ; wsys:to_iri ex:RG1 ; wsys:relation "USES_GAGE" .
+[] a wsys:Edge ; wsys:from_iri ex:S1 ; wsys:to_iri ex:J1  ; wsys:relation "DRAINS_TO" .
+[] a wsys:Edge ; wsys:from_iri ex:J1 ; wsys:to_iri ex:C1  ; wsys:relation "CONNECTS_TO" .
+[] a wsys:Edge ; wsys:from_iri ex:C1 ; wsys:to_iri ex:O1  ; wsys:relation "CONNECTS_TO" .
+[] a wsys:Edge ; wsys:from_iri ex:LS1 ; wsys:to_iri ex:J1 ; wsys:relation "ATTACHED_TO" .
+
+ex:EV1  a wsys:Event ; wsys:class_iri wsys:Event ; wsys:event_type "FLOODING" ; wsys:event_source "SCADA" ; wsys:severity "HIGH" ;
+        wsys:lifecycle_state "DETECTED" ; wsys:detected_at "2026-10-03T14:20:00Z"^^xsd:dateTime ; wsys:primary_entity ex:J1 ;
+        wsys:summary "Level above rim at J1" .
+[] a wsys:EventLink ; wsys:event ex:EV1 ; wsys:target_iri ex:J1 ; wsys:link_relation "LOCATED_AT" .

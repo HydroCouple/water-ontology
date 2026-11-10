@@ -246,6 +246,8 @@ class DeltaGenerator:
         for i, c in enumerate(self.concrete_classes(), start=10):
             (out_dir / f"{i:02d}_{self.module_of(c)}_{snake(c)}.sql").write_text(self.emit_table(c))
         (out_dir / "90_asset_union_view.sql").write_text(self.emit_union_view("Asset"))
+        if "SwmmElement" in self.sv.all_classes():
+            (out_dir / "91_swmm_element_union_view.sql").write_text(self.emit_union_view("SwmmElement"))
         if self.errors:
             raise SystemExit("mapping errors:\n  " + "\n  ".join(self.errors))
 

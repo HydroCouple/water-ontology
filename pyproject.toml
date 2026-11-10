@@ -15,7 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 engine = ["openswmm>=6.0.0a4.dev2"]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "sqlglot>=25"]
 docs = ["mkdocs-material>=9.5", "pymdown-extensions>=10"]
 
 [tool.pytest.ini_options]

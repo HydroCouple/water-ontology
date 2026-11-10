@@ -1,0 +1,3 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix ex:   <https://w3id.org/wsys/asset/demo/> .
+ex:J9 a wsys:Junction ; wsys:class_iri wsys:Junction ; wsys:lifecycle_status "RETIRED" .

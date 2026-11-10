@@ -18,6 +18,7 @@ nav:
   - How it fits together: architecture.md
   - Knowledge graph: diagrams/knowledge-graph.md
   - Relations: diagrams/relations.md
+  - Validation rules: rules.md
   - Module map: diagrams/modules.md
   - Modules:
       - core: diagrams/core.md

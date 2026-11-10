@@ -1,0 +1,3 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix ex:   <https://w3id.org/wsys/asset/demo/> .
+ex:C9 a wsys:Conduit ; wsys:class_iri wsys:Conduit ; wsys:lifecycle_status "IN_SERVICE" ; wsys:xsect_shape "CIRCULAR" .
