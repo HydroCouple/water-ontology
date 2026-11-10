@@ -1,0 +1,1286 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../rules/">
+      
+      
+        <link rel="next" href="../diagrams/modules/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Agent context - Water Systems Ontology</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ontology-context-for-agents" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Water Systems Ontology" class="md-header__button md-logo" aria-label="Water Systems Ontology" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Water Systems Ontology
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Agent context
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HydroCouple/water-ontology" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Water Systems Ontology" class="md-nav__button md-logo" aria-label="Water Systems Ontology" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Water Systems Ontology
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HydroCouple/water-ontology" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How it fits together
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/knowledge-graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/relations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent context
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#identity-and-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity and conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        provenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        topology
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        observation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        event
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coupling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        coupling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swmm-model-elements-generated-from-the-engine-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SWMM model elements (generated from the engine catalog)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relations-in-topologyedge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relations in topology.edge
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relations-in-eventevent_link" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relations in event.event_link
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-enumerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key enumerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rules-the-data-must-satisfy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules the data must satisfy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-an-agent-may-and-may-not-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What an agent may and may not do
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/modules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/provenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    provenance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/observation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    observation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/event/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    event
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/coupling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    coupling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/analysis-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    platform contracts (generated)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SWMM model (generated)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagrams/ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ml
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ontology-context-for-agents">Ontology context for agents<a class="headerlink" href="#ontology-context-for-agents" title="Permanent link">&para;</a></h1>
+<p>Generated from the water-ontology schema (version 0.1.0); do not edit. Tables are in catalog <code>water_core</code>; the table for a class is shown in brackets. Abstract classes have no table; query the union views <code>topology.asset</code> and <code>model.swmm_element</code>, or <code>reference.entity</code> (every entity with its class).</p>
+<h2 id="identity-and-conventions">Identity and conventions<a class="headerlink" href="#identity-and-conventions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Every row has <code>iri</code> (the thing) and <code>class_iri</code> (what it is). Use IRIs, never labels, as tool arguments; resolve names through <code>label</code> and <code>alt_ids</code>.</li>
+<li>Connectivity, drainage, containment, attachment, zone membership and model links are rows in <code>topology.edge</code> (<code>from_iri</code>, <code>relation</code>, <code>to_iri</code>), never columns on an asset.</li>
+<li>An asset is linked to its SWMM model element by a <code>REPRESENTED_BY</code> edge; <code>topology.*</code> values are SI (m, ha, mm, m3/s), <code>model.*</code> values keep the model's own units.</li>
+<li>Tables with <code>valid_to</code> are versioned; read the <code>&lt;table&gt;_current</code> view unless the question is historical.</li>
+<li>Every derived value carries <code>was_generated_by</code>; cite it (attempt, model version, job) with any number you report.</li>
+<li>Units are QUDT IRIs in a <code>unit</code> column or a column tag; never assume a unit.</li>
+</ul>
+<h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
+<h3 id="core">core<a class="headerlink" href="#core" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Entity (abstract): Anything with a stable IRI.</li>
+<li>DerivedEntity (abstract): Anything produced by a computation, pipeline or agent.</li>
+<li>SpatialEntity (abstract): An entity with a location or footprint.<ul>
+<li>Asset (abstract): A physical component of a water system that is owned, maintained and can fail.</li>
+</ul>
+</li>
+<li>Utility  [reference.utility]: A water utility or operating organisation.</li>
+</ul>
+<h3 id="provenance">provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Distribution: One concrete form of a dataset-like entity - a Delta table at a version, a file in a Volume, a model artifact.</li>
+<li>(under Entity)</li>
+<li>Agent  [reference.agent]: Someone or something responsible for an entity or activity (PROV-O Agent).</li>
+</ul>
+<h3 id="topology">topology<a class="headerlink" href="#topology" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Edge  [topology.edge]: One directed, typed relationship between two entities.</li>
+<li>(under Asset)</li>
+<li>Inlet  [topology.inlet]: A curb, grate or combination inlet that captures street flow; CAPTURES_TO a Node and is ATTACHED_TO a Street.</li>
+<li>Link (abstract): A component that conveys flow between two nodes.<ul>
+<li>Conduit  [topology.conduit]: A gravity sewer, force main, culvert or open channel with a cross-section and roughness.</li>
+<li>Street  [topology.street]: A street cross-section conveying surface flow; inlets along it capture flow to the drainage network.</li>
+<li>Orifice  [topology.orifice]: A side or bottom orifice regulating flow between nodes; may be gated.</li>
+<li>Outlet  [topology.outlet]: A flow regulator defined by a rating curve.</li>
+<li>Pump  [topology.pump]: A pump; connects through SUCTION and DISCHARGE terminals.</li>
+<li>Weir  [topology.weir]: A transverse, side-flow, V-notch, trapezoidal or roadway weir.</li>
+</ul>
+</li>
+<li>Node (abstract): A point in the network where links meet or where flow enters, leaves or is stored.<ul>
+<li>Divider  [topology.divider]: A node that splits inflow between two downstream links by rule, weir or tabular relationship.</li>
+<li>Junction  [topology.junction]: A manhole, catch basin or pipe junction with no storage volume beyond its shaft.</li>
+<li>LIDControl  [topology.lid_control]: A low-impact-development control (bioretention, permeable pavement, green roof, ...).</li>
+<li>Outfall  [topology.outfall]: A terminal node where flow leaves the system to a receiving water; defines a sewershed when used as a subnetwork controller.</li>
+<li>StorageUnit  [topology.storage_unit]: A wet well, detention basin, retention pond or tank with a depth-area or depth-volume relationship.</li>
+</ul>
+</li>
+<li>RainGage  [topology.rain_gage]: A rain gage or the rainfall record it provides; Subcatchments reference it by USES_GAGE edges.</li>
+<li>Structure  [topology.structure]: A chamber, vault, pump station building or other enclosure that contains devices.</li>
+<li>(under Entity)</li>
+<li>LandUse  [topology.land_use]: A land-use category used for pollutant buildup and washoff.</li>
+<li>Terminal  [topology.terminal]: A named port on a device through which it connects.</li>
+<li>WaterSystem  [topology.water_system]: A hydraulically connected drainage, sewer or stormwater network operated as one system, usually one SWMM model.</li>
+<li>(under SpatialEntity)</li>
+<li>Aquifer  [topology.aquifer]: A groundwater unit beneath subcatchments or a 2D mesh; exchanges with the drainage network.</li>
+<li>Cell2D  [topology.cell_2d]: One cell of a Mesh2D.</li>
+<li>Mesh2D  [topology.mesh_2d]: A finite-volume surface mesh for 2D overland flow coupled to the 1D network.</li>
+<li>Subcatchment  [topology.subcatchment]: A land area whose runoff drains to one outlet node or subcatchment (DRAINS_TO edge).</li>
+<li>Zone  [topology.zone]: A derived grouping of nodes, links and subcatchments such as a sewershed, drainage area or CSO basin.</li>
+</ul>
+<h3 id="observation">observation<a class="headerlink" href="#observation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>(under Asset)</li>
+<li>Sensor  [observation.sensor]: A physical or virtual device that observes a property of an asset or area.</li>
+<li>(under DerivedEntity)</li>
+<li>Observation  [observation.observation]: One value of one property for one entity at one time.</li>
+<li>Setpoint  [observation.setpoint]: A target value for a controllable property (pump speed, gate opening, tank level band) effective over a period.</li>
+<li>(under Entity)</li>
+<li>Datastream  [observation.datastream]: One sensor observing one property of one feature of interest over time; the unit of telemetry ingestion and the thing a staleness threshold </li>
+<li>ObservedProperty  [observation.observed_property]: A measurable property such as flow, depth or TSS concentration, with its physical kind and default unit.</li>
+</ul>
+<h3 id="event">event<a class="headerlink" href="#event" title="Permanent link">&para;</a></h3>
+<ul>
+<li>EventLink  [event.event_link]: A typed link from an event to an asset, zone, observation, work order, attempt or other event.</li>
+<li>(under DerivedEntity)</li>
+<li>EventStateChange  [event.event_state_change]: One lifecycle transition of an event with who, when and why; the PROV activity behind every state the event has been in.</li>
+<li>(under SpatialEntity)</li>
+<li>Event  [event.event]: Something that happened to the system.</li>
+</ul>
+<h3 id="operations">operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>(under Entity)</li>
+<li>Inspection  [operations.inspection]: A condition inspection of an asset with its grades; may be EVIDENCE_FOR an event such as a blockage.</li>
+<li>WorkOrder  [operations.work_order]: A unit of work on an asset.</li>
+</ul>
+<h3 id="coupling">coupling<a class="headerlink" href="#coupling" title="Permanent link">&para;</a></h3>
+<ul>
+<li>ComponentArgument: One IArgument of a component as configured (name, value or file path, type).</li>
+<li>ComponentConnection  [coupling.component_connection]: A typed link from a provider Output to a consumer Input, optionally through an AdaptedOutput.</li>
+<li>(under Entity)</li>
+<li>Composition  [coupling.composition]: The set of components and connections run together; what hydrocouple.platform packages into a Revision.</li>
+<li>ExchangeItem (abstract): An input or output of a component with its value definition (quantity and unit), dimensions and spatial structure.<ul>
+<li>Input  [coupling.input]: A consumer of values.</li>
+<li>Output  [coupling.output]: A provider of values.</li>
+<li>AdaptedOutput  [coupling.adapted_output]: An output transformed in time, space or unit from a provider output by an adapter factory.</li>
+</ul>
+</li>
+<li>ModelComponent  [coupling.model_component]: A configured instance of a HydroCouple model component inside a composition - a SWMM model, a 2D mesh, a data reader, an adapter factory or </li>
+</ul>
+<h3 id="analysis">analysis<a class="headerlink" href="#analysis" title="Permanent link">&para;</a></h3>
+<ul>
+<li>(under DerivedEntity)</li>
+<li>AgentFinding  [analysis.agent_finding]: What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict.</li>
+<li>Attempt  [analysis.attempt]: One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest).</li>
+<li>Candidate  [analysis.candidate]: One evaluated design or policy in a study, with its decision variables and objective values.</li>
+<li>Run  [analysis.run]: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).</li>
+<li>Study  [analysis.study]: An ask/tell optimisation over an evaluator pool (platform study view): objectives, budget, state and the Pareto set.</li>
+<li>(under Entity)</li>
+<li>Revision  [analysis.revision]: An immutable packaged composition (files, components, findings) recorded by a hydrocouple.platform revision manifest.</li>
+</ul>
+<h3 id="ml">ml<a class="headerlink" href="#ml" title="Permanent link">&para;</a></h3>
+<ul>
+<li>EvaluationMetric: One metric on one split, with the baseline value it must beat.</li>
+<li>FeatureBinding: Binds one model input or target to the ontology - which class, which property, how aggregated, over what window, reached through which relat</li>
+<li>(under DerivedEntity)</li>
+<li>DriftCheck  [ml.drift_check]: A scheduled comparison of live inputs or predictions against the training distribution or recent observations (Lakehouse Monitoring); DRIFTE</li>
+<li>MLModelVersion  [ml.ml_model_version]: One trained artifact of an MLModel, registered in Unity Catalog through MLflow.</li>
+<li>Prediction  [ml.prediction]: One predicted value for one entity, property and valid time from one model version, with interval or probability, the inputs used and an out</li>
+<li>TrainingDataset  [ml.training_dataset]: The exact data a version was trained and evaluated on - tables at Delta versions, time window, entities, split strategy - so training is rep</li>
+<li>(under Entity)</li>
+<li>MLModel  [ml.ml_model]: A named modelling problem with a stable identity across versions, e.g.</li>
+</ul>
+<h3 id="swmm-model-elements-generated-from-the-engine-catalog">SWMM model elements (generated from the engine catalog)<a class="headerlink" href="#swmm-model-elements-generated-from-the-engine-catalog" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SwmmElement (abstract), keyed by <code>revision</code> + <code>element_id</code>: SwmmNode -&gt; SwmmJunction, SwmmOutfall, SwmmStorage, SwmmDivider; SwmmLink -&gt; SwmmConduit, SwmmPump, SwmmOrifice, SwmmWeir, SwmmOutlet; SwmmSubcatchment; SwmmGage; SwmmPollutant; SwmmLanduse; SwmmPattern; SwmmTable. Columns mirror engine properties and are tagged with <code>catalog_path</code>, <code>access</code> and <code>unit_kind</code>.</li>
+</ul>
+<h2 id="relations-in-topologyedge">Relations in topology.edge<a class="headerlink" href="#relations-in-topologyedge" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>CONNECTS_TO</code>: Hydraulic connectivity from the upstream end to the downstream end as modelled Allowed: Link -&gt; Node; Node -&gt; Link.</li>
+<li><code>DRAINS_TO</code>: Runoff routing from a Subcatchment to a Node or another Subcatchment Allowed: Subcatchment -&gt; Node; Subcatchment -&gt; Subcatchment; LIDControl -&gt; Node.</li>
+<li><code>CAPTURES_TO</code>: An Inlet captures street flow to a Node Allowed: Inlet -&gt; Node.</li>
+<li><code>USES_GAGE</code>: A Subcatchment receives rainfall from a RainGage Allowed: Subcatchment -&gt; RainGage.</li>
+<li><code>CONTAINED_IN</code>: Structural containment such as a flow meter inside a chamber Allowed: Asset -&gt; Structure; LIDControl -&gt; Subcatchment; Sensor -&gt; Structure.</li>
+<li><code>ATTACHED_TO</code>: A device mounted on another asset such as a level sensor on a manhole Allowed: Sensor -&gt; Asset; Inlet -&gt; Street.</li>
+<li><code>BELONGS_TO_ZONE</code>: Membership of a derived sewershed or drainage area or CSO basin Allowed: Asset -&gt; Zone; Subcatchment -&gt; Zone; Zone -&gt; Zone.</li>
+<li><code>FEEDS</code>: A node or storage that supplies a zone or downstream system Allowed: Node -&gt; Zone; WaterSystem -&gt; WaterSystem.</li>
+<li><code>ISOLATED_BY</code>: A conduit or zone whose isolation depends on this gate or valve Allowed: Conduit -&gt; Orifice; Zone -&gt; Orifice; Conduit -&gt; Pump.</li>
+<li><code>PART_OF_SYSTEM</code>: Membership of a WaterSystem Allowed: Asset -&gt; WaterSystem; Subcatchment -&gt; WaterSystem; Zone -&gt; WaterSystem; Aquifer -&gt; WaterSystem; Mesh2D -&gt; WaterSystem.</li>
+<li><code>REPRESENTED_BY</code>: The SwmmElement in a given Revision that models this asset Allowed: Asset -&gt; SwmmElement; Subcatchment -&gt; SwmmSubcatchment; RainGage -&gt; SwmmGage; WaterSystem -&gt; Revision.</li>
+<li><code>COUPLED_TO</code>: A HydroCouple exchange between two model components or domains Allowed: ModelComponent -&gt; ModelComponent; WaterSystem -&gt; Mesh2D; WaterSystem -&gt; Aquifer.</li>
+</ul>
+<h2 id="relations-in-eventevent_link">Relations in event.event_link<a class="headerlink" href="#relations-in-eventevent_link" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>AFFECTS</code>: Asset or zone or cell or customer set impacted Allowed: Event -&gt; Asset; Event -&gt; Zone; Event -&gt; Cell2D.</li>
+<li><code>LOCATED_AT</code>: The asset or location where it occurred Allowed: Event -&gt; Asset; Event -&gt; Subcatchment.</li>
+<li><code>EVIDENCE_FOR</code>: An observation, anomaly or report supporting this event (link from evidence to event) Allowed: Observation -&gt; Event; Inspection -&gt; Event; Prediction -&gt; Event; Event -&gt; Event.</li>
+<li><code>CAUSED_BY</code>: Another event or condition that caused this one Allowed: Event -&gt; Event.</li>
+<li><code>PART_OF</code>: Child event of a larger one (e.g. flooding within a storm) Allowed: Event -&gt; Event.</li>
+<li><code>RESOLVED_BY</code>: Work order or control action that resolved it Allowed: Event -&gt; WorkOrder; Event -&gt; Setpoint.</li>
+<li><code>TRIGGERED</code>: A control action or alarm this event triggered Allowed: Event -&gt; Setpoint; Event -&gt; Event.</li>
+<li><code>EXPLAINED_BY</code>: A model attempt or finding that explains it Allowed: Event -&gt; Attempt; Event -&gt; AgentFinding.</li>
+<li><code>REPORTED_IN</code>: Regulatory report or notice</li>
+</ul>
+<h2 id="key-enumerations">Key enumerations<a class="headerlink" href="#key-enumerations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>LifecycleStatus: PROPOSED, UNDER_CONSTRUCTION, IN_SERVICE, OUT_OF_SERVICE, ABANDONED, REMOVED</li>
+<li>QualityFlag: GOOD, SUSPECT, BAD, MISSING, ESTIMATED, STALE, OUT_OF_RANGE, MANUAL</li>
+<li>ResultKind: MEASUREMENT, FORECAST, SETPOINT, SIMULATION, AGGREGATE</li>
+<li>EventLifecycleState: DETECTED, CONFIRMED, IN_PROGRESS, RESOLVED, FALSE_POSITIVE, SUPERSEDED</li>
+<li>Severity: INFO, LOW, MEDIUM, HIGH, CRITICAL</li>
+<li>ModelStage: DEVELOPMENT, VALIDATED, CHAMPION, CHALLENGER, ARCHIVED</li>
+<li>AgentKind: PERSON, ORGANIZATION, SERVICE_PRINCIPAL, AI_AGENT, ML_MODEL, SOFTWARE</li>
+</ul>
+<h2 id="rules-the-data-must-satisfy">Rules the data must satisfy<a class="headerlink" href="#rules-the-data-must-satisfy" title="Permanent link">&para;</a></h2>
+<p>The validator enforces these; open violations are in <code>reference.ontology_violation</code>. If an entity you reason about appears there, say so.</p>
+<ul>
+<li>Both ends of every edge are known entities.</li>
+<li>Every in-service Link has exactly one upstream node (Node CONNECTS_TO Link) and one downstream node (Link CONNECTS_TO Node).</li>
+<li>Every Subcatchment has at least one DRAINS_TO edge.</li>
+<li>Every Subcatchment has at least one USES_GAGE edge.</li>
+<li>Every Sensor has at least one ATTACHED_TO edge.</li>
+<li>Every Asset has at least one PART_OF_SYSTEM edge.</li>
+<li>An asset is REPRESENTED_BY at most one model element per revision.</li>
+<li>An asset with model links is REPRESENTED_BY an element in some system's current revision.</li>
+<li>A WaterSystem's current_revision is a known Revision.</li>
+<li>A work order that resolves an event is COMPLETED with a completion time.</li>
+<li>A work order proposed by an AI agent is not APPROVED or beyond without a human approver.</li>
+<li>A RESOLVED event has a RESOLVED_BY link.</li>
+<li>CONFIRMED, IN_PROGRESS and RESOLVED events record who confirmed them.</li>
+<li>An AI agent may detect an event but never confirm it.</li>
+<li>Every event is LOCATED_AT or AFFECTS something.</li>
+<li>occurred_at &lt;= detected_at &lt;= ended_at where present.</li>
+<li>A prediction's target entity is an instance of its model's applies_to_class.</li>
+<li>A model has at most one CHAMPION version.</li>
+<li>An observation's unit is its property's default unit (after normalisation).</li>
+<li>Each relation only connects the classes listed under Relations.</li>
+</ul>
+<h2 id="what-an-agent-may-and-may-not-do">What an agent may and may not do<a class="headerlink" href="#what-an-agent-may-and-may-not-do" title="Permanent link">&para;</a></h2>
+<ul>
+<li>May read governed tables and call registered tools; may write <code>AgentFinding</code> rows, events in state DETECTED with source AGENT, and proposals (<code>Setpoint</code>, <code>WorkOrder</code>) that name a human approver field left empty.</li>
+<li>May not confirm events, approve work orders, set setpoints, or issue control actions.</li>
+<li>Must state staleness, non-GOOD quality flags, out-of-scope predictions and non-current model revisions when they affect an answer.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "content.code.copy", "toc.integrate"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
