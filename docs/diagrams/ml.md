@@ -23,7 +23,7 @@ classDiagram
     IRI source_class*
     IRI source_property*
     string relation_path
-    FeatureAggregation aggregation
+    FeatureAggregation feature_aggregation
     string window
     string lag
     string transform
@@ -62,7 +62,7 @@ classDiagram
     IRI target_entity*
     IRI target_property*
     datetime valid_time*
-    datetime issued_at*
+    datetime issued_at
     float value*
     IRI value_unit*
     float lower

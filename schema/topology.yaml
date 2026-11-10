@@ -186,6 +186,10 @@ slots:
     range: string
     description: JSON object of relation-specific attributes (e.g. fraction of runoff routed, confidence of an inferred edge, match score of a REPRESENTED_BY link).
 
+  current_revision:
+    range: IRI
+    description: IRI of the analysis Revision that is the model of record for this system; REPRESENTED_BY links are checked against it. Changing it is a governed act (SCD2 row).
+
   # --- network attributes -------------------------------------------------
   system:
     range: WaterSystem
@@ -396,6 +400,7 @@ classes:
   WaterSystem:
     is_a: Entity
     description: A hydraulically connected drainage, sewer or stormwater network operated as one system, usually one SWMM model.
+    slots: [current_revision]
     exact_mappings: [s4watr:WaterInfrastructure]
 
   Zone:

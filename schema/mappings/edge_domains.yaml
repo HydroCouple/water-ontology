@@ -57,6 +57,7 @@ EventLinkRelation:
     - [Event, Subcatchment]
   EVIDENCE_FOR:
     - [Observation, Event]
+    - [Inspection, Event]
     - [Prediction, Event]
     - [Event, Event]
   CAUSED_BY:
@@ -64,6 +65,7 @@ EventLinkRelation:
   PART_OF:
     - [Event, Event]
   RESOLVED_BY:
+    - [Event, WorkOrder]
     - [Event, Setpoint]
   TRIGGERED:
     - [Event, Setpoint]

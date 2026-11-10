@@ -113,6 +113,27 @@ WHERE x.class_iri IN ({self.in_list(self.leaves(cls))}) AND e.{side} IS NULL""")
 SELECT e.from_iri AS focus_iri, concat('asset is represented by ', count(*), ' elements in revision ', m.revision) AS message
 FROM {edge} e JOIN {self.t('model', 'swmm_element')} m ON m.iri = e.to_iri
 WHERE e.relation = 'REPRESENTED_BY' GROUP BY e.from_iri, m.revision HAVING count(*) > 1""")
+        ws = self.t("topology", "water_system_current")
+        self.add("represented_by_current_revision", "WARNING", "An asset with model links is REPRESENTED_BY an element in some system's current revision.", f"""
+SELECT a.focus_iri, 'asset is only linked to model elements in non-current revisions' AS message
+FROM (SELECT e.from_iri AS focus_iri, max(CASE WHEN w.iri IS NOT NULL THEN 1 ELSE 0 END) AS has_current
+      FROM {edge} e JOIN {self.t('model', 'swmm_element')} m ON m.iri = e.to_iri
+      LEFT JOIN {ws} w ON w.current_revision = m.revision
+      WHERE e.relation = 'REPRESENTED_BY' GROUP BY e.from_iri) a
+WHERE a.has_current = 0""")
+        self.add("system_current_revision_exists", "ERROR", "A WaterSystem's current_revision is a known Revision.", f"""
+SELECT w.iri AS focus_iri, concat('current_revision ', w.current_revision, ' is not in analysis.revision') AS message
+FROM {ws} w LEFT JOIN {self.t('analysis', 'revision')} r ON r.iri = w.current_revision
+WHERE w.current_revision IS NOT NULL AND r.iri IS NULL""")
+        wo = self.t("operations", "work_order_current")
+        self.add("event_resolved_by_completed_work", "ERROR", "A work order that resolves an event is COMPLETED with a completion time.", f"""
+SELECT k.event AS focus_iri, concat('RESOLVED_BY work order ', o.iri, ' has status ', o.work_status) AS message
+FROM {self.t('event', 'event_link')} k JOIN {wo} o ON o.iri = k.target_iri
+WHERE k.link_relation = 'RESOLVED_BY' AND (o.work_status <> 'COMPLETED' OR o.completed_at IS NULL)""")
+        self.add("work_order_ai_proposal_needs_approval", "ERROR", "A work order proposed by an AI agent is not APPROVED or beyond without a human approver.", f"""
+SELECT o.iri AS focus_iri, 'AI-proposed work order advanced without approved_by_agent' AS message
+FROM {wo} o JOIN {self.t('reference', 'agent')} a ON a.iri = o.proposed_by
+WHERE a.agent_kind = 'AI_AGENT' AND o.work_status NOT IN ('REQUESTED', 'CANCELLED') AND o.approved_by_agent IS NULL""")
         # events
         ev, link = self.t("event", "event_current"), self.t("event", "event_link")
         self.add("event_resolved_has_resolution", "ERROR", "A RESOLVED event has a RESOLVED_BY link.", f"""

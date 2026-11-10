@@ -132,6 +132,7 @@ classDiagram
     FlowDirection flow_direction
   }
   class WaterSystem {
+    IRI current_revision
   }
   class Weir {
     WeirType weir_type

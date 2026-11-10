@@ -22,7 +22,7 @@ classDiagram
     IRI unit*
     QualityFlag quality_flag*
     ResultKind result_kind*
-    datetime issued_at*
+    datetime issued_at
     string horizon
     float lower
     float upper

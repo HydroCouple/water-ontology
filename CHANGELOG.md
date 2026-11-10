@@ -4,6 +4,8 @@
 - LinkML source of truth: `core`, `topology`, `analysis` (stub), `ml`, generated `model`; release root `wsys.yaml`.
 - Generators: OpenSWMM catalog → `model.yaml` (with lock and staleness check); LinkML → Delta DDL, Unity Catalog comments/tags, enum reference tables, class hierarchy table, SCD2 views, asset union view, STRUCT component views.
 - Topology refactored to SWMM/OpenSWMM element semantics; distribution classes moved to a stub module; REPRESENTED_BY links assets to model elements.
+- Operations module (`WorkOrder`, `Inspection`); `WaterSystem.current_revision`; four new assertions (current revision, completed work, AI-proposed work needs approval).
+- Fixed: eleven slots were defined in two modules (one with conflicting ranges); de-duplicated, with a test.
 - Validation: SHACL fixtures and tests; 35 generated SQL assertions with `reference.entity`, `reference.class_closure` and `reference.ontology_violation`; `model.swmm_element` union view.
 - Provenance module: PROV-O `Agent` and `Attributed`/`Activity`/`Dataset` mixins; Dublin Core metadata; DCAT distributions; actor slots re-typed to `Agent`.
 - Generated Mermaid figures (module map, knowledge-graph views, relations, per-module class diagrams), architecture page, mkdocs site with GitHub Pages deploy.

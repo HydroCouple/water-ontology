@@ -74,3 +74,16 @@ def test_release_root_builds_every_module():
         assert m in names, f"{m} not imported by the release root"
     for c in ["Revision", "Attempt", "Composition", "SwmmConduit", "Conduit", "Observation", "Event", "MLModelVersion"]:
         assert c in sv.all_classes()
+
+
+def test_no_slot_is_defined_in_two_modules():
+    """Global slots merged from two modules resolve by import order; a duplicate is a latent conflict."""
+    import collections
+    seen = collections.defaultdict(list)
+    for f in sorted((ROOT / "schema").glob("*.yaml")):
+        if f.name == "distribution.yaml":      # stub, not in the release root
+            continue
+        for n in (yaml.safe_load(f.read_text()).get("slots") or {}):
+            seen[n].append(f.stem)
+    dup = {n: m for n, m in seen.items() if len(m) > 1}
+    assert not dup, f"slots defined in more than one module: {dup}"

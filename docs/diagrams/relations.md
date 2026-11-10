@@ -85,10 +85,12 @@ flowchart LR
   Event[Event] -- LOCATED_AT --> Asset[Asset]
   Event[Event] -- LOCATED_AT --> Subcatchment[Subcatchment]
   Observation[Observation] -- EVIDENCE_FOR --> Event[Event]
+  Inspection[Inspection] -- EVIDENCE_FOR --> Event[Event]
   Prediction[Prediction] -- EVIDENCE_FOR --> Event[Event]
   Event[Event] -- EVIDENCE_FOR --> Event[Event]
   Event[Event] -- CAUSED_BY --> Event[Event]
   Event[Event] -- PART_OF --> Event[Event]
+  Event[Event] -- RESOLVED_BY --> WorkOrder[WorkOrder]
   Event[Event] -- RESOLVED_BY --> Setpoint[Setpoint]
   Event[Event] -- TRIGGERED --> Setpoint[Setpoint]
   Event[Event] -- TRIGGERED --> Event[Event]
@@ -104,10 +106,12 @@ flowchart LR
 | `LOCATED_AT` | Event | Asset | The asset or location where it occurred |
 | `LOCATED_AT` | Event | Subcatchment | The asset or location where it occurred |
 | `EVIDENCE_FOR` | Observation | Event | An observation, anomaly or report supporting this event (link from evidence to event) |
+| `EVIDENCE_FOR` | Inspection | Event | An observation, anomaly or report supporting this event (link from evidence to event) |
 | `EVIDENCE_FOR` | Prediction | Event | An observation, anomaly or report supporting this event (link from evidence to event) |
 | `EVIDENCE_FOR` | Event | Event | An observation, anomaly or report supporting this event (link from evidence to event) |
 | `CAUSED_BY` | Event | Event | Another event or condition that caused this one |
 | `PART_OF` | Event | Event | Child event of a larger one (e.g. flooding within a storm) |
+| `RESOLVED_BY` | Event | WorkOrder | Work order or control action that resolved it |
 | `RESOLVED_BY` | Event | Setpoint | Work order or control action that resolved it |
 | `TRIGGERED` | Event | Setpoint | A control action or alarm this event triggered |
 | `TRIGGERED` | Event | Event | A control action or alarm this event triggered |

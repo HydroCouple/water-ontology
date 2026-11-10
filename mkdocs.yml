@@ -26,6 +26,7 @@ nav:
       - topology: diagrams/topology.md
       - observation: diagrams/observation.md
       - event: diagrams/event.md
+      - operations: diagrams/operations.md
       - coupling: diagrams/coupling.md
       - analysis: diagrams/analysis.md
       - platform contracts (generated): diagrams/analysis-platform.md

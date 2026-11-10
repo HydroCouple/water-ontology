@@ -25,6 +25,7 @@ imports:
   - linkml:types
   - core
   - provenance
+  - observation
   - analysis
 
 enums:
@@ -157,9 +158,6 @@ slots:
     multivalued: true
     inlined_as_list: true
     description: Input features in the order of the MLflow signature.
-  horizon:
-    range: string
-    description: Forecast horizon as an ISO 8601 duration (PT6H, P7D); null for nowcasts and classifiers.
   resolution:
     range: string
     description: Temporal resolution of inputs and outputs as an ISO 8601 duration (PT15M, PT1H).
@@ -186,7 +184,7 @@ slots:
     range: IRI
     required: true
     description: Ontology slot or ObservedProperty IRI (wsys:prop/flow, wsys:Conduit/diameter).
-  aggregation:
+  feature_aggregation:
     range: FeatureAggregation
     description: Aggregation applied over window; NONE when the raw value is used.
   window:
@@ -263,34 +261,13 @@ slots:
     required: true
 
   # --- prediction ----------------------------------------------------------------
-  target_entity:
-    range: IRI
-    required: true
-    description: The entity the prediction is about; its class_iri must match applies_to_class.
-  target_property:
-    range: IRI
-    required: true
   valid_time:
     range: datetime
     required: true
     description: The instant or interval start the prediction refers to.
-  issued_at:
-    range: datetime
-    required: true
-  value:
-    range: float
-    required: true
   value_unit:
     range: IRI
     required: true
-  lower:
-    range: float
-    description: Lower bound of the prediction interval (see interval_level).
-  upper:
-    range: float
-  interval_level:
-    range: float
-    description: Coverage of the interval, e.g. 0.9.
   probability:
     range: float
     minimum_value: 0
@@ -324,7 +301,7 @@ classes:
 
   FeatureBinding:
     description: Binds one model input or target to the ontology - which class, which property, how aggregated, over what window, reached through which relations. The MLflow signature names the column; this says what the column means.
-    slots: [feature_name, source_class, source_property, relation_path, aggregation, window, lag, transform, feature_unit, feature_table]
+    slots: [feature_name, source_class, source_property, relation_path, feature_aggregation, window, lag, transform, feature_unit, feature_table]
     exact_mappings: [mls:Feature]
 
   TrainingDataset:

@@ -34,7 +34,7 @@ VIEWS = {
          "Inlet", "Street", "Structure", "Terminal", "Edge", "SwmmElement", "SwmmNode", "SwmmLink", "SwmmSubcatchment", "SwmmGage", "Revision"]),
     "Telemetry and events around an asset": (
         "A Sensor is ATTACHED_TO an asset; its Datastream carries Observations; Observations are EVIDENCE_FOR Events, which AFFECT assets and zones and are EXPLAINED_BY model attempts.",
-        ["Asset", "Zone", "Structure", "Sensor", "ObservedProperty", "Datastream", "Observation", "Setpoint", "Event", "EventLink", "EventStateChange", "Attempt", "AgentFinding"]),
+        ["Asset", "Zone", "Structure", "Sensor", "ObservedProperty", "Datastream", "Observation", "Setpoint", "Event", "EventLink", "EventStateChange", "WorkOrder", "Inspection", "Attempt", "AgentFinding"]),
     "Simulation lifecycle (HydroCouple and hydrocouple.platform)": (
         "A Composition of ModelComponents is packaged as a Revision, executed as Runs and Attempts (or optimised in a Study); simulated values come back as Observations of kind SIMULATION.",
         ["ModelComponent", "ComponentArgument", "ExchangeItem", "Input", "Output", "AdaptedOutput", "ComponentConnection", "Composition", "Revision", "Run", "Attempt", "Study", "Candidate", "Observation", "WaterSystem", "Mesh2D", "Aquifer"]),
@@ -44,7 +44,7 @@ VIEWS = {
 }
 
 MODULE_LABEL = {
-    "wsys-core": "core", "wsys-provenance": "provenance", "wsys-topology": "topology", "wsys-observation": "observation", "wsys-event": "event",
+    "wsys-core": "core", "wsys-provenance": "provenance", "wsys-topology": "topology", "wsys-observation": "observation", "wsys-event": "event", "wsys-operations": "operations",
     "wsys-coupling": "coupling", "wsys-analysis": "analysis", "wsys-analysis-platform": "platform contracts (generated)",
     "wsys-model": "SWMM model (generated)", "wsys-ml": "ml",
 }

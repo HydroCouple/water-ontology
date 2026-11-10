@@ -126,6 +126,7 @@ flowchart LR
 | `schema/mappings/swmm_to_wsys.yaml` | Hand-curated: which `wsys:` topology class each generated `Swmm*` class means |
 | `schema/analysis_platform.yaml` | **Generated** from hydrocouple.platform JSON Schemas by `make platform`: `Platform*` contract classes (revision manifest, run request, job spec, attempt manifest, study view, event, error) with `$defs` inlined |
 | `schema/analysis.yaml` | Curated: `Revision`, `Run`, `Attempt`, `Study`, `Candidate`, `AgentFinding`; each embeds its platform contract as a manifest and adds wsys identity and PROV |
+| `schema/operations.yaml` | `WorkOrder` (type, status, target asset, proposer and human approver) and `Inspection` (method, condition grades); events are `RESOLVED_BY` completed work orders |
 | `schema/coupling.yaml` | HydroCouple: `ModelComponent`, `ComponentArgument`, `ExchangeItem` → `Input` / `Output` / `AdaptedOutput`, `Composition`, `ComponentConnection` |
 | `schema/wsys.yaml` | Release root that imports every module; build targets point here |
 | `generators/` | LinkML → Delta DDL + UC metadata, catalog → LinkML, LinkML → prompt |

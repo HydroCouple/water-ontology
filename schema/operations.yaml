@@ -1,0 +1,121 @@
+id: https://w3id.org/wsys/operations
+name: wsys-operations
+title: Water Systems Ontology — Operations
+description: >-
+  Work the utility does on its assets: work orders and inspections. Minimal on
+  purpose; it exists so events can be resolved by real work (RESOLVED_BY) and
+  inspection results can be evidence for events. Extended when CMMS data is
+  onboarded.
+version: 0.1.0
+license: https://spdx.org/licenses/Apache-2.0
+created_by: https://github.com/HydroCouple
+source: https://github.com/HydroCouple/water-ontology
+prefixes:
+  wsys: https://w3id.org/wsys/
+  linkml: https://w3id.org/linkml/
+  prov: http://www.w3.org/ns/prov#
+default_prefix: wsys
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - provenance
+
+enums:
+  WorkOrderType:
+    permissible_values:
+      REPAIR: {}
+      REPLACEMENT: {}
+      CLEANING: {}
+      INSPECTION: {}
+      PREVENTIVE_MAINTENANCE: {}
+      EMERGENCY_RESPONSE: {}
+      INVESTIGATION: {}
+  WorkOrderStatus:
+    permissible_values:
+      REQUESTED: {}
+      APPROVED: {}
+      SCHEDULED: {}
+      IN_PROGRESS: {}
+      COMPLETED: {}
+      CANCELLED: {}
+  InspectionMethod:
+    permissible_values:
+      CCTV: {}
+      VISUAL: {}
+      SMOKE_TEST: {}
+      DYE_TEST: {}
+      FLOW_MONITORING: {}
+  ConditionGrade:
+    description: Structural or operational condition on a 1 to 5 scale (PACP-style).
+    permissible_values:
+      GRADE_1: {description: Excellent}
+      GRADE_2: {description: Good}
+      GRADE_3: {description: Fair}
+      GRADE_4: {description: Poor}
+      GRADE_5: {description: Failed or failure imminent}
+
+slots:
+  work_type:
+    range: WorkOrderType
+    required: true
+  work_status:
+    range: WorkOrderStatus
+    required: true
+  target_asset:
+    range: IRI
+    required: true
+    description: The asset the work or inspection is on.
+  cmms_id:
+    range: string
+    description: Identifier in the CMMS.
+  work_summary:
+    range: string
+  priority:
+    range: integer
+    minimum_value: 1
+    maximum_value: 5
+  requested_at:
+    range: datetime
+  scheduled_for:
+    range: datetime
+  completed_at:
+    range: datetime
+    description: Required when work_status is COMPLETED.
+  assigned_to:
+    range: Agent
+  proposed_by:
+    range: Agent
+    description: Set when an AI agent proposed the work; a person must approve it.
+  approved_by_agent:
+    range: Agent
+    description: The person who approved the work order.
+  inspection_method:
+    range: InspectionMethod
+    required: true
+  inspected_at:
+    range: datetime
+    required: true
+  structural_grade:
+    range: ConditionGrade
+  operational_grade:
+    range: ConditionGrade
+  under_work_order:
+    range: WorkOrder
+  report_uri:
+    range: string
+    description: Inspection report or video in a governed Volume.
+
+classes:
+  WorkOrder:
+    is_a: Entity
+    mixins: [Attributed]
+    description: A unit of work on an asset. Events are RESOLVED_BY completed work orders. AI agents may propose work orders (proposed_by) but a person approves them.
+    slots: [work_type, work_status, target_asset, cmms_id, work_summary, priority, requested_at, scheduled_for, completed_at, assigned_to, proposed_by, approved_by_agent]
+    exact_mappings: [prov:Activity]
+
+  Inspection:
+    is_a: Entity
+    mixins: [Attributed]
+    description: A condition inspection of an asset with its grades; may be EVIDENCE_FOR an event such as a blockage.
+    slots: [target_asset, inspection_method, inspected_at, structural_grade, operational_grade, under_work_order, report_uri]

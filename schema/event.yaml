@@ -114,9 +114,6 @@ slots:
   reported_at:
     range: datetime
     description: When it was reported to the utility or the regulator.
-  ended_at:
-    range: datetime
-    description: End of the interval; null while ongoing or for instantaneous events.
   occurred_at_estimated:
     range: boolean
     description: True when occurred_at is inferred rather than observed.
@@ -126,8 +123,6 @@ slots:
   zone:
     range: Zone
     description: Zone the event falls in, denormalised for aggregation.
-  system:
-    range: WaterSystem
   estimated_volume:
     range: float
     unit: {ucum_code: m3}
@@ -178,6 +173,8 @@ classes:
     is_a: SpatialEntity
     description: Something that happened to the system. One row per event; evidence, causes, impacts and resolution are EventLink rows; state changes are EventStateChange rows. Agents may create DETECTED events with source AGENT but never CONFIRMED ones.
     slots: [event_type, event_source, severity, lifecycle_state, occurred_at, occurred_at_estimated, detected_at, reported_at, ended_at, primary_entity, zone, system, estimated_volume, peak_value, peak_unit, confirmed_by, external_id, summary]
+    slot_usage:
+      ended_at: {description: End of the interval; null while ongoing or for instantaneous events.}
     exact_mappings: [sem:Event]
     close_mappings: [time:TemporalEntity]
 

@@ -8,13 +8,6 @@ Assets form a directed graph through Edge rows; each asset is REPRESENTED_BY its
 
 ```mermaid
 flowchart TB
-  subgraph wsys_model["SWMM model (generated)"]
-    SwmmElement(["SwmmElement"])
-    SwmmGage["SwmmGage"]
-    SwmmLink(["SwmmLink"])
-    SwmmNode(["SwmmNode"])
-    SwmmSubcatchment["SwmmSubcatchment"]
-  end
   subgraph wsys_topology["topology"]
     Conduit["Conduit"]
     Edge["Edge"]
@@ -35,6 +28,13 @@ flowchart TB
     WaterSystem["WaterSystem"]
     Weir["Weir"]
     Zone["Zone"]
+  end
+  subgraph wsys_model["SWMM model (generated)"]
+    SwmmElement(["SwmmElement"])
+    SwmmGage["SwmmGage"]
+    SwmmLink(["SwmmLink"])
+    SwmmNode(["SwmmNode"])
+    SwmmSubcatchment["SwmmSubcatchment"]
   end
   subgraph wsys_analysis["analysis"]
     Revision["Revision"]
@@ -92,21 +92,14 @@ A Sensor is ATTACHED_TO an asset; its Datastream carries Observations; Observati
 
 ```mermaid
 flowchart TB
-  subgraph wsys_observation["observation"]
-    Datastream["Datastream"]
-    Observation["Observation"]
-    ObservedProperty["ObservedProperty"]
-    Sensor["Sensor"]
-    Setpoint["Setpoint"]
-  end
-  subgraph wsys_analysis["analysis"]
-    AgentFinding["AgentFinding"]
-    Attempt["Attempt"]
-  end
   subgraph wsys_event["event"]
     Event["Event"]
     EventLink["EventLink"]
     EventStateChange["EventStateChange"]
+  end
+  subgraph wsys_analysis["analysis"]
+    AgentFinding["AgentFinding"]
+    Attempt["Attempt"]
   end
   subgraph wsys_topology["topology"]
     Structure["Structure"]
@@ -115,6 +108,17 @@ flowchart TB
   subgraph wsys_core["core"]
     Asset(["Asset"])
   end
+  subgraph wsys_observation["observation"]
+    Datastream["Datastream"]
+    Observation["Observation"]
+    ObservedProperty["ObservedProperty"]
+    Sensor["Sensor"]
+    Setpoint["Setpoint"]
+  end
+  subgraph wsys_operations["operations"]
+    Inspection["Inspection"]
+    WorkOrder["WorkOrder"]
+  end
   Sensor -.-> Asset
   Structure -.-> Asset
   Datastream -- sensor --> Sensor
@@ -122,6 +126,7 @@ flowchart TB
   Event -- zone --> Zone
   EventLink -- event --> Event
   EventStateChange -- event --> Event
+  Inspection -- under_work_order --> WorkOrder
   Observation -- datastream --> Datastream
   Asset == CONTAINED_IN ==> Structure
   Sensor == CONTAINED_IN ==> Structure
@@ -132,9 +137,11 @@ flowchart TB
   Event == AFFECTS ==> Zone
   Event == LOCATED_AT ==> Asset
   Observation == EVIDENCE_FOR ==> Event
+  Inspection == EVIDENCE_FOR ==> Event
   Event == EVIDENCE_FOR ==> Event
   Event == CAUSED_BY ==> Event
   Event == PART_OF ==> Event
+  Event == RESOLVED_BY ==> WorkOrder
   Event == RESOLVED_BY ==> Setpoint
   Event == TRIGGERED ==> Setpoint
   Event == TRIGGERED ==> Event
@@ -221,14 +228,14 @@ flowchart TB
     Prediction["Prediction"]
     TrainingDataset["TrainingDataset"]
   end
-  subgraph wsys_topology["topology"]
-    Zone["Zone"]
-  end
   subgraph wsys_core["core"]
     Asset(["Asset"])
   end
   subgraph wsys_analysis["analysis"]
     Revision["Revision"]
+  end
+  subgraph wsys_topology["topology"]
+    Zone["Zone"]
   end
   DriftCheck -- of_version --> MLModelVersion
   Event -- zone --> Zone
@@ -254,6 +261,21 @@ flowchart TB
 
 ```mermaid
 flowchart TB
+  subgraph wsys_event["event"]
+    Event["Event"]
+    EventLink["EventLink"]
+    EventStateChange["EventStateChange"]
+  end
+  subgraph wsys_coupling["coupling"]
+    AdaptedOutput["AdaptedOutput"]
+    ComponentArgument["ComponentArgument"]
+    ComponentConnection["ComponentConnection"]
+    Composition["Composition"]
+    ExchangeItem(["ExchangeItem"])
+    Input["Input"]
+    ModelComponent["ModelComponent"]
+    Output["Output"]
+  end
   subgraph wsys_topology["topology"]
     Aquifer["Aquifer"]
     Cell2D["Cell2D"]
@@ -281,38 +303,11 @@ flowchart TB
     Weir["Weir"]
     Zone["Zone"]
   end
-  subgraph wsys_provenance["provenance"]
-    Activity["Activity"]
-    Agent["Agent"]
-    Attributed["Attributed"]
-    Dataset["Dataset"]
-    Distribution["Distribution"]
-  end
-  subgraph wsys_analysis["analysis"]
-    AgentFinding["AgentFinding"]
-    Attempt["Attempt"]
-    Candidate["Candidate"]
-    Revision["Revision"]
-    Run["Run"]
-    Study["Study"]
-  end
-  subgraph wsys_model["SWMM model (generated)"]
-    SwmmElement(["SwmmElement"])
-    SwmmGage["SwmmGage"]
-    SwmmLink(["SwmmLink"])
-    SwmmNode(["SwmmNode"])
-    SwmmPollutant["SwmmPollutant"]
-    SwmmSubcatchment["SwmmSubcatchment"]
-  end
-  subgraph wsys_coupling["coupling"]
-    AdaptedOutput["AdaptedOutput"]
-    ComponentArgument["ComponentArgument"]
-    ComponentConnection["ComponentConnection"]
-    Composition["Composition"]
-    ExchangeItem(["ExchangeItem"])
-    Input["Input"]
-    ModelComponent["ModelComponent"]
-    Output["Output"]
+  subgraph wsys_core["core"]
+    Asset(["Asset"])
+    DerivedEntity(["DerivedEntity"])
+    SpatialEntity(["SpatialEntity"])
+    Utility["Utility"]
   end
   subgraph wsys_ml["ml"]
     DriftCheck["DriftCheck"]
@@ -323,6 +318,14 @@ flowchart TB
     Prediction["Prediction"]
     TrainingDataset["TrainingDataset"]
   end
+  subgraph wsys_analysis["analysis"]
+    AgentFinding["AgentFinding"]
+    Attempt["Attempt"]
+    Candidate["Candidate"]
+    Revision["Revision"]
+    Run["Run"]
+    Study["Study"]
+  end
   subgraph wsys_observation["observation"]
     Datastream["Datastream"]
     Observation["Observation"]
@@ -330,16 +333,24 @@ flowchart TB
     Sensor["Sensor"]
     Setpoint["Setpoint"]
   end
-  subgraph wsys_core["core"]
-    Asset(["Asset"])
-    DerivedEntity(["DerivedEntity"])
-    SpatialEntity(["SpatialEntity"])
-    Utility["Utility"]
+  subgraph wsys_model["SWMM model (generated)"]
+    SwmmElement(["SwmmElement"])
+    SwmmGage["SwmmGage"]
+    SwmmLink(["SwmmLink"])
+    SwmmNode(["SwmmNode"])
+    SwmmPollutant["SwmmPollutant"]
+    SwmmSubcatchment["SwmmSubcatchment"]
   end
-  subgraph wsys_event["event"]
-    Event["Event"]
-    EventLink["EventLink"]
-    EventStateChange["EventStateChange"]
+  subgraph wsys_provenance["provenance"]
+    Activity["Activity"]
+    Agent["Agent"]
+    Attributed["Attributed"]
+    Dataset["Dataset"]
+    Distribution["Distribution"]
+  end
+  subgraph wsys_operations["operations"]
+    Inspection["Inspection"]
+    WorkOrder["WorkOrder"]
   end
   AdaptedOutput -.-> Output
   AgentFinding -.-> DerivedEntity
@@ -414,6 +425,7 @@ flowchart TB
   EventStateChange -- event --> Event
   EventStateChange -- changed_by --> Agent
   ExchangeItem -- component --> ModelComponent
+  Inspection -- under_work_order --> WorkOrder
   Link -- system --> WaterSystem
   MLModel -- owner --> Agent
   MLModelVersion -- of_model --> MLModel
@@ -437,6 +449,9 @@ flowchart TB
   SwmmSubcatchment -- gage --> SwmmGage
   SwmmSubcatchment -- outlet --> SwmmElement
   Terminal -- on_device --> Asset
+  WorkOrder -- assigned_to --> Agent
+  WorkOrder -- proposed_by --> Agent
+  WorkOrder -- approved_by_agent --> Agent
   Zone -- system --> WaterSystem
   Link == CONNECTS_TO ==> Node
   Node == CONNECTS_TO ==> Link
@@ -476,10 +491,12 @@ flowchart TB
   Event == LOCATED_AT ==> Asset
   Event == LOCATED_AT ==> Subcatchment
   Observation == EVIDENCE_FOR ==> Event
+  Inspection == EVIDENCE_FOR ==> Event
   Prediction == EVIDENCE_FOR ==> Event
   Event == EVIDENCE_FOR ==> Event
   Event == CAUSED_BY ==> Event
   Event == PART_OF ==> Event
+  Event == RESOLVED_BY ==> WorkOrder
   Event == RESOLVED_BY ==> Setpoint
   Event == TRIGGERED ==> Setpoint
   Event == TRIGGERED ==> Event

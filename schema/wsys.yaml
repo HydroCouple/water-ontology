@@ -17,6 +17,7 @@ imports:
   - topology
   - observation
   - event
+  - operations
   - coupling
   - analysis_platform
   - analysis

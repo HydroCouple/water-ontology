@@ -21,6 +21,10 @@
 | `sensor_is_attached` | ERROR | Every Sensor has at least one ATTACHED_TO edge. |
 | `asset_in_a_system` | WARNING | Every Asset has at least one PART_OF_SYSTEM edge. |
 | `represented_by_unique` | ERROR | An asset is REPRESENTED_BY at most one model element per revision. |
+| `represented_by_current_revision` | WARNING | An asset with model links is REPRESENTED_BY an element in some system's current revision. |
+| `system_current_revision_exists` | ERROR | A WaterSystem's current_revision is a known Revision. |
+| `event_resolved_by_completed_work` | ERROR | A work order that resolves an event is COMPLETED with a completion time. |
+| `work_order_ai_proposal_needs_approval` | ERROR | A work order proposed by an AI agent is not APPROVED or beyond without a human approver. |
 | `event_resolved_has_resolution` | ERROR | A RESOLVED event has a RESOLVED_BY link. |
 | `event_confirmed_by_someone` | ERROR | CONFIRMED, IN_PROGRESS and RESOLVED events record who confirmed them. |
 | `event_never_confirmed_by_ai` | ERROR | An AI agent may detect an event but never confirm it. |
@@ -28,10 +32,10 @@
 | `event_times_ordered` | ERROR | occurred_at <= detected_at <= ended_at where present. |
 | `event_link_domain_affects` | ERROR | AFFECTS links an event to: Asset, Cell2D, Zone. |
 | `event_link_domain_located_at` | ERROR | LOCATED_AT links an event to: Asset, Subcatchment. |
-| `event_link_domain_evidence_for` | ERROR | EVIDENCE_FOR links an event to: Event, Observation, Prediction. |
+| `event_link_domain_evidence_for` | ERROR | EVIDENCE_FOR links an event to: Event, Inspection, Observation, Prediction. |
 | `event_link_domain_caused_by` | ERROR | CAUSED_BY links an event to: Event. |
 | `event_link_domain_part_of` | ERROR | PART_OF links an event to: Event. |
-| `event_link_domain_resolved_by` | ERROR | RESOLVED_BY links an event to: Setpoint. |
+| `event_link_domain_resolved_by` | ERROR | RESOLVED_BY links an event to: Setpoint, WorkOrder. |
 | `event_link_domain_triggered` | ERROR | TRIGGERED links an event to: Event, Setpoint. |
 | `event_link_domain_explained_by` | ERROR | EXPLAINED_BY links an event to: AgentFinding, Attempt. |
 | `prediction_target_matches_model_class` | ERROR | A prediction's target entity is an instance of its model's applies_to_class. |
