@@ -69,3 +69,12 @@ docs-serve:
 assertions: | $(DIST)
 	python -m generators.linkml_to_assertions $(ROOT) --catalog water_core -o $(DIST)/assertions
 	cp $(DIST)/assertions/RULES.md docs/rules.md
+
+# End-to-end example. `example` needs the engine (pip install -e '.[engine]'); `check-example` only needs the committed rows.
+EXAMPLE ?= examples/site_drainage
+
+example:
+	python -m loaders.swmm_to_rows $(EXAMPLE)/model.inp --utility demo --system site-drainage --run -o $(EXAMPLE)/rows
+
+check-example:
+	python -m harness.duckdb_harness $(EXAMPLE)/rows

@@ -14,8 +14,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-engine = ["openswmm>=6.0.0a4.dev2"]
-dev = ["pytest>=8.0", "sqlglot>=25"]
+engine = ["openswmm>=6.0.0a4.dev1"]   # PyPI build for now; loaders switch to the catalog API when a catalog-aware wheel is published
+dev = ["pytest>=8.0", "sqlglot>=25", "duckdb>=1.0"]
 docs = ["mkdocs-material>=9.5", "pymdown-extensions>=10"]
 
 [tool.pytest.ini_options]
@@ -26,4 +26,4 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["generators"]
+packages = ["generators", "loaders", "harness"]

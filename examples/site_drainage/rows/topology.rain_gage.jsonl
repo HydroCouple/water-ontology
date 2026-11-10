@@ -1,0 +1,1 @@
+{"alt_ids": ["swmm:RainGage"], "class_iri": "https://w3id.org/wsys/RainGage", "geometry": "POINT (-175.841 1212.778)", "iri": "wsys:asset/demo/RainGage", "label": "RainGage", "lifecycle_status": "IN_SERVICE", "rain_format": "VOLUME", "recording_interval": "PT300S", "source_system": "swmm:inp", "valid_from": "2026-11-10T12:13:41+00:00"}

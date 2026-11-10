@@ -199,3 +199,15 @@ Two layers, both generated:
 
 - **SHACL** (`dist/wsys.shacl.ttl`): per-node checks - required slots, enum values, datatypes, closed shapes. `tests/fixtures/` holds a valid mini-network and invalid variants; `tests/test_shacl.py` asserts each fails for the intended reason.
 - **SQL assertions** (`dist/assertions/`, from `generators/linkml_to_assertions.py`): cross-row rules that need joins - edge endpoints exist, each relation only connects the classes `edge_domains.yaml` allows, every link has one upstream and one downstream node, subcatchments drain somewhere, sensors are attached, resolved events have a resolution, AI agents never confirm events, predictions target the model's class, one champion per model. Each rule is a view `reference.v_violation_<rule>`; `99_refresh_violations.sql` rebuilds `reference.ontology_violation`. See [docs/rules.md](docs/rules.md).
+
+## End-to-end example
+
+`examples/site_drainage/` carries a SWMM model through the whole chain: `loaders/swmm_to_rows.py` opens the `.inp` with the OpenSWMM engine and writes rows for `model.*` (every catalog property the engine build can supply), `topology.*` (assets in SI units and every edge, including `REPRESENTED_BY`), `analysis.*` (revision, and a local run and attempt) and `observation.*` (simulated maxima). `harness/duckdb_harness.py` builds the same tables in DuckDB from the schema, transpiles the generated Databricks SQL, and runs all assertions.
+
+```bash
+pip install -e '.[dev,engine]'
+make example          # regenerate rows from the model (needs the engine)
+make check-example    # load rows into DuckDB and run the assertions
+```
+
+The harness checks rule logic on real rows before anything reaches a workspace; the Delta DDL itself has not yet been applied on Databricks.

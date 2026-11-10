@@ -29,15 +29,15 @@ flowchart TB
     Weir["Weir"]
     Zone["Zone"]
   end
+  subgraph wsys_analysis["analysis"]
+    Revision["Revision"]
+  end
   subgraph wsys_model["SWMM model (generated)"]
     SwmmElement(["SwmmElement"])
     SwmmGage["SwmmGage"]
     SwmmLink(["SwmmLink"])
     SwmmNode(["SwmmNode"])
     SwmmSubcatchment["SwmmSubcatchment"]
-  end
-  subgraph wsys_analysis["analysis"]
-    Revision["Revision"]
   end
   Conduit -.-> Link
   Junction -.-> Node
@@ -92,21 +92,12 @@ A Sensor is ATTACHED_TO an asset; its Datastream carries Observations; Observati
 
 ```mermaid
 flowchart TB
-  subgraph wsys_event["event"]
-    Event["Event"]
-    EventLink["EventLink"]
-    EventStateChange["EventStateChange"]
-  end
-  subgraph wsys_analysis["analysis"]
-    AgentFinding["AgentFinding"]
-    Attempt["Attempt"]
+  subgraph wsys_core["core"]
+    Asset(["Asset"])
   end
   subgraph wsys_topology["topology"]
     Structure["Structure"]
     Zone["Zone"]
-  end
-  subgraph wsys_core["core"]
-    Asset(["Asset"])
   end
   subgraph wsys_observation["observation"]
     Datastream["Datastream"]
@@ -115,9 +106,18 @@ flowchart TB
     Sensor["Sensor"]
     Setpoint["Setpoint"]
   end
+  subgraph wsys_event["event"]
+    Event["Event"]
+    EventLink["EventLink"]
+    EventStateChange["EventStateChange"]
+  end
   subgraph wsys_operations["operations"]
     Inspection["Inspection"]
     WorkOrder["WorkOrder"]
+  end
+  subgraph wsys_analysis["analysis"]
+    AgentFinding["AgentFinding"]
+    Attempt["Attempt"]
   end
   Sensor -.-> Asset
   Structure -.-> Asset
@@ -160,6 +160,9 @@ flowchart TB
     Mesh2D["Mesh2D"]
     WaterSystem["WaterSystem"]
   end
+  subgraph wsys_observation["observation"]
+    Observation["Observation"]
+  end
   subgraph wsys_coupling["coupling"]
     AdaptedOutput["AdaptedOutput"]
     ComponentArgument["ComponentArgument"]
@@ -176,9 +179,6 @@ flowchart TB
     Revision["Revision"]
     Run["Run"]
     Study["Study"]
-  end
-  subgraph wsys_observation["observation"]
-    Observation["Observation"]
   end
   AdaptedOutput -.-> Output
   Input -.-> ExchangeItem
@@ -216,8 +216,17 @@ An MLModel's target and inputs are FeatureBindings to ontology classes and prope
 
 ```mermaid
 flowchart TB
+  subgraph wsys_core["core"]
+    Asset(["Asset"])
+  end
+  subgraph wsys_topology["topology"]
+    Zone["Zone"]
+  end
   subgraph wsys_event["event"]
     Event["Event"]
+  end
+  subgraph wsys_analysis["analysis"]
+    Revision["Revision"]
   end
   subgraph wsys_ml["ml"]
     DriftCheck["DriftCheck"]
@@ -227,15 +236,6 @@ flowchart TB
     MLModelVersion["MLModelVersion"]
     Prediction["Prediction"]
     TrainingDataset["TrainingDataset"]
-  end
-  subgraph wsys_core["core"]
-    Asset(["Asset"])
-  end
-  subgraph wsys_analysis["analysis"]
-    Revision["Revision"]
-  end
-  subgraph wsys_topology["topology"]
-    Zone["Zone"]
   end
   DriftCheck -- of_version --> MLModelVersion
   Event -- zone --> Zone
@@ -261,20 +261,18 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-  subgraph wsys_event["event"]
-    Event["Event"]
-    EventLink["EventLink"]
-    EventStateChange["EventStateChange"]
+  subgraph wsys_core["core"]
+    Asset(["Asset"])
+    DerivedEntity(["DerivedEntity"])
+    SpatialEntity(["SpatialEntity"])
+    Utility["Utility"]
   end
-  subgraph wsys_coupling["coupling"]
-    AdaptedOutput["AdaptedOutput"]
-    ComponentArgument["ComponentArgument"]
-    ComponentConnection["ComponentConnection"]
-    Composition["Composition"]
-    ExchangeItem(["ExchangeItem"])
-    Input["Input"]
-    ModelComponent["ModelComponent"]
-    Output["Output"]
+  subgraph wsys_provenance["provenance"]
+    Activity["Activity"]
+    Agent["Agent"]
+    Attributed["Attributed"]
+    Dataset["Dataset"]
+    Distribution["Distribution"]
   end
   subgraph wsys_topology["topology"]
     Aquifer["Aquifer"]
@@ -303,20 +301,31 @@ flowchart TB
     Weir["Weir"]
     Zone["Zone"]
   end
-  subgraph wsys_core["core"]
-    Asset(["Asset"])
-    DerivedEntity(["DerivedEntity"])
-    SpatialEntity(["SpatialEntity"])
-    Utility["Utility"]
+  subgraph wsys_observation["observation"]
+    Datastream["Datastream"]
+    Observation["Observation"]
+    ObservedProperty["ObservedProperty"]
+    Sensor["Sensor"]
+    Setpoint["Setpoint"]
   end
-  subgraph wsys_ml["ml"]
-    DriftCheck["DriftCheck"]
-    EvaluationMetric["EvaluationMetric"]
-    FeatureBinding["FeatureBinding"]
-    MLModel["MLModel"]
-    MLModelVersion["MLModelVersion"]
-    Prediction["Prediction"]
-    TrainingDataset["TrainingDataset"]
+  subgraph wsys_event["event"]
+    Event["Event"]
+    EventLink["EventLink"]
+    EventStateChange["EventStateChange"]
+  end
+  subgraph wsys_operations["operations"]
+    Inspection["Inspection"]
+    WorkOrder["WorkOrder"]
+  end
+  subgraph wsys_coupling["coupling"]
+    AdaptedOutput["AdaptedOutput"]
+    ComponentArgument["ComponentArgument"]
+    ComponentConnection["ComponentConnection"]
+    Composition["Composition"]
+    ExchangeItem(["ExchangeItem"])
+    Input["Input"]
+    ModelComponent["ModelComponent"]
+    Output["Output"]
   end
   subgraph wsys_analysis["analysis"]
     AgentFinding["AgentFinding"]
@@ -326,13 +335,6 @@ flowchart TB
     Run["Run"]
     Study["Study"]
   end
-  subgraph wsys_observation["observation"]
-    Datastream["Datastream"]
-    Observation["Observation"]
-    ObservedProperty["ObservedProperty"]
-    Sensor["Sensor"]
-    Setpoint["Setpoint"]
-  end
   subgraph wsys_model["SWMM model (generated)"]
     SwmmElement(["SwmmElement"])
     SwmmGage["SwmmGage"]
@@ -341,16 +343,14 @@ flowchart TB
     SwmmPollutant["SwmmPollutant"]
     SwmmSubcatchment["SwmmSubcatchment"]
   end
-  subgraph wsys_provenance["provenance"]
-    Activity["Activity"]
-    Agent["Agent"]
-    Attributed["Attributed"]
-    Dataset["Dataset"]
-    Distribution["Distribution"]
-  end
-  subgraph wsys_operations["operations"]
-    Inspection["Inspection"]
-    WorkOrder["WorkOrder"]
+  subgraph wsys_ml["ml"]
+    DriftCheck["DriftCheck"]
+    EvaluationMetric["EvaluationMetric"]
+    FeatureBinding["FeatureBinding"]
+    MLModel["MLModel"]
+    MLModelVersion["MLModelVersion"]
+    Prediction["Prediction"]
+    TrainingDataset["TrainingDataset"]
   end
   AdaptedOutput -.-> Output
   AgentFinding -.-> DerivedEntity

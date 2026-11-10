@@ -1,0 +1,2 @@
+{"class_iri": "https://w3id.org/wsys/ObservedProperty", "default_unit": "unit:M", "iri": "wsys:prop/depth", "label": "depth", "property_kind": "DEPTH"}
+{"class_iri": "https://w3id.org/wsys/ObservedProperty", "default_unit": "unit:M3-PER-SEC", "iri": "wsys:prop/flow", "label": "flow", "property_kind": "FLOW"}

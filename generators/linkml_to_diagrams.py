@@ -107,8 +107,10 @@ class Diagrams:
 
     def graph_block(self, shown: set[str], direction: str = "TB") -> list[str]:
         keep = defaultdict(list)
-        for c in shown:
+        for c in sorted(shown):
             keep[self.module_of(c)].append(c)
+        order = list(MODULE_LABEL)
+        keep = dict(sorted(keep.items(), key=lambda kv: (order.index(kv[0]) if kv[0] in order else 99, kv[0])))
         lines = ["```mermaid", f"flowchart {direction}"]
         for mod, classes in keep.items():
             lines.append(f"  subgraph {mid(mod)}[\"{MODULE_LABEL.get(mod, mod)}\"]")

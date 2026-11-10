@@ -1,0 +1,37 @@
+{
+  "inp": "model.inp",
+  "inp_sha256": "df14b13664fc7952aa0021e67897ec0b938392c3cf66b32be9bbc907655f835f",
+  "revision": "wsys:revision/df14b13664fc",
+  "system": "wsys:system/demo/site-drainage",
+  "engine": "6.0.0a4.dev1",
+  "rows": {
+    "analysis.attempt": 1,
+    "analysis.revision": 1,
+    "analysis.run": 1,
+    "model.swmm_conduit": 11,
+    "model.swmm_gage": 1,
+    "model.swmm_junction": 11,
+    "model.swmm_outfall": 1,
+    "model.swmm_subcatchment": 7,
+    "observation.observation": 23,
+    "observation.observed_property": 2,
+    "reference.agent": 1,
+    "topology.conduit": 11,
+    "topology.edge": 99,
+    "topology.junction": 11,
+    "topology.outfall": 1,
+    "topology.rain_gage": 1,
+    "topology.subcatchment": 7,
+    "topology.water_system": 1
+  },
+  "catalog_properties_not_readable_with_this_engine": {
+    "gage.rainfall_series (nested value; the catalog type maps to a flat list)": 1,
+    "node.outfall.export_receipt": 1,
+    "node.storage_area": 12,
+    "subcatchment.snowpack": 7
+  },
+  "notes": [
+    "unit system US, flow units CFS; topology and observations converted to SI (m, ha, mm, m3/s); model.* rows keep model units",
+    "local run: runoff continuity error -0.0008999%, routing continuity error 0.0002051%"
+  ]
+}
