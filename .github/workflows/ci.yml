@@ -14,6 +14,20 @@ jobs:
         run: make model-check platform-check
       - run: make lint
       - run: pytest -q
-      - run: make owl shacl sql delta
+      - run: make owl shacl sql delta diagrams
+      - name: generated diagrams are committed
+        run: git diff --exit-code -- docs/diagrams
       - uses: actions/upload-artifact@v4
         with: { name: dist, path: dist }
+
+  docs:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e ".[docs]"
+      - run: mkdocs gh-deploy --force

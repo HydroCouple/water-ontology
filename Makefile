@@ -5,7 +5,7 @@ DIST      := dist
 
 .PHONY: all lint owl shacl sql docs clean test
 
-all: model-check platform-check lint owl shacl sql delta
+all: model-check platform-check lint owl shacl sql delta diagrams
 
 lint:
 	for f in schema/*.yaml; do linkml-lint --config .linkmllint.yaml --ignore-warnings $$f || exit 1; done
@@ -59,3 +59,9 @@ update-vendor:
 	cp $(PLATFORM_REPO)/src/hydrocouple_platform/schemas/platform/*.json vendor/hydrocouple.platform/schemas/
 	cd $(PLATFORM_REPO) && printf 'repo: HydroCouple/hydrocouple.platform\nbranch: %s\ncommit: %s\npath: src/hydrocouple_platform/schemas/platform\n' "$$(git branch --show-current)" "$$(git rev-parse HEAD)" > $(CURDIR)/vendor/hydrocouple.platform/SOURCE.yaml
 	$(MAKE) model platform
+
+diagrams:
+	python -m generators.linkml_to_diagrams $(ROOT) -o docs/diagrams
+
+docs-serve:
+	mkdocs serve

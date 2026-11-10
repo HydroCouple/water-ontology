@@ -1,0 +1,73 @@
+# Which classes each Edge / EventLink relation may connect (from -> to).
+# Read by generators/linkml_to_diagrams.py (knowledge-graph figures) and, in
+# step 3.4, compiled to SQL assertions and SHACL shapes on topology.edge.
+# Class names are wsys classes; an abstract class stands for all its subclasses.
+EdgeRelation:
+  CONNECTS_TO:
+    - [Link, Node]
+    - [Node, Link]
+  DRAINS_TO:
+    - [Subcatchment, Node]
+    - [Subcatchment, Subcatchment]
+    - [LIDControl, Node]
+  CAPTURES_TO:
+    - [Inlet, Node]
+  USES_GAGE:
+    - [Subcatchment, RainGage]
+  CONTAINED_IN:
+    - [Asset, Structure]
+    - [LIDControl, Subcatchment]
+    - [Sensor, Structure]
+  ATTACHED_TO:
+    - [Sensor, Asset]
+    - [Inlet, Street]
+  BELONGS_TO_ZONE:
+    - [Asset, Zone]
+    - [Subcatchment, Zone]
+    - [Zone, Zone]
+  FEEDS:
+    - [Node, Zone]
+    - [WaterSystem, WaterSystem]
+  ISOLATED_BY:
+    - [Conduit, Orifice]
+    - [Zone, Orifice]
+    - [Conduit, Pump]
+  PART_OF_SYSTEM:
+    - [Asset, WaterSystem]
+    - [Subcatchment, WaterSystem]
+    - [Zone, WaterSystem]
+    - [Aquifer, WaterSystem]
+    - [Mesh2D, WaterSystem]
+  REPRESENTED_BY:
+    - [Asset, SwmmElement]
+    - [Subcatchment, SwmmSubcatchment]
+    - [RainGage, SwmmGage]
+    - [WaterSystem, Revision]
+  COUPLED_TO:
+    - [ModelComponent, ModelComponent]
+    - [WaterSystem, Mesh2D]
+    - [WaterSystem, Aquifer]
+EventLinkRelation:
+  AFFECTS:
+    - [Event, Asset]
+    - [Event, Zone]
+    - [Event, Cell2D]
+  LOCATED_AT:
+    - [Event, Asset]
+    - [Event, Subcatchment]
+  EVIDENCE_FOR:
+    - [Observation, Event]
+    - [Prediction, Event]
+    - [Event, Event]
+  CAUSED_BY:
+    - [Event, Event]
+  PART_OF:
+    - [Event, Event]
+  RESOLVED_BY:
+    - [Event, Setpoint]
+  TRIGGERED:
+    - [Event, Setpoint]
+    - [Event, Event]
+  EXPLAINED_BY:
+    - [Event, Attempt]
+    - [Event, AgentFinding]

@@ -1,0 +1,31 @@
+site_name: Water Systems Ontology
+repo_url: https://github.com/HydroCouple/water-ontology
+docs_dir: docs
+theme:
+  name: material
+  features: [navigation.sections, content.code.copy, toc.integrate]
+markdown_extensions:
+  - tables
+  - toc: { permalink: true }
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+nav:
+  - Home: index.md
+  - How it fits together: architecture.md
+  - Knowledge graph: diagrams/knowledge-graph.md
+  - Relations: diagrams/relations.md
+  - Module map: diagrams/modules.md
+  - Modules:
+      - core: diagrams/core.md
+      - topology: diagrams/topology.md
+      - observation: diagrams/observation.md
+      - event: diagrams/event.md
+      - coupling: diagrams/coupling.md
+      - analysis: diagrams/analysis.md
+      - platform contracts (generated): diagrams/analysis-platform.md
+      - SWMM model (generated): diagrams/model.md
+      - ml: diagrams/ml.md

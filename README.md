@@ -9,6 +9,109 @@ Unity Catalog comments/tags/glossary for the physical model, prompt context
 for agents, and the `wsys:model` element vocabulary from `openswmm.engine`'s
 API catalog.
 
+## How it fits together
+
+```mermaid
+flowchart TB
+  subgraph sources["Sources"]
+    scada[SCADA / historian]
+    gis[GIS or ArcGIS Utility Network]
+    cmms[CMMS / CIS / LIMS]
+    inp[SWMM .inp and HydroCouple compositions]
+  end
+
+  subgraph ontology["water-ontology (this repo)"]
+    yaml[LinkML schema/*.yaml]
+    vendor[vendor/: OpenSWMM catalog, platform JSON Schemas]
+    gen[generators/]
+    vendor --> gen
+    yaml --> gen
+    gen --> owl[OWL + SHACL]
+    gen --> ddl[Delta DDL, comments, tags]
+    gen --> gloss[UC Glossary and Domains]
+    gen --> prompt[Agent prompt context]
+    gen --> figs[These diagrams]
+  end
+
+  subgraph dbx["Databricks (Unity Catalog)"]
+    direction TB
+    bronze[(water_raw: bronze)]
+    subgraph core["water_core"]
+      topo[(topology, observation, event)]
+      model[(model: SwmmElement tables)]
+      analysis[(analysis: Revision, Run, Attempt, Study, AgentFinding)]
+      coupling[(coupling)]
+      ml[(ml: models, predictions, drift)]
+      ref[(reference: enums, asset_class, ontology_violation)]
+    end
+    semantic[water_semantic: metric views, Genie spaces]
+    tools[water_agents: UC functions, tool_catalog, vector indexes]
+    agents[Agents: supervisor, grounder, specialists, verifier]
+    mlflow[MLflow 3: tracing, evaluation, UC Models]
+    gateway[Unity AI Gateway]
+  end
+
+  subgraph exec["Execution (consumed, not rebuilt)"]
+    engine[openswmm.engine + openswmm.mcp]
+    platform[hydrocouple.platform: revisions, runs, attempts, studies]
+  end
+
+  sources --> bronze --> core
+  ddl --> core
+  gloss --> semantic
+  prompt --> agents
+  core --> semantic --> tools --> agents
+  agents --> gateway
+  agents --> mlflow
+  tools -- interactive sessions --> engine
+  tools -- submit_run / create_study --> platform
+  platform -- attempt manifests, results --> analysis
+  inp --> platform
+  agents -- AgentFinding, proposed Setpoints, DETECTED events --> analysis
+  ml --> tools
+```
+
+Full write-up, the knowledge-graph views and per-module class diagrams: **[docs](docs/index.md)** (published with mkdocs on GitHub Pages). Figures under `docs/diagrams/` are generated from the schema by `make diagrams`; CI fails if they are stale.
+
+## Modules
+
+```mermaid
+flowchart LR
+  wsys["wsys<br/><small>0 classes</small>"]
+  wsys_ml["ml<br/><small>7 classes</small>"]
+  wsys_analysis["analysis<br/><small>6 classes</small>"]
+  wsys_analysis_platform["platform contracts (generated)<br/><small>21 classes</small>"]:::gen
+  wsys_coupling["coupling<br/><small>8 classes</small>"]
+  wsys_core["core<br/><small>5 classes</small>"]
+  wsys_model["SWMM model (generated)<br/><small>26 classes</small>"]:::gen
+  wsys_event["event<br/><small>3 classes</small>"]
+  wsys_topology["topology<br/><small>25 classes</small>"]
+  wsys_observation["observation<br/><small>5 classes</small>"]
+  wsys --> wsys_core
+  wsys --> wsys_topology
+  wsys --> wsys_observation
+  wsys --> wsys_event
+  wsys --> wsys_coupling
+  wsys --> wsys_analysis_platform
+  wsys --> wsys_analysis
+  wsys --> wsys_model
+  wsys --> wsys_ml
+  wsys_ml --> wsys_core
+  wsys_ml --> wsys_analysis
+  wsys_analysis --> wsys_core
+  wsys_analysis --> wsys_coupling
+  wsys_analysis --> wsys_analysis_platform
+  wsys_coupling --> wsys_core
+  wsys_model --> wsys_core
+  wsys_model --> wsys_analysis
+  wsys_event --> wsys_core
+  wsys_event --> wsys_topology
+  wsys_topology --> wsys_core
+  wsys_observation --> wsys_core
+  wsys_observation --> wsys_topology
+  classDef gen fill:#eef,stroke:#88a,stroke-dasharray: 4 3;
+```
+
 ## Layout
 
 | Path | What |
@@ -34,7 +137,8 @@ API catalog.
 
 ```bash
 source ./activate.sh     # venv on PATH; caches kept inside the repo
-make                     # model-check + lint + owl + shacl + sql + delta into dist/
+make                     # model-check + platform-check + lint + owl + shacl + sql + delta + diagrams
+make docs-serve          # browse the docs locally (pip install -e '.[docs]')
 make update-vendor       # copy catalog.json and platform schemas from sibling checkouts, record their commits, regenerate
 make model platform      # regenerate the generated modules from vendor/ (CATALOG= / PLATFORM_SCHEMAS= to override)
 make delta               # Delta DDL + Unity Catalog metadata into dist/delta
