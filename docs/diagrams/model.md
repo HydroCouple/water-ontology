@@ -25,7 +25,7 @@ classDiagram
     GageRainType rain_type
     integer rain_units
     float rainfall
-    float rainfall_series
+    string rainfall_series
     float scale_factor
     float snow_factor
     string station_id
@@ -204,7 +204,7 @@ classDiagram
   class SwmmTable {
     string id
     integer index
-    float points
+    string points
     integer relative_info
   }
   class SwmmWeir {

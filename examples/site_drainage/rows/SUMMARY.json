@@ -25,7 +25,6 @@
     "topology.water_system": 1
   },
   "catalog_properties_not_readable_with_this_engine": {
-    "gage.rainfall_series (nested value; the catalog type maps to a flat list)": 1,
     "node.outfall.export_receipt": 1,
     "node.storage_area": 12,
     "subcatchment.snowpack": 7

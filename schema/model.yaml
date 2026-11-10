@@ -1084,10 +1084,10 @@ classes:
           unit_kind: rain_rate
       rainfall_series:
         description: The rainfall the engine will actually apply, as a structured array.
-        range: float
-        multivalued: true
+        range: string
         annotations:
           python_type: NDArray[Any]
+          opaque: 'true'
           catalog_path: gage.rainfall_series
           access: r
           c_symbols: swmm_gage_get_rainfall_series,swmm_gage_get_rainfall_series_count
@@ -1344,10 +1344,10 @@ classes:
         readonly: engine-computed; not settable through the API
       points:
         description: float64 (n_points, 2) numpy array.
-        range: float
-        multivalued: true
+        range: string
         annotations:
           python_type: NDArray[Any]
+          opaque: 'true'
           catalog_path: table.points
           access: r
           c_symbols: swmm_table_get_point,swmm_table_get_point_count

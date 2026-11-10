@@ -19,6 +19,7 @@ nav:
   - Knowledge graph: diagrams/knowledge-graph.md
   - Relations: diagrams/relations.md
   - Validation rules: rules.md
+  - Agent context: agent-context.md
   - Module map: diagrams/modules.md
   - Modules:
       - core: diagrams/core.md

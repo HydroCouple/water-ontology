@@ -69,7 +69,8 @@ def snake(name: str) -> str:
 
 def q(s: str | None) -> str:
     """SQL string literal."""
-    return "'" + (s or "").replace("'", "''").replace("\n", " ").strip() + "'"
+    # Databricks SQL escapes with a backslash; doubled quotes are not portable in COMMENT clauses
+    return "'" + (s or "").replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ").strip() + "'"
 
 
 class DeltaGenerator:
@@ -248,6 +249,15 @@ class DeltaGenerator:
         (out_dir / "90_asset_union_view.sql").write_text(self.emit_union_view("Asset"))
         if "SwmmElement" in self.sv.all_classes():
             (out_dir / "91_swmm_element_union_view.sql").write_text(self.emit_union_view("SwmmElement"))
+        import json
+        manifest = {}
+        for c in self.concrete_classes():
+            cols = []
+            for sl in self.ordered_slots(c):
+                t, _ = self.sql_type(sl)
+                cols.append({"name": sl.name, "type": t, "comment": (sl.description or "").strip()})
+            manifest[self.fq(self.module_of(c), snake(c))] = cols
+        (out_dir / "manifest.json").write_text(json.dumps({"catalog": self.catalog, "tables": manifest}, indent=1) + "\n")
         if self.errors:
             raise SystemExit("mapping errors:\n  " + "\n  ".join(self.errors))
 

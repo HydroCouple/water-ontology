@@ -86,7 +86,13 @@ class CatalogToLinkML:
             attr["range"] = "string"
             attr.setdefault("annotations", {})["python_type"] = t
             return True
-        m = re.fullmatch(r"(?:List|list|tuple|Tuple|NDArray)\[(.+)\]", t)
+        if t.startswith("NDArray["):
+            # shape and dtype are not in the catalog (flat vector, pairs, matrix ...): keep the value as JSON text
+            attr["range"] = "string"
+            attr.setdefault("annotations", {})["python_type"] = t
+            attr["annotations"]["opaque"] = "true"
+            return True
+        m = re.fullmatch(r"(?:List|list|tuple|Tuple)\[(.+)\]", t)
         if m:
             inner = re.split(r",\s*", m.group(1))[0].strip().rstrip(".")
             inner = "float" if inner in ("Any", "...") else inner

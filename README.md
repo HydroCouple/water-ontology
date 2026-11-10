@@ -211,3 +211,9 @@ make check-example    # load rows into DuckDB and run the assertions
 ```
 
 The harness checks rule logic on real rows before anything reaches a workspace; the Delta DDL itself has not yet been applied on Databricks.
+
+## Agent context, glossary and deployment
+
+- `make prompt` writes `docs/agent-context.md`: a generated digest for an agent's system prompt (class trees with their tables, relations with allowed ends, key enumerations, the validator's rules, what an agent may and may not do).
+- `make glossary` writes `dist/glossary/glossary.json` and `domains.json`: every class, property and enum value with IRI, definition, domain, mappings and the Unity Catalog object it is bound to. The adapter that posts these to a workspace's glossary API is not written yet.
+- `databricks.yml` with `deploy/apply.py` applies `dist/delta` (and the assertions) to a catalog: idempotent, adds columns the ontology has gained, and refuses to continue when a column was removed or renamed. `deploy/refresh_violations.py` is the nightly validation task. **None of this has been run against a workspace yet**; the splitter and column planner are unit-tested, the Spark calls are not.

@@ -39,7 +39,7 @@ def duck_type(sql_t: str) -> str:
 
 
 def to_duck(sql: str) -> list[str]:
-    sql = re.sub(r"\s+COMMENT '(?:[^']|'')*'", "", sql)
+    sql = re.sub(r"\s+COMMENT '(?:[^'\\]|\\.)*'", "", sql)
     sql = re.sub(r"INSERT OVERWRITE (\S+)", r"DELETE FROM \1; INSERT INTO \1", sql)
     return [s for s in sqlglot.transpile(sql, read="databricks", write="duckdb") if s.strip()]
 

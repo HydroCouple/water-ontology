@@ -1,0 +1,62 @@
+# Databricks Asset Bundle for the ontology's physical model.
+# NOT YET DEPLOYED TO A WORKSPACE: written from the bundle documentation, validate with
+# `databricks bundle validate -t dev` before first use.
+#
+#   make all                                  # produces dist/delta and dist/assertions
+#   databricks bundle deploy -t dev
+#   databricks bundle run ontology_deploy -t dev
+bundle:
+  name: water-ontology
+
+variables:
+  catalog:
+    description: Unity Catalog catalog the ontology is materialised in. Generated SQL says water_core; other names are substituted at apply time.
+    default: water_core
+
+sync:
+  include:
+    - dist/delta/**
+    - dist/assertions/**
+
+resources:
+  jobs:
+    ontology_deploy:
+      name: water-ontology deploy (${bundle.target})
+      tasks:
+        - task_key: apply_ddl
+          environment_key: default
+          spark_python_task:
+            python_file: deploy/apply.py
+            parameters: ["--dist", "${workspace.file_path}/dist", "--catalog", "${var.catalog}", "--assertions"]
+      environments:
+        - environment_key: default
+          spec:
+            client: "2"
+
+    ontology_validate:
+      name: water-ontology nightly validation (${bundle.target})
+      schedule:
+        quartz_cron_expression: "0 30 2 * * ?"
+        timezone_id: UTC
+        pause_status: PAUSED
+      tasks:
+        - task_key: refresh_violations
+          environment_key: default
+          spark_python_task:
+            python_file: deploy/refresh_violations.py
+            parameters: ["--dist", "${workspace.file_path}/dist", "--catalog", "${var.catalog}"]
+      environments:
+        - environment_key: default
+          spec:
+            client: "2"
+
+targets:
+  dev:
+    mode: development
+    default: true
+    variables:
+      catalog: water_core_dev
+  prod:
+    mode: production
+    variables:
+      catalog: water_core

@@ -5,7 +5,7 @@ DIST      := dist
 
 .PHONY: all lint owl shacl sql docs clean test
 
-all: model-check platform-check lint owl shacl sql delta assertions diagrams
+all: model-check platform-check lint owl shacl sql delta assertions diagrams prompt glossary
 
 lint:
 	for f in schema/*.yaml; do linkml-lint --config .linkmllint.yaml --ignore-warnings $$f || exit 1; done
@@ -78,3 +78,10 @@ example:
 
 check-example:
 	python -m harness.duckdb_harness $(EXAMPLE)/rows
+
+prompt: | $(DIST)
+	python -m generators.linkml_to_prompt $(ROOT) -o docs/agent-context.md
+	mkdir -p $(DIST)/prompt && cp docs/agent-context.md $(DIST)/prompt/ontology_context.md
+
+glossary: | $(DIST)
+	python -m generators.linkml_to_glossary $(ROOT) -o $(DIST)/glossary
