@@ -1,4 +1,4 @@
 repo: HydroCouple/openswmm.engine
 branch: swmm6_rel
-commit: bea6ef5084d2396b512c281d5216517094dfb995
+commit: 4067ab6d30258519c3cafc16aa3942a45875f260
 path: python/openswmm/engine/catalog.json

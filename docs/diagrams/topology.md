@@ -34,6 +34,8 @@ classDiagram
     EdgeRelation relation*
     Terminal from_terminal
     Terminal to_terminal
+    IRI source_record
+    IRI ingestion_activity
     datetime valid_from
     datetime valid_to
     string props
@@ -100,7 +102,7 @@ classDiagram
     IRI pump_curve
   }
   class RainGage {
-    RainFormat rain_format
+    GageRainType rain_format
     string recording_interval
   }
   class StorageUnit {

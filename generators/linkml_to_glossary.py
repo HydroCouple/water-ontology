@@ -15,6 +15,7 @@ import argparse
 import json
 from pathlib import Path
 
+from generators.semantic_registry import registry
 from generators.linkml_to_delta import DeltaGenerator, snake
 
 
@@ -49,6 +50,7 @@ def main() -> None:
     domains = [{"name": s.name.replace("wsys-", ""), "title": s.title, "description": " ".join((s.description or "").split()), "iri": s.id}
                for s in sv.schema_map.values() if s.name.startswith("wsys-")]
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
+    (out / "registry.json").write_text(json.dumps(registry(d), indent=1) + "\n")
     (out / "glossary.json").write_text(json.dumps({"ontology_version": sv.schema.version, "terms": terms}, indent=1) + "\n")
     (out / "domains.json").write_text(json.dumps(sorted(domains, key=lambda x: x["name"]), indent=1) + "\n")
     kinds = {k: sum(1 for t in terms if t["kind"] == k) for k in ("class", "property", "value")}

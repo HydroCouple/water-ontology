@@ -1,5 +1,5 @@
 # Hand-curated: which wsys topology class each generated SWMM model class means.
-# Read by generators/catalog_to_linkml.py and written as exact_mappings on the
+# Read by generators/catalog_to_linkml.py and written as representation annotations on the
 # generated classes. Edit this file, never schema/model.yaml.
 SwmmJunction: wsys:Junction
 SwmmOutfall: wsys:Outfall
@@ -12,5 +12,5 @@ SwmmWeir: wsys:Weir
 SwmmOutlet: wsys:Outlet
 SwmmSubcatchment: wsys:Subcatchment
 SwmmGage: wsys:RainGage
-SwmmPollutant: wsys:ObservedProperty
+SwmmPollutant: wsys:Constituent
 SwmmLanduse: wsys:LandUse

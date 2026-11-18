@@ -16,7 +16,7 @@ source: https://github.com/HydroCouple/water-ontology
 prefixes:
   wsys: https://w3id.org/wsys/
   linkml: https://w3id.org/linkml/
-  hc: https://hydrocouple.org/ns/
+  hc: https://hydrocouple.org/HydroCouple/vocabulary/#
   prov: http://www.w3.org/ns/prov#
 default_prefix: wsys
 default_range: string

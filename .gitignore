@@ -4,9 +4,12 @@
 !.wheels/cfgraph*.whl
 !.wheels/pytest_logging*.whl
 dist/
+build/
 __pycache__/
 *.pyc
 .uv-cache/
 .tmp/
 .pystow/
 *.egg-info/
+
+.*.export.lock

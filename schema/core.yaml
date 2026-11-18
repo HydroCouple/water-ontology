@@ -40,8 +40,7 @@ types:
     description: A stable, resolvable identifier for an entity. Primary key in Delta.
   WKT:
     typeof: string
-    description: Well-known text geometry (GeoSPARQL wktLiteral).
-    uri: geo:wktLiteral
+    description: WKT in native model coordinates. A declared CRS is recorded separately.
 
 # ---------------------------------------------------------------------------
 # Enumerations (each becomes a reference table in Unity Catalog)
@@ -52,6 +51,7 @@ enums:
     permissible_values:
       PROPOSED: {description: Designed but not built}
       UNDER_CONSTRUCTION: {}
+      UNKNOWN: {description: Operational status has not been verified}
       IN_SERVICE: {description: Installed and part of the operating network}
       OUT_OF_SERVICE: {description: Installed but isolated or disabled and expected to return}
       ABANDONED: {description: Left in place and permanently disconnected}
@@ -69,6 +69,21 @@ enums:
 # Slots (shared)
 # ---------------------------------------------------------------------------
 slots:
+  source_record:
+    range: IRI
+    description: Source record or native result locator supporting an assertion.
+  ingestion_activity:
+    range: IRI
+    description: Activity that produced the imported representation.
+  input_sha256:
+    range: string
+    description: Digest of the original primary input file.
+  bundle_sha256:
+    range: string
+    description: Digest of the ordered input dependency inventory.
+  mapping_release:
+    range: IRI
+    description: Versioned profile governing the transformation.
   iri:
     identifier: true
     range: IRI
@@ -98,8 +113,10 @@ slots:
     description: End of the period this version is true; null for the current version (SCD2).
   geometry:
     range: WKT
-    slot_uri: geo:asWKT
-    description: Geometry in WKT, EPSG:4326 unless the system declares otherwise.
+    description: Geometry in WKT, native coordinates with unknown CRS until the source declares one.
+  geometry_crs:
+    range: string
+    description: CRS supplied by the engine for the native coordinates.
   h3_cell:
     range: string
     description: H3 cell (resolution 9) for spatial joins and proximity questions.
@@ -145,7 +162,7 @@ classes:
   Entity:
     abstract: true
     description: Anything with a stable IRI. Root of the hierarchy.
-    slots: [iri, class_iri, label, description, alt_ids, utility, source_system, valid_from, valid_to]
+    slots: [iri, class_iri, label, description, alt_ids, utility, source_system, source_record, ingestion_activity, valid_from, valid_to]
     slot_usage:
       iri: {required: true}
       class_iri: {required: true}
@@ -154,7 +171,7 @@ classes:
     abstract: true
     is_a: Entity
     description: An entity with a location or footprint.
-    slots: [geometry, h3_cell]
+    slots: [geometry, geometry_crs, h3_cell]
     exact_mappings: [geo:Feature]
 
   Asset:
@@ -164,8 +181,7 @@ classes:
     slots: [lifecycle_status, install_date, manufacturer, model_number, criticality]
     slot_usage:
       lifecycle_status: {required: true}
-    exact_mappings: [s4watr:WaterInfrastructure]
-    close_mappings: [saref:Device]
+    related_mappings: [s4watr:WaterInfrastructure, saref:Device]
 
   DerivedEntity:
     abstract: true

@@ -140,22 +140,22 @@ classes:
   Revision:
     is_a: Entity
     mixins: [Attributed, Dataset]
-    description: An immutable packaged composition (files, components, findings) recorded by a hydrocouple.platform revision manifest. Every SwmmElement row belongs to exactly one Revision.
-    slots: [revision_id, of_composition, revision_manifest, manifest_sha256]
+    description: An immutable model revision identified by its platform manifest or by a local input bundle and its checksum. Each SWMM element belongs to one revision.
+    slots: [revision_id, of_composition, revision_manifest, manifest_sha256, input_sha256, bundle_sha256, mapping_release]
     exact_mappings: [prov:Entity]
 
   Run:
     is_a: DerivedEntity
-    mixins: [Attributed, Activity]
+    mixins: [Attributed]
     description: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).
-    slots: [run_id, of_revision, of_study, workflow, tool_call_id, session_id, run_request, job_spec]
-    exact_mappings: [prov:Activity]
+    slots: [run_id, of_revision, of_study, workflow, started_at, ended_at, was_associated_with, used, tool_call_id, session_id, run_request, job_spec]
+    broad_mappings: [prov:Plan]
 
   Attempt:
-    is_a: DerivedEntity
+    is_a: Entity
     mixins: [Attributed, Activity, Dataset]
     description: One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest). Simulation results ingested as Observations of result_kind SIMULATION point here through was_generated_by.
-    slots: [attempt_id, of_run, attempt_manifest, manifest_sha256]
+    slots: [was_generated_by, generated_at, attempt_id, of_run, attempt_manifest, manifest_sha256]
     exact_mappings: [prov:Activity]
 
   Study:
@@ -174,3 +174,39 @@ classes:
     mixins: [Attributed]
     description: What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict. Recommendations are proposals only.
     slots: [trace_id, finding_kind, question, statement, subjects, evidence, tools_used, assumptions, verifier_passed, review_state, reviewed_by]
+
+  IngestionActivity:
+    description: A particular import of a revision under a versioned mapping profile.
+    is_a: Entity
+    mixins: [Activity]
+    slots: [mapping_release]
+    exact_mappings: [prov:Activity]
+
+  InputRecord:
+    is_a: Entity
+    description: An original INP record retained with its line number and ordered native tokens.
+    slots: [of_revision, mapping_release]
+    attributes:
+      section: {range: string, required: true}
+      line_number: {range: integer, required: true}
+      raw_text: {range: string, required: true}
+      tokens: {range: string, multivalued: true, required: true}
+      source_subjects: {range: IRI, multivalued: true}
+      native_fields: {range: string, description: Named source fields encoded as JSON}
+      disposition: {range: string, required: true}
+
+  InputArtifact:
+    description: A hashed primary input or an external dependency in a revision bundle.
+    is_a: Entity
+    slots: [of_revision, input_sha256, mapping_release]
+    attributes:
+      source_path: {range: string, required: true}
+      file_role: {range: string, required: true}
+
+  ResultArtifact:
+    is_a: DerivedEntity
+    mixins: [Dataset]
+    description: An output produced by an execution attempt, identified by the digest of its bytes.
+    broad_mappings: [prov:Entity]
+    attributes:
+      artifact_sha256: {range: string, required: true}

@@ -4,6 +4,8 @@ Sensors, observed properties, datastreams and the observations, forecasts and se
 
 ```mermaid
 classDiagram
+  class Constituent {
+  }
   class Datastream {
     Sensor sensor*
     ObservedProperty observed_property*
@@ -16,18 +18,18 @@ classDiagram
     Datastream datastream
     IRI entity_iri*
     IRI property_iri*
-    datetime phenomenon_time*
+    datetime phenomenon_time
+    datetime interval_start
+    datetime interval_end
+    string native_unit
+    double conversion_factor
     datetime result_time
     float value*
     IRI unit*
     QualityFlag quality_flag*
     ResultKind result_kind*
     datetime issued_at
-    string horizon
-    float lower
-    float upper
-    float interval_level
-    ... 1 more
+    ... 5 more
   }
   class ObservedProperty {
     PropertyKind property_kind*
@@ -51,6 +53,7 @@ classDiagram
     Agent set_by
     Agent approved_by
   }
+  Entity <|-- Constituent
   Entity <|-- Datastream
   Datastream --> "1" Sensor : sensor
   Datastream --> "1" ObservedProperty : observed_property
@@ -67,6 +70,7 @@ classDiagram
 
 | Class | Parent | Description |
 | --- | --- | --- |
+| `Constituent` | Entity | A substance or aggregate such as TSS whose concentration or load may be modeled. |
 | `Datastream` | Entity | One sensor observing one property of one feature of interest over time; the unit of telemetry ingestion and the thing a staleness threshold applies to. |
 | `Observation` | DerivedEntity | One value of one property for one entity at one time. Measurements, forecasts, simulation results and aggregates share this shape, distinguished by result_kind, so they can be compared in one query. was_generated_by is the ingestion job, forecast model version or simulation attempt. |
 | `ObservedProperty` | Entity | A measurable property such as flow, depth or TSS concentration, with its physical kind and default unit. Pollutants from a SWMM model map here. |

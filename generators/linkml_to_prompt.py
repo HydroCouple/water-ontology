@@ -80,6 +80,11 @@ class Prompt:
                "- Tables with `valid_to` are versioned; read the `<table>_current` view unless the question is historical.",
                "- Every derived value carries `was_generated_by`; cite it (attempt, model version, job) with any number you report.",
                "- Units are QUDT IRIs in a `unit` column or a column tag; never assume a unit.", ""]
+        out += ["## Resolving model and operator terminology", "",
+                "Use registry.json bindings to resolve a term in its class and source scheme. "
+                "Look up rain gauge and rain gage under RainGage. [RAINGAGES] is the input section. "
+                "Identify an instance with its system, object kind and source ID. "
+                "Check the mapping predicate and governing profile before treating terms as interchangeable.", ""]
         out += ["## Classes", ""]
         for mod in MODULES:
             out += [f"### {mod.replace('wsys-', '')}", ""] + self.tree(mod) + [""]
@@ -113,7 +118,7 @@ class Prompt:
                 "- May read governed tables and call registered tools; may write `AgentFinding` rows, events in state DETECTED with source AGENT, and proposals (`Setpoint`, `WorkOrder`) that name a human approver field left empty.",
                 "- May not confirm events, approve work orders, set setpoints, or issue control actions.",
                 "- Must state staleness, non-GOOD quality flags, out-of-scope predictions and non-current model revisions when they affect an answer.", ""]
-        return "\n".join(out)
+        return "\n".join(line.rstrip() for line in out)
 
 
 def main() -> None:

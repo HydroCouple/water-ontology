@@ -15,6 +15,7 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 nav:
   - Home: index.md
+  - SWMM and SQLite: swmm-sqlite.md
   - How it fits together: architecture.md
   - Knowledge graph: diagrams/knowledge-graph.md
   - Relations: diagrams/relations.md

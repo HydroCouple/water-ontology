@@ -27,6 +27,7 @@ default_range: string
 imports:
   - linkml:types
   - core
+  - swmm_codes
 
 enums:
   EdgeRelation:
@@ -60,65 +61,6 @@ enums:
       PRESSURE_ZONE: {description: Reserved for the distribution module}
       SERVICE_AREA: {}
 
-  OutfallType:
-    permissible_values:
-      FREE: {}
-      NORMAL: {}
-      FIXED: {}
-      TIDAL: {}
-      TIMESERIES: {}
-
-  StorageShape:
-    permissible_values:
-      FUNCTIONAL: {}
-      TABULAR: {}
-      CYLINDRICAL: {}
-      CONICAL: {}
-      PARABOLOID: {}
-      PYRAMIDAL: {}
-
-  XSectShape:
-    description: Conduit cross-section shapes; mirrors SWMM XSectShape. Geometry parameters are in geom1..geom4.
-    permissible_values:
-      CIRCULAR: {}
-      FORCE_MAIN: {}
-      FILLED_CIRCULAR: {}
-      RECT_CLOSED: {}
-      RECT_OPEN: {}
-      TRAPEZOIDAL: {}
-      TRIANGULAR: {}
-      PARABOLIC: {}
-      POWER: {}
-      RECT_TRIANGULAR: {}
-      RECT_ROUND: {}
-      MODBASKET: {}
-      HORIZ_ELLIPSE: {}
-      VERT_ELLIPSE: {}
-      ARCH: {}
-      EGG: {}
-      HORSESHOE: {}
-      GOTHIC: {}
-      CATENARY: {}
-      SEMIELLIPTICAL: {}
-      BASKETHANDLE: {}
-      SEMICIRCULAR: {}
-      IRREGULAR: {description: Natural channel defined by a transect}
-      CUSTOM: {}
-      STREET: {}
-
-  OrificeType:
-    permissible_values:
-      SIDE: {}
-      BOTTOM: {}
-
-  WeirType:
-    permissible_values:
-      TRANSVERSE: {}
-      SIDEFLOW: {}
-      VNOTCH: {}
-      TRAPEZOIDAL: {}
-      ROADWAY: {}
-
   PumpControlMode:
     permissible_values:
       FIXED_SPEED: {}
@@ -142,12 +84,6 @@ enums:
       RAIN_BARREL: {}
       ROOFTOP_DISCONNECTION: {}
       VEGETATIVE_SWALE: {}
-
-  RainFormat:
-    permissible_values:
-      INTENSITY: {}
-      VOLUME: {}
-      CUMULATIVE: {}
 
   ConduitMaterial:
     description: Common sewer and storm conduit materials; extend per utility.
@@ -353,7 +289,7 @@ slots:
 
   # --- gage, LID, aquifer, 2D -----------------------------------------------------
   rain_format:
-    range: RainFormat
+    range: GageRainType
   recording_interval:
     range: string
     description: ISO 8601 duration between rainfall records (PT5M, PT1H).
@@ -401,7 +337,7 @@ classes:
     is_a: Entity
     description: A hydraulically connected drainage, sewer or stormwater network operated as one system, usually one SWMM model.
     slots: [current_revision]
-    exact_mappings: [s4watr:WaterInfrastructure]
+    related_mappings: [s4watr:WaterInfrastructure]
 
   Zone:
     is_a: SpatialEntity
@@ -423,7 +359,7 @@ classes:
 
   Edge:
     description: One directed, typed relationship between two entities. All connectivity, drainage routing, containment, attachment, zone membership and model representation live here.
-    slots: [from_iri, to_iri, relation, from_terminal, to_terminal, valid_from, valid_to, props, source_system]
+    slots: [from_iri, to_iri, relation, from_terminal, to_terminal, source_record, ingestion_activity, valid_from, valid_to, props, source_system]
     exact_mappings: [s4syst:Connection]
 
   # --- Nodes --------------------------------------------------------------
@@ -432,12 +368,10 @@ classes:
     is_a: Asset
     description: A point in the network where links meet or where flow enters, leaves or is stored. SWMM node.
     slots: [invert_elevation, max_depth, rim_elevation, initial_depth, surcharge_depth, ponded_area, system, is_subnetwork_controller]
-    exact_mappings: [swmm:SwmmNode]
 
   Junction:
     is_a: Node
     description: A manhole, catch basin or pipe junction with no storage volume beyond its shaft.
-    exact_mappings: [swmm:SwmmJunction]
 
   Outfall:
     is_a: Node
@@ -445,18 +379,15 @@ classes:
     slots: [outfall_type, tide_gate]
     slot_usage:
       is_subnetwork_controller: {ifabsent: "True"}
-    exact_mappings: [swmm:SwmmOutfall]
 
   Divider:
     is_a: Node
     description: A node that splits inflow between two downstream links by rule, weir or tabular relationship.
-    exact_mappings: [swmm:SwmmDivider]
 
   StorageUnit:
     is_a: Node
     description: A wet well, detention basin, retention pond or tank with a depth-area or depth-volume relationship.
     slots: [storage_shape, max_volume, evaporation_factor]
-    exact_mappings: [swmm:SwmmStorage]
 
   LIDControl:
     is_a: Node
@@ -471,7 +402,6 @@ classes:
     is_a: Asset
     description: A component that conveys flow between two nodes. Endpoints are asserted by CONNECTS_TO edges, not stored here, so the graph has one source of truth. SWMM link.
     slots: [system, flow_direction, is_isolating, inlet_offset, outlet_offset]
-    exact_mappings: [swmm:SwmmLink]
 
   Conduit:
     is_a: Link
@@ -480,7 +410,6 @@ classes:
     slot_usage:
       length: {required: true}
       xsect_shape: {required: true}
-    exact_mappings: [swmm:SwmmConduit]
 
   Street:
     is_a: Conduit
@@ -494,7 +423,6 @@ classes:
     slots: [rated_flow, rated_head, rated_power, control_mode, startup_depth, shutoff_depth, pump_curve]
     slot_usage:
       flow_direction: {description: FORWARD from SUCTION to DISCHARGE unless stated otherwise.}
-    exact_mappings: [swmm:SwmmPump]
 
   Orifice:
     is_a: Link
@@ -502,19 +430,16 @@ classes:
     slots: [orifice_type, xsect_shape, opening_height, opening_width, discharge_coefficient, flap_gate, normal_state_open]
     slot_usage:
       is_isolating: {ifabsent: "True"}
-    exact_mappings: [swmm:SwmmOrifice]
 
   Weir:
     is_a: Link
     description: A transverse, side-flow, V-notch, trapezoidal or roadway weir.
     slots: [weir_type, crest_height, opening_height, opening_width, discharge_coefficient, flap_gate]
-    exact_mappings: [swmm:SwmmWeir]
 
   Outlet:
     is_a: Link
     description: A flow regulator defined by a rating curve.
     slots: [rating_curve, flap_gate]
-    exact_mappings: [swmm:SwmmOutlet]
 
   # --- Other assets and spatial entities -------------------------------------
   Inlet:
@@ -524,8 +449,9 @@ classes:
   RainGage:
     is_a: Asset
     description: A rain gage or the rainfall record it provides; Subcatchments reference it by USES_GAGE edges.
+    title: rain gage
+    aliases: [rain gauge]
     slots: [rain_format, recording_interval]
-    exact_mappings: [swmm:SwmmGage]
 
   Subcatchment:
     is_a: SpatialEntity
@@ -533,12 +459,10 @@ classes:
     slots: [area, width, slope, impervious_fraction, n_impervious, n_pervious, depression_storage_impervious, depression_storage_pervious, infiltration_model, land_use_fractions, system, lifecycle_status]
     slot_usage:
       area: {required: true}
-    exact_mappings: [swmm:SwmmSubcatchment]
 
   LandUse:
     is_a: Entity
     description: A land-use category used for pollutant buildup and washoff.
-    exact_mappings: [swmm:SwmmLanduse]
 
   Aquifer:
     is_a: SpatialEntity

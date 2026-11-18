@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -56,7 +57,16 @@ def split_statements(sql: str) -> list[str]:
 
 def retarget(sql: str, catalog: str) -> str:
     """Generated SQL is fully qualified with water_core; point it at another catalog."""
-    return sql if catalog == GENERATED_CATALOG else sql.replace(f"{GENERATED_CATALOG}.", f"{catalog}.")
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", catalog):
+        raise ValueError("Catalog name must be a simple SQL identifier")
+    if catalog == GENERATED_CATALOG:
+        return sql
+    # Terminology payloads and content digests refer to the logical bindings.
+    # Retarget SQL identifiers without rewriting the contents of SQL literals.
+    quoted = r"'(?:\\.|''|[^'\\])*'"
+    parts = re.split(f"({quoted})",sql)
+    return "".join(part if i%2 else re.sub(r"\bwater_core\.",catalog+".",part)
+                   for i,part in enumerate(parts))
 
 
 def plan_columns(expected: list[dict], existing: list[str]) -> tuple[list[dict], list[str]]:
@@ -98,6 +108,7 @@ def main() -> None:
 
     manifest = json.loads((dist / "delta" / "manifest.json").read_text())["tables"]
     drift = []
+    additions = []
     # 1. evolve tables that already exist, before the CREATE IF NOT EXISTS pass leaves them untouched
     for table, cols in manifest.items():
         t = retarget(table, a.catalog)
@@ -106,9 +117,11 @@ def main() -> None:
             if extra:
                 drift.append(f"{t}: columns no longer in the ontology: {extra}")
             if add:
-                run(add_columns_sql(table, add))
+                additions.append(add_columns_sql(table, add))
     if drift:
         print("Refusing to continue; these need a reviewed migration:\n  " + "\n  ".join(drift)); sys.exit(2)
+    for statement in additions:
+        run(statement)
     # 2. apply every generated file in order
     files = sorted((dist / "delta").glob("*.sql"))
     if a.assertions:

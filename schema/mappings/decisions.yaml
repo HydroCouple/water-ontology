@@ -1,0 +1,33 @@
+release: https://w3id.org/wsys/profile/swmm/1
+owner: HydroCouple/water-ontology
+review_status: proposed_for_release
+assertion_reviews: []
+decisions:
+  - id: swmm-code-authority
+    scope: [XSectShape, OutfallType, StorageShape, OrificeType, WeirType, GageRainType]
+    authority: vendor/openswmm/SOURCE.yaml
+    change: Generate the shared schemes once. Retain engine codes and ordinals and map historical notation in the profile.
+  - id: physical-representation
+    scope: [SwmmElement, Asset, Constituent, ObservedProperty]
+    authority: schema/mappings/swmm_to_wsys.yaml
+    change: Associate a model class with its domain role and link instances by revision. A constituent can participate in multiple quantities.
+  - id: scoped-engine-properties
+    scope: [model/type, model/units, model/stats]
+    authority: vendor/openswmm/catalog.json
+    change: Give native properties their catalog path IRI. Preserve class and column context for legacy property resolution.
+  - id: simulation-provenance
+    scope: [IngestionActivity, Revision, Run, Attempt, Observation]
+    authority: https://www.w3.org/TR/prov-o/
+    change: Scope imported identity to the system and kind. Give each execution its own occurrence and preserve native time and unit evidence.
+  - id: physical-lifecycle
+    scope: [Asset, Subcatchment]
+    authority: schema/core.yaml
+    change: A model suggests a physical object. Operational status is unknown until supported by an asset register.
+  - id: hydro-interface-namespace
+    scope: [ModelComponent, ComponentArgument, ExchangeItem, Input, Output, AdaptedOutput]
+    authority: vendor/baselines/hydrocouple.json
+    change: Resolve interface terms against the vocabulary generated from the HydroCouple headers.
+  - id: related-external-concepts
+    scope: [WaterSystem, Asset, Observation]
+    authority: https://www.w3.org/TR/skos-reference/
+    change: Record related ontology terms while scope and entailment are under review. General assets, water systems and modeled numerical results have different membership criteria.

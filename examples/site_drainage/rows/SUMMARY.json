@@ -1,21 +1,200 @@
 {
   "inp": "model.inp",
   "inp_sha256": "df14b13664fc7952aa0021e67897ec0b938392c3cf66b32be9bbc907655f835f",
-  "revision": "wsys:revision/df14b13664fc",
+  "revision": "wsys:revision/demo/site-drainage/43bf6497fd46d5798dffe87dc06409af9f464226f68c86ea9b914b82b5b73ce2",
   "system": "wsys:system/demo/site-drainage",
-  "engine": "6.0.0a4.dev1",
+  "bundle_sha256": "43bf6497fd46d5798dffe87dc06409af9f464226f68c86ea9b914b82b5b73ce2",
+  "mapping_release": "https://w3id.org/wsys/profile/swmm/1",
+  "coverage": {
+    "BACKDROP": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "source_only"
+    },
+    "BUILDUP": {
+      "source_records": 4,
+      "exported": 4,
+      "binding": "configured"
+    },
+    "CONDUITS": {
+      "source_records": 11,
+      "exported": 11,
+      "binding": "configured"
+    },
+    "COORDINATES": {
+      "source_records": 12,
+      "exported": 12,
+      "binding": "configured"
+    },
+    "COVERAGES": {
+      "source_records": 10,
+      "exported": 10,
+      "binding": "configured"
+    },
+    "EVAPORATION": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "configured"
+    },
+    "INFILTRATION": {
+      "source_records": 7,
+      "exported": 7,
+      "binding": "configured"
+    },
+    "JUNCTIONS": {
+      "source_records": 11,
+      "exported": 11,
+      "binding": "configured"
+    },
+    "LABELS": {
+      "source_records": 8,
+      "exported": 8,
+      "binding": "source_only"
+    },
+    "LANDUSES": {
+      "source_records": 4,
+      "exported": 4,
+      "binding": "configured"
+    },
+    "LOADINGS": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "MAP": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "source_only"
+    },
+    "OPTIONS": {
+      "source_records": 33,
+      "exported": 33,
+      "binding": "configured"
+    },
+    "OUTFALLS": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "POLLUTANTS": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "POLYGONS": {
+      "source_records": 145,
+      "exported": 145,
+      "binding": "configured"
+    },
+    "RAINGAGES": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "REPORT": {
+      "source_records": 3,
+      "exported": 3,
+      "binding": "configured"
+    },
+    "SUBAREAS": {
+      "source_records": 7,
+      "exported": 7,
+      "binding": "configured"
+    },
+    "SUBCATCHMENTS": {
+      "source_records": 7,
+      "exported": 7,
+      "binding": "configured"
+    },
+    "SYMBOLS": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "TAGS": {
+      "source_records": 11,
+      "exported": 11,
+      "binding": "configured"
+    },
+    "TIMESERIES": {
+      "source_records": 72,
+      "exported": 72,
+      "binding": "configured"
+    },
+    "TITLE": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "source_only"
+    },
+    "VERTICES": {
+      "source_records": 23,
+      "exported": 23,
+      "binding": "configured"
+    },
+    "WASHOFF": {
+      "source_records": 4,
+      "exported": 4,
+      "binding": "configured"
+    },
+    "XSECTIONS": {
+      "source_records": 11,
+      "exported": 11,
+      "binding": "configured"
+    }
+  },
+  "row_sha256": {
+    "analysis.attempt.jsonl": "dc4b3e1c2d6c2c80c325656f78df6e96404dae2a33a58f675738d07fae4a2eca",
+    "analysis.ingestion_activity.jsonl": "2526f35ccdeff7ce981e091d8795c9df00a498a095a5adef41222b9eb35b7941",
+    "analysis.input_artifact.jsonl": "c64de88efaf8b74dc88650700a68c4c1e9772fed7ce39dd609226506c09ed0f6",
+    "analysis.input_record.jsonl": "ae7a622583155d54bcb31a145e734e06e28436a1456db5e21a26fb3614899d03",
+    "analysis.result_artifact.jsonl": "b4052362b00831fd3bf0e54815b2f6c2e2f41e91e9f819a6f2735b2c7ec1159f",
+    "analysis.revision.jsonl": "c94b89b083e31b48a7d602244dbe082eb0aeea2c37b9e5fa54981e53a6858679",
+    "analysis.run.jsonl": "cc38ff1845b8a48392e84f7bcd9a6e1931d6dcd087183353b296680d967cc40d",
+    "model.swmm_conduit.jsonl": "26e13e6df2c337353e996f3f22d3b4027b6e685b685e2270133340f3f1b0e49a",
+    "model.swmm_gage.jsonl": "531159286f2a670d150042475b4c893ef55d648ba66a0a41876585bf51d5a587",
+    "model.swmm_junction.jsonl": "421685b6e78aa412098888aabc087b4b43a1506ed08a3fff66a3854c80426482",
+    "model.swmm_landuse.jsonl": "96ee091d46ba915544977cb91a6de4ed6abc5aff742d166422d3f8a016ba02aa",
+    "model.swmm_outfall.jsonl": "7b705bffb1e0c149285eabc75a88b4e1aa294f5cc5123adcdc501544a8d855f6",
+    "model.swmm_pollutant.jsonl": "6068ae1045b303e10b5981267086820138ef722069f730bf346d64729a1e2fcc",
+    "model.swmm_subcatchment.jsonl": "82059cbfed4ea803989214145de322590e3a03c22b4c0252bd27215370df4399",
+    "model.swmm_table.jsonl": "3dc7956e4fc8e0777b698fcdcaca1b2a73ee7d438e27f3f3dfa1997091a1eb75",
+    "observation.constituent.jsonl": "be0a696b01b4946c1877fa7b53ec1712d40d994ea81db59f873770916202761e",
+    "observation.observation.jsonl": "089a64f91901d0fe3d77a6a670cc0daf07a5ecb5470cd72593588caaa889b3f5",
+    "observation.observed_property.jsonl": "ddf550fb8a3c7e98869fa52b0714976176e775c945d37a5eb52e36d0cf23da8b",
+    "reference.agent.jsonl": "987d0dd254074c483ccff36c70b9cdc114a43ba85e1a29c6c527da0744d2e4d9",
+    "topology.conduit.jsonl": "69eeeaee3878c0c7770eb99fbb5e8834953bb63866e537cba72ee5457671256f",
+    "topology.edge.jsonl": "461aab21efd2d38f929399de22554d434189850844b9b03dc0877dae238c781c",
+    "topology.junction.jsonl": "e348d909505392e2b870b0d41d316afad2c0c6116b34207c9790df8c602a35ae",
+    "topology.outfall.jsonl": "25ed4b5eb124cc7ffc4ae1c2515a439e3b93a51b411ff12f4e6d674ce1bcfd4f",
+    "topology.rain_gage.jsonl": "4f5446d53b131ec950ef4266f45b6f3b72dc5c4667457eb1cb54391916088ba9",
+    "topology.subcatchment.jsonl": "0aeb582888b53dbc99cea65cdd2c30232d8dc1e2501dc504e2d26a941daab962",
+    "topology.water_system.jsonl": "09eb453fad96cd4e7a6c23199d1661ad57f313e005fe3c181697e5de23caf099"
+  },
+  "artifacts": [
+    "878ae72c63bd086f52890b01319343374ab150575ff923f1487a089416a2dc53.out",
+    "df14b13664fc7952aa0021e67897ec0b938392c3cf66b32be9bbc907655f835f.input"
+  ],
+  "engine": "6.0.0a4.dev2",
   "rows": {
     "analysis.attempt": 1,
+    "analysis.ingestion_activity": 1,
+    "analysis.input_artifact": 1,
+    "analysis.input_record": 396,
+    "analysis.result_artifact": 1,
     "analysis.revision": 1,
     "analysis.run": 1,
     "model.swmm_conduit": 11,
     "model.swmm_gage": 1,
     "model.swmm_junction": 11,
+    "model.swmm_landuse": 4,
     "model.swmm_outfall": 1,
+    "model.swmm_pollutant": 1,
     "model.swmm_subcatchment": 7,
-    "observation.observation": 23,
-    "observation.observed_property": 2,
-    "reference.agent": 1,
+    "model.swmm_table": 3,
+    "observation.constituent": 1,
+    "observation.observation": 383,
+    "observation.observed_property": 4,
+    "reference.agent": 2,
     "topology.conduit": 11,
     "topology.edge": 99,
     "topology.junction": 11,
@@ -26,8 +205,7 @@
   },
   "catalog_properties_not_readable_with_this_engine": {
     "node.outfall.export_receipt": 1,
-    "node.storage_area": 12,
-    "subcatchment.snowpack": 7
+    "table.relative_info": 3
   },
   "notes": [
     "unit system US, flow units CFS; topology and observations converted to SI (m, ha, mm, m3/s); model.* rows keep model units",

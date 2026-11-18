@@ -1,0 +1,3 @@
+# These artifacts retain their upstream bytes and are verified by SHA-256.
+examples/*/rows/artifacts/* binary
+tests/fixtures/native/*.inp -text

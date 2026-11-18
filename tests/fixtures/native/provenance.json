@@ -1,0 +1,37 @@
+{
+  "repository": "https://github.com/HydroCouple/openswmm.engine",
+  "license": "Apache-2.0",
+  "commit": "4067ab6d30258519c3cafc16aa3942a45875f260",
+  "fixtures": {
+    "divider.inp": {
+      "source": "tests/parity/roundtrip/probes/divider_columns.inp",
+      "sha256": "a90b6c6673df7e841492c7db63b9b2e4c7f050d0bf1ff14e457ecebaa7b1258c",
+      "identical_to_source": true
+    },
+    "lid.inp": {
+      "source": "tests/unit/engine/data/lid_return_quality.inp",
+      "sha256": "f3fb812ebd17b645b153eeab6b0261ce400ec9b89d99c1c5c6ea427fd83984ca",
+      "identical_to_source": true
+    },
+    "inlet.inp": {
+      "source": "tests/unit/engine/data/inp_roundtrip/inlet_usage.inp",
+      "sha256": "505319bec56818bf3c2bf5dbecd086f0450d5fdb1fd56b3da986e133b537ffd2",
+      "identical_to_source": true
+    },
+    "hydrology.inp": {
+      "source": "tests/unit/engine/data/inp_roundtrip/hydrology.inp",
+      "sha256": "5bdb2be0573ed6440cb4bb5511ff94e6960a802ac837d3cb76e336ae2e8b8c04",
+      "identical_to_source": true
+    },
+    "structures.inp": {
+      "source": "tests/unit/engine/data/fv_structures.inp",
+      "sha256": "45f08c192a78f752cd7278046b2ebdf036f55d034b84bdfda0413097208f83b4",
+      "identical_to_source": true
+    },
+    "groundwater_2d.inp": {
+      "source": "tests/benchmarks/generated/soa_review_2026-10/soa_gw_species_heat.inp",
+      "sha256": "605dc920198c91405b9c808d25f03728f3e87a122ab6e8b9a021542e3f4c3cc0",
+      "identical_to_source": true
+    }
+  }
+}

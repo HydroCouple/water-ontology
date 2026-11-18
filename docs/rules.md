@@ -21,7 +21,7 @@
 | `sensor_is_attached` | ERROR | Every Sensor has at least one ATTACHED_TO edge. |
 | `asset_in_a_system` | WARNING | Every Asset has at least one PART_OF_SYSTEM edge. |
 | `represented_by_unique` | ERROR | An asset is REPRESENTED_BY at most one model element per revision. |
-| `represented_by_current_revision` | WARNING | An asset with model links is REPRESENTED_BY an element in some system's current revision. |
+| `represented_by_current_revision` | WARNING | An asset with model links is REPRESENTED_BY an element in its own system's current revision. |
 | `system_current_revision_exists` | ERROR | A WaterSystem's current_revision is a known Revision. |
 | `event_resolved_by_completed_work` | ERROR | A work order that resolves an event is COMPLETED with a completion time. |
 | `work_order_ai_proposal_needs_approval` | ERROR | A work order proposed by an AI agent is not APPROVED or beyond without a human approver. |
@@ -40,4 +40,9 @@
 | `event_link_domain_explained_by` | ERROR | EXPLAINED_BY links an event to: AgentFinding, Attempt. |
 | `prediction_target_matches_model_class` | ERROR | A prediction's target entity is an instance of its model's applies_to_class. |
 | `only_one_champion` | ERROR | A model has at most one CHAMPION version. |
+| `swmm_model_source_revision` | ERROR | A model element with an INP source locator points to a record in the same revision. |
+| `swmm_result_lineage` | ERROR | An imported SWMM simulation result resolves its source line, attempt, run, input revision, software agent and output artifact. |
+| `swmm_input_bundle_evidence` | ERROR | A local SWMM bundle records a primary artifact matching its input checksum. |
+| `observation_time_evidence` | ERROR | An observation has an instant or an ordered time interval. |
+| `input_record_revision` | ERROR | An input record belongs to an existing revision. |
 | `observation_unit_matches_property` | WARNING | An observation's unit is its property's default unit (after normalisation). |

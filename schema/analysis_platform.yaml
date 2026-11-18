@@ -157,17 +157,20 @@ classes:
         description: component_info_id of every component
         range: string
         multivalued: true
+        slot_uri: hcp:PlatformRevisionManifest.components
         required: true
         annotations:
           json_property: components
       composition:
         description: Composition
         range: string
+        slot_uri: hcp:PlatformRevisionManifest.composition
         annotations:
           json_property: composition
       created_at:
         description: Created At
         range: datetime
+        slot_uri: hcp:PlatformRevisionManifest.created_at
         required: true
         annotations:
           json_property: created_at
@@ -177,6 +180,7 @@ classes:
         inlined: true
         multivalued: true
         inlined_as_list: true
+        slot_uri: hcp:PlatformRevisionManifest.files
         required: true
         annotations:
           json_property: files
@@ -184,11 +188,13 @@ classes:
         description: Non-blocking observations recorded at packaging.
         range: string
         multivalued: true
+        slot_uri: hcp:PlatformRevisionManifest.findings
         annotations:
           json_property: findings
       packaged_by:
         description: Packaged By
         range: string
+        slot_uri: hcp:PlatformRevisionManifest.packaged_by
         required: true
         annotations:
           json_property: packaged_by
@@ -198,10 +204,12 @@ classes:
         annotations:
           const: hydrocouple.platform/revision-manifest/1
           json_property: schema
+        slot_uri: hcp:PlatformRevisionManifest.schema
       total_bytes:
         description: Total Bytes
         range: integer
         minimum_value: 0
+        slot_uri: hcp:PlatformRevisionManifest.total_bytes
         required: true
         annotations:
           json_property: total_bytes
@@ -215,18 +223,21 @@ classes:
       path:
         description: Path
         range: string
+        slot_uri: hcp:PlatformManifestFile.path
         required: true
         annotations:
           json_property: path
       role:
         description: PlatformManifestFile.role
         range: FileRole
+        slot_uri: hcp:PlatformManifestFile.role
         required: true
         annotations:
           json_property: role
       sha256:
         description: Sha256
         range: string
+        slot_uri: hcp:PlatformManifestFile.sha256
         required: true
         annotations:
           json_property: sha256
@@ -234,12 +245,14 @@ classes:
         description: Size
         range: integer
         minimum_value: 0
+        slot_uri: hcp:PlatformManifestFile.size
         required: true
         annotations:
           json_property: size
       source:
         description: Original reference as written in the model, for review.
         range: string
+        slot_uri: hcp:PlatformManifestFile.source
         annotations:
           json_property: source
     annotations:
@@ -251,6 +264,7 @@ classes:
       estimated_runtime_seconds:
         description: Estimated Runtime Seconds
         range: float
+        slot_uri: hcp:PlatformRunRequest.estimated_runtime_seconds
         annotations:
           json_property: estimated_runtime_seconds
       parameters:
@@ -259,14 +273,17 @@ classes:
         annotations:
           json_object: 'true'
           json_property: parameters
+        slot_uri: hcp:PlatformRunRequest.parameters
       profile:
         description: Profile
         range: string
+        slot_uri: hcp:PlatformRunRequest.profile
         annotations:
           json_property: profile
       project_id:
         description: Project Id
         range: string
+        slot_uri: hcp:PlatformRunRequest.project_id
         required: true
         annotations:
           json_property: project_id
@@ -275,39 +292,46 @@ classes:
         range: integer
         minimum_value: 0
         maximum_value: 10
+        slot_uri: hcp:PlatformRunRequest.retry_budget
         annotations:
           json_property: retry_budget
       revision_id:
         description: Revision Id
         range: string
+        slot_uri: hcp:PlatformRunRequest.revision_id
         required: true
         annotations:
           json_property: revision_id
       session_id:
         description: Session Id
         range: string
+        slot_uri: hcp:PlatformRunRequest.session_id
         annotations:
           json_property: session_id
       target_id:
         description: Target Id
         range: string
+        slot_uri: hcp:PlatformRunRequest.target_id
         required: true
         annotations:
           json_property: target_id
       tool_call_id:
         description: Tool Call Id
         range: string
+        slot_uri: hcp:PlatformRunRequest.tool_call_id
         annotations:
           json_property: tool_call_id
       workflow:
         description: Workflow
         range: string
+        slot_uri: hcp:PlatformRunRequest.workflow
         required: true
         annotations:
           json_property: workflow
       workflow_version:
         description: Workflow Version
         range: string
+        slot_uri: hcp:PlatformRunRequest.workflow_version
         required: true
         annotations:
           json_property: workflow_version
@@ -322,6 +346,7 @@ classes:
         description: PlatformJobSpec.actor
         range: PlatformActor
         inlined: true
+        slot_uri: hcp:PlatformJobSpec.actor
         required: true
         annotations:
           json_property: actor
@@ -329,12 +354,14 @@ classes:
         description: PlatformJobSpec.inputs
         range: PlatformInputs
         inlined: true
+        slot_uri: hcp:PlatformJobSpec.inputs
         required: true
         annotations:
           json_property: inputs
       job_id:
         description: Job Id
         range: string
+        slot_uri: hcp:PlatformJobSpec.job_id
         required: true
         annotations:
           json_property: job_id
@@ -342,12 +369,14 @@ classes:
         description: PlatformJobSpec.limits
         range: PlatformLimits
         inlined: true
+        slot_uri: hcp:PlatformJobSpec.limits
         required: true
         annotations:
           json_property: limits
       organization_id:
         description: Organization Id
         range: string
+        slot_uri: hcp:PlatformJobSpec.organization_id
         required: true
         annotations:
           json_property: organization_id
@@ -355,6 +384,7 @@ classes:
         description: PlatformJobSpec.outputs
         range: PlatformOutputs
         inlined: true
+        slot_uri: hcp:PlatformJobSpec.outputs
         required: true
         annotations:
           json_property: outputs
@@ -362,12 +392,14 @@ classes:
         description: PlatformJobSpec.placement
         range: PlatformPlacement
         inlined: true
+        slot_uri: hcp:PlatformJobSpec.placement
         required: true
         annotations:
           json_property: placement
       project_id:
         description: Project Id
         range: string
+        slot_uri: hcp:PlatformJobSpec.project_id
         required: true
         annotations:
           json_property: project_id
@@ -377,16 +409,19 @@ classes:
         annotations:
           const: restart
           json_property: recovery
+        slot_uri: hcp:PlatformJobSpec.recovery
       resources:
         description: PlatformJobSpec.resources
         range: PlatformResources
         inlined: true
+        slot_uri: hcp:PlatformJobSpec.resources
         required: true
         annotations:
           json_property: resources
       run_id:
         description: Run Id
         range: string
+        slot_uri: hcp:PlatformJobSpec.run_id
         required: true
         annotations:
           json_property: run_id
@@ -394,6 +429,7 @@ classes:
         description: PlatformJobSpec.runtime
         range: PlatformRuntime
         inlined: true
+        slot_uri: hcp:PlatformJobSpec.runtime
         required: true
         annotations:
           json_property: runtime
@@ -403,10 +439,12 @@ classes:
         annotations:
           const: '1'
           json_property: spec_version
+        slot_uri: hcp:PlatformJobSpec.spec_version
       workload:
         description: PlatformJobSpec.workload
         range: PlatformWorkload
         inlined: true
+        slot_uri: hcp:PlatformJobSpec.workload
         required: true
         annotations:
           json_property: workload
@@ -420,37 +458,44 @@ classes:
       agent_client:
         description: Agent Client
         range: string
+        slot_uri: hcp:PlatformActor.agent_client
         annotations:
           json_property: agent_client
       agent_client_version:
         description: Agent Client Version
         range: string
+        slot_uri: hcp:PlatformActor.agent_client_version
         annotations:
           json_property: agent_client_version
       agent_session_id:
         description: Agent Session Id
         range: string
+        slot_uri: hcp:PlatformActor.agent_session_id
         annotations:
           json_property: agent_session_id
       conversation_ref:
         description: Conversation Ref
         range: string
+        slot_uri: hcp:PlatformActor.conversation_ref
         annotations:
           json_property: conversation_ref
       human_subject:
         description: Human Subject
         range: string
+        slot_uri: hcp:PlatformActor.human_subject
         required: true
         annotations:
           json_property: human_subject
       model:
         description: Model
         range: string
+        slot_uri: hcp:PlatformActor.model
         annotations:
           json_property: model
       tool_call_id:
         description: Tool Call Id
         range: string
+        slot_uri: hcp:PlatformActor.tool_call_id
         annotations:
           json_property: tool_call_id
     annotations:
@@ -462,6 +507,7 @@ classes:
       composition:
         description: Composition
         range: string
+        slot_uri: hcp:PlatformInputs.composition
         annotations:
           json_property: composition
       files:
@@ -470,24 +516,28 @@ classes:
         inlined: true
         multivalued: true
         inlined_as_list: true
+        slot_uri: hcp:PlatformInputs.files
         required: true
         annotations:
           json_property: files
       manifest_sha256:
         description: Manifest Sha256
         range: string
+        slot_uri: hcp:PlatformInputs.manifest_sha256
         required: true
         annotations:
           json_property: manifest_sha256
       revision_id:
         description: Revision Id
         range: string
+        slot_uri: hcp:PlatformInputs.revision_id
         required: true
         annotations:
           json_property: revision_id
       storage_prefix:
         description: Storage Prefix
         range: string
+        slot_uri: hcp:PlatformInputs.storage_prefix
         required: true
         annotations:
           json_property: storage_prefix
@@ -500,12 +550,14 @@ classes:
       path:
         description: Path
         range: string
+        slot_uri: hcp:PlatformInputFile.path
         required: true
         annotations:
           json_property: path
       sha256:
         description: Sha256
         range: string
+        slot_uri: hcp:PlatformInputFile.sha256
         required: true
         annotations:
           json_property: sha256
@@ -513,6 +565,7 @@ classes:
         description: Size
         range: integer
         minimum_value: 0
+        slot_uri: hcp:PlatformInputFile.size
         required: true
         annotations:
           json_property: size
@@ -525,22 +578,26 @@ classes:
       estimated_runtime_seconds:
         description: Estimated Runtime Seconds
         range: float
+        slot_uri: hcp:PlatformLimits.estimated_runtime_seconds
         annotations:
           json_property: estimated_runtime_seconds
       execution_timeout_seconds:
         description: Execution Timeout Seconds
         range: integer
+        slot_uri: hcp:PlatformLimits.execution_timeout_seconds
         annotations:
           json_property: execution_timeout_seconds
       queue_deadline_seconds:
         description: Queue Deadline Seconds
         range: integer
+        slot_uri: hcp:PlatformLimits.queue_deadline_seconds
         annotations:
           json_property: queue_deadline_seconds
       retry_budget:
         description: Retry Budget
         range: integer
         minimum_value: 0
+        slot_uri: hcp:PlatformLimits.retry_budget
         annotations:
           json_property: retry_budget
     annotations:
@@ -552,23 +609,27 @@ classes:
       egress_policy:
         description: PlatformOutputs.egress_policy
         range: EgressPolicy
+        slot_uri: hcp:PlatformOutputs.egress_policy
         annotations:
           json_property: egress_policy
       required_artifacts:
         description: Required Artifacts
         range: string
         multivalued: true
+        slot_uri: hcp:PlatformOutputs.required_artifacts
         required: true
         annotations:
           json_property: required_artifacts
       retention_days:
         description: Retention Days
         range: integer
+        slot_uri: hcp:PlatformOutputs.retention_days
         annotations:
           json_property: retention_days
       storage_prefix:
         description: Storage Prefix
         range: string
+        slot_uri: hcp:PlatformOutputs.storage_prefix
         required: true
         annotations:
           json_property: storage_prefix
@@ -581,11 +642,13 @@ classes:
       interruption:
         description: Interruption
         range: PlatformPlacementInterruption
+        slot_uri: hcp:PlatformPlacement.interruption
         annotations:
           json_property: interruption
       target_id:
         description: Target Id
         range: string
+        slot_uri: hcp:PlatformPlacement.target_id
         required: true
         annotations:
           json_property: target_id
@@ -598,44 +661,52 @@ classes:
       cpu:
         description: Cpu
         range: float
+        slot_uri: hcp:PlatformResources.cpu
         annotations:
           json_property: cpu
       gpu:
         description: Gpu
         range: string
+        slot_uri: hcp:PlatformResources.gpu
         annotations:
           json_property: gpu
       job_class:
         description: PlatformResources.job_class
         range: JobClass
+        slot_uri: hcp:PlatformResources.job_class
         annotations:
           json_property: job_class
       memory_gib:
         description: Memory Gib
         range: float
+        slot_uri: hcp:PlatformResources.memory_gib
         annotations:
           json_property: memory_gib
       pool_size:
         description: Pool Size
         range: integer
         minimum_value: 1
+        slot_uri: hcp:PlatformResources.pool_size
         annotations:
           json_property: pool_size
       profile:
         description: Profile
         range: string
+        slot_uri: hcp:PlatformResources.profile
         annotations:
           json_property: profile
       ranks:
         description: Ranks
         range: integer
         minimum_value: 1
+        slot_uri: hcp:PlatformResources.ranks
         annotations:
           json_property: ranks
       scratch_gib:
         description: Scratch Gib
         range: float
         minimum_value: 0
+        slot_uri: hcp:PlatformResources.scratch_gib
         annotations:
           json_property: scratch_gib
     annotations:
@@ -647,17 +718,20 @@ classes:
       architecture:
         description: Architecture
         range: string
+        slot_uri: hcp:PlatformRuntime.architecture
         annotations:
           json_property: architecture
       image:
         description: Image
         range: string
+        slot_uri: hcp:PlatformRuntime.image
         annotations:
           json_property: image
       threads:
         description: Threads
         range: integer
         minimum_value: 1
+        slot_uri: hcp:PlatformRuntime.threads
         annotations:
           json_property: threads
     annotations:
@@ -672,15 +746,18 @@ classes:
         annotations:
           json_object: 'true'
           json_property: parameters
+        slot_uri: hcp:PlatformWorkload.parameters
       workflow:
         description: Workflow
         range: string
+        slot_uri: hcp:PlatformWorkload.workflow
         required: true
         annotations:
           json_property: workflow
       workflow_version:
         description: Workflow Version
         range: string
+        slot_uri: hcp:PlatformWorkload.workflow_version
         required: true
         annotations:
           json_property: workflow_version
@@ -696,6 +773,7 @@ classes:
         inlined: true
         multivalued: true
         inlined_as_list: true
+        slot_uri: hcp:PlatformAttemptManifest.artifacts
         required: true
         annotations:
           json_property: artifacts
@@ -703,6 +781,7 @@ classes:
         description: PlatformAttemptManifest.provenance
         range: PlatformProvenance
         inlined: true
+        slot_uri: hcp:PlatformAttemptManifest.provenance
         required: true
         annotations:
           json_property: provenance
@@ -712,14 +791,17 @@ classes:
         annotations:
           json_object: 'true'
           json_property: quality
+        slot_uri: hcp:PlatformAttemptManifest.quality
       run_manifest:
         description: Run Manifest
         range: string
+        slot_uri: hcp:PlatformAttemptManifest.run_manifest
         annotations:
           json_property: run_manifest
       run_manifest_sha256:
         description: Run Manifest Sha256
         range: string
+        slot_uri: hcp:PlatformAttemptManifest.run_manifest_sha256
         required: true
         annotations:
           json_property: run_manifest_sha256
@@ -729,9 +811,11 @@ classes:
         annotations:
           const: hydrocouple.platform/attempt-manifest/1
           json_property: schema
+        slot_uri: hcp:PlatformAttemptManifest.schema
       platform_status:
         description: Status
         range: PlatformAttemptManifestStatus
+        slot_uri: hcp:PlatformAttemptManifest.status
         required: true
         annotations:
           json_property: status
@@ -745,24 +829,28 @@ classes:
       format:
         description: Format
         range: string
+        slot_uri: hcp:PlatformArtifactEntry.format
         required: true
         annotations:
           json_property: format
       kind:
         description: PlatformArtifactEntry.kind
         range: ArtifactKind
+        slot_uri: hcp:PlatformArtifactEntry.kind
         required: true
         annotations:
           json_property: kind
       path:
         description: Path
         range: string
+        slot_uri: hcp:PlatformArtifactEntry.path
         required: true
         annotations:
           json_property: path
       sha256:
         description: Sha256
         range: string
+        slot_uri: hcp:PlatformArtifactEntry.sha256
         required: true
         annotations:
           json_property: sha256
@@ -770,6 +858,7 @@ classes:
         description: Size
         range: integer
         minimum_value: 0
+        slot_uri: hcp:PlatformArtifactEntry.size
         required: true
         annotations:
           json_property: size
@@ -783,30 +872,35 @@ classes:
         description: PlatformProvenance.actor
         range: PlatformActor
         inlined: true
+        slot_uri: hcp:PlatformProvenance.actor
         required: true
         annotations:
           json_property: actor
       attempt_id:
         description: Attempt Id
         range: string
+        slot_uri: hcp:PlatformProvenance.attempt_id
         required: true
         annotations:
           json_property: attempt_id
       attempt_number:
         description: Attempt Number
         range: integer
+        slot_uri: hcp:PlatformProvenance.attempt_number
         required: true
         annotations:
           json_property: attempt_number
       composition_sha256:
         description: Composition Sha256
         range: string
+        slot_uri: hcp:PlatformProvenance.composition_sha256
         required: true
         annotations:
           json_property: composition_sha256
       finished_at:
         description: Finished At
         range: datetime
+        slot_uri: hcp:PlatformProvenance.finished_at
         required: true
         annotations:
           json_property: finished_at
@@ -816,10 +910,12 @@ classes:
         annotations:
           json_object: 'true'
           json_property: inputs
+        slot_uri: hcp:PlatformProvenance.inputs
         required: true
       job_id:
         description: Job Id
         range: string
+        slot_uri: hcp:PlatformProvenance.job_id
         required: true
         annotations:
           json_property: job_id
@@ -829,6 +925,7 @@ classes:
         annotations:
           json_object: 'true'
           json_property: parameters
+        slot_uri: hcp:PlatformProvenance.parameters
         required: true
       profile:
         description: Profile
@@ -836,21 +933,25 @@ classes:
         annotations:
           const: hydrocouple.platform/provenance/1
           json_property: profile
+        slot_uri: hcp:PlatformProvenance.profile
       revision_id:
         description: Revision Id
         range: string
+        slot_uri: hcp:PlatformProvenance.revision_id
         required: true
         annotations:
           json_property: revision_id
       revision_manifest_sha256:
         description: Revision Manifest Sha256
         range: string
+        slot_uri: hcp:PlatformProvenance.revision_manifest_sha256
         required: true
         annotations:
           json_property: revision_manifest_sha256
       run_id:
         description: Run Id
         range: string
+        slot_uri: hcp:PlatformProvenance.run_id
         required: true
         annotations:
           json_property: run_id
@@ -858,6 +959,7 @@ classes:
         description: PlatformProvenance.runtime
         range: PlatformRuntimeVersions
         inlined: true
+        slot_uri: hcp:PlatformProvenance.runtime
         required: true
         annotations:
           json_property: runtime
@@ -867,27 +969,32 @@ classes:
         annotations:
           json_object: 'true'
           json_property: seeds
+        slot_uri: hcp:PlatformProvenance.seeds
       started_at:
         description: Started At
         range: datetime
+        slot_uri: hcp:PlatformProvenance.started_at
         required: true
         annotations:
           json_property: started_at
       threads:
         description: Threads
         range: integer
+        slot_uri: hcp:PlatformProvenance.threads
         required: true
         annotations:
           json_property: threads
       workflow:
         description: Workflow
         range: string
+        slot_uri: hcp:PlatformProvenance.workflow
         required: true
         annotations:
           json_property: workflow
       workflow_version:
         description: Workflow Version
         range: string
+        slot_uri: hcp:PlatformProvenance.workflow_version
         required: true
         annotations:
           json_property: workflow_version
@@ -900,27 +1007,32 @@ classes:
       engine:
         description: Engine
         range: string
+        slot_uri: hcp:PlatformRuntimeVersions.engine
         annotations:
           json_property: engine
       host:
         description: Host
         range: string
+        slot_uri: hcp:PlatformRuntimeVersions.host
         annotations:
           json_property: host
       image:
         description: Image
         range: string
+        slot_uri: hcp:PlatformRuntimeVersions.image
         annotations:
           json_property: image
       platform:
         description: Platform
         range: string
+        slot_uri: hcp:PlatformRuntimeVersions.platform
         required: true
         annotations:
           json_property: platform
       python:
         description: Python
         range: string
+        slot_uri: hcp:PlatformRuntimeVersions.python
         required: true
         annotations:
           json_property: python
@@ -933,41 +1045,48 @@ classes:
       approval_id:
         description: Approval Id
         range: string
+        slot_uri: hcp:PlatformStudyView.approval_id
         annotations:
           json_property: approval_id
       batches:
         description: Batches
         range: integer
+        slot_uri: hcp:PlatformStudyView.batches
         required: true
         annotations:
           json_property: batches
       created_at:
         description: Created At
         range: datetime
+        slot_uri: hcp:PlatformStudyView.created_at
         required: true
         annotations:
           json_property: created_at
       dimensions:
         description: Dimensions
         range: integer
+        slot_uri: hcp:PlatformStudyView.dimensions
         required: true
         annotations:
           json_property: dimensions
       evaluations_completed:
         description: Evaluations Completed
         range: integer
+        slot_uri: hcp:PlatformStudyView.evaluations_completed
         required: true
         annotations:
           json_property: evaluations_completed
       evaluations_failed:
         description: Evaluations Failed
         range: integer
+        slot_uri: hcp:PlatformStudyView.evaluations_failed
         required: true
         annotations:
           json_property: evaluations_failed
       evaluations_submitted:
         description: Evaluations Submitted
         range: integer
+        slot_uri: hcp:PlatformStudyView.evaluations_submitted
         required: true
         annotations:
           json_property: evaluations_submitted
@@ -977,15 +1096,18 @@ classes:
         annotations:
           json_object: 'true'
           json_property: failure
+        slot_uri: hcp:PlatformStudyView.failure
       max_evaluations:
         description: Max Evaluations
         range: integer
+        slot_uri: hcp:PlatformStudyView.max_evaluations
         required: true
         annotations:
           json_property: max_evaluations
       next_action:
         description: Next Action
         range: string
+        slot_uri: hcp:PlatformStudyView.next_action
         annotations:
           json_property: next_action
       objectives:
@@ -994,12 +1116,14 @@ classes:
         inlined: true
         multivalued: true
         inlined_as_list: true
+        slot_uri: hcp:PlatformStudyView.objectives
         required: true
         annotations:
           json_property: objectives
       on_failure:
         description: PlatformStudyView.on_failure
         range: FailurePolicy
+        slot_uri: hcp:PlatformStudyView.on_failure
         required: true
         annotations:
           json_property: on_failure
@@ -1010,75 +1134,88 @@ classes:
           json_object: 'true'
           json_property: pool
         multivalued: true
+        slot_uri: hcp:PlatformStudyView.pool
       pool_size:
         description: Pool Size
         range: integer
+        slot_uri: hcp:PlatformStudyView.pool_size
         required: true
         annotations:
           json_property: pool_size
       project_id:
         description: Project Id
         range: string
+        slot_uri: hcp:PlatformStudyView.project_id
         required: true
         annotations:
           json_property: project_id
       revision_id:
         description: Revision Id
         range: string
+        slot_uri: hcp:PlatformStudyView.revision_id
         required: true
         annotations:
           json_property: revision_id
       run_id:
         description: Run Id
         range: string
+        slot_uri: hcp:PlatformStudyView.run_id
         required: true
         annotations:
           json_property: run_id
       seed:
         description: Seed
         range: integer
+        slot_uri: hcp:PlatformStudyView.seed
         required: true
         annotations:
           json_property: seed
       session_id:
         description: Session Id
         range: string
+        slot_uri: hcp:PlatformStudyView.session_id
         required: true
         annotations:
           json_property: session_id
       state:
         description: PlatformStudyView.state
         range: StudyState
+        slot_uri: hcp:PlatformStudyView.state
         required: true
         annotations:
           json_property: state
       study_id:
         description: Study Id
         range: string
+        slot_uri: hcp:PlatformStudyView.study_id
         required: true
         annotations:
           json_property: study_id
       target_id:
         description: Target Id
         range: string
+        slot_uri: hcp:PlatformStudyView.target_id
         required: true
         annotations:
           json_property: target_id
       updated_at:
         description: Updated At
         range: datetime
+        slot_uri: hcp:PlatformStudyView.updated_at
         required: true
         annotations:
           json_property: updated_at
       workflow:
         description: Workflow
         range: string
+        slot_uri: hcp:PlatformStudyView.workflow
         required: true
         annotations:
           json_property: workflow
       workflow_version:
         description: Workflow Version
         range: string
+        slot_uri: hcp:PlatformStudyView.workflow_version
         required: true
         annotations:
           json_property: workflow_version
@@ -1092,12 +1229,14 @@ classes:
       direction:
         description: Direction
         range: PlatformObjectiveDirection
+        slot_uri: hcp:PlatformObjective.direction
         required: true
         annotations:
           json_property: direction
       name:
         description: Name
         range: string
+        slot_uri: hcp:PlatformObjective.name
         required: true
         annotations:
           json_property: name
@@ -1110,56 +1249,66 @@ classes:
       agent_clock_seconds:
         description: Agent monotonic clock, robust to wall-clock skew.
         range: float
+        slot_uri: hcp:PlatformEvent.agent_clock_seconds
         annotations:
           json_property: agent_clock_seconds
       completed:
         description: Completed
         range: float
+        slot_uri: hcp:PlatformEvent.completed
         annotations:
           json_property: completed
       event_id:
         description: Event Id
         range: string
+        slot_uri: hcp:PlatformEvent.event_id
         required: true
         annotations:
           json_property: event_id
       kind:
         description: PlatformEvent.kind
         range: EventKind
+        slot_uri: hcp:PlatformEvent.kind
         required: true
         annotations:
           json_property: kind
       message:
         description: Message
         range: string
+        slot_uri: hcp:PlatformEvent.message
         annotations:
           json_property: message
       occurred_at:
         description: Occurred At
         range: datetime
+        slot_uri: hcp:PlatformEvent.occurred_at
         required: true
         annotations:
           json_property: occurred_at
       phase:
         description: Phase
         range: string
+        slot_uri: hcp:PlatformEvent.phase
         annotations:
           json_property: phase
       sequence:
         description: Sequence
         range: integer
         minimum_value: 0
+        slot_uri: hcp:PlatformEvent.sequence
         required: true
         annotations:
           json_property: sequence
       total:
         description: Total
         range: float
+        slot_uri: hcp:PlatformEvent.total
         annotations:
           json_property: total
       platform_unit:
         description: Unit
         range: string
+        slot_uri: hcp:PlatformEvent.unit
         annotations:
           json_property: unit
     annotations:
@@ -1172,6 +1321,7 @@ classes:
       code:
         description: PlatformError.code
         range: ErrorCode
+        slot_uri: hcp:PlatformError.code
         required: true
         annotations:
           json_property: code
@@ -1181,20 +1331,24 @@ classes:
         annotations:
           json_object: 'true'
           json_property: details
+        slot_uri: hcp:PlatformError.details
       message:
         description: Message
         range: string
+        slot_uri: hcp:PlatformError.message
         required: true
         annotations:
           json_property: message
       next_action:
         description: Next Action
         range: string
+        slot_uri: hcp:PlatformError.next_action
         annotations:
           json_property: next_action
       retryable:
         description: Retryable
         range: boolean
+        slot_uri: hcp:PlatformError.retryable
         annotations:
           json_property: retryable
     annotations:

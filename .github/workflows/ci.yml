@@ -7,18 +7,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install -e ".[dev]"
       - name: generated modules match the vendored OpenSWMM catalog and platform schemas
         run: make model-check platform-check
       - run: make lint
-      - run: make owl shacl sql delta assertions diagrams prompt glossary
+      - run: make owl shacl sql delta assertions diagrams prompt glossary inventory sqlite
+      - name: generate migration evidence against the reviewed predecessor
+        run: |
+          mkdir -p "$RUNNER_TEMP/baseline"
+          git archive 3df3b17a8b50e33e2a5e82f7601ceee6cd7b0727 schema examples/site_drainage/rows | tar -x -C "$RUNNER_TEMP/baseline"
+          python -m migrations.semantic_diff "$RUNNER_TEMP/baseline/schema/wsys.yaml" schema/wsys.yaml dist/release/semantic-diff.json
+          python -m migrations.v0_2 "$RUNNER_TEMP/baseline/examples/site_drainage/rows" examples/site_drainage/rows dist/release/identity-crosswalk.json
+      - name: validate the exported instances with generated SHACL shapes
+        run: python -m loaders.rows_to_rdf examples/site_drainage/rows --shapes dist/wsys.shacl.ttl
       - run: pytest -q
       - name: generated diagrams are committed
         run: git diff --exit-code -- docs/diagrams docs/rules.md docs/agent-context.md
       - uses: actions/upload-artifact@v4
         with: { name: dist, path: dist }
+
+  native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e ".[dev,engine]"
+      - run: python -c 'from openswmm import engine'
+      - run: python -m pytest -q tests/test_portable.py
+      - run: python -m loaders.swmm_to_rows examples/site_drainage/model.inp --utility ci --system drainage --run -o dist/live-rows
+      - run: python -m generators.linkml_to_sqlite dist/live-rows dist/live.sqlite
 
   docs:
     needs: build

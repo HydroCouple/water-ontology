@@ -1,0 +1,137 @@
+prefixes:
+  wsys: https://w3id.org/wsys/
+  model: https://w3id.org/wsys/model/
+  linkml: https://w3id.org/linkml/
+default_prefix: model
+license: Apache-2.0
+version: catalog-r2
+id: https://w3id.org/wsys/swmm-codes
+name: wsys-swmm-codes
+title: SWMM shared code lists
+imports:
+- linkml:types
+enums:
+  GageRainType:
+    description: OpenSWMM enum GageRainType (catalog revision 2).
+    annotations:
+      catalog_enum: GageRainType
+    permissible_values:
+      INTENSITY:
+        description: code 0
+      VOLUME:
+        description: code 1
+      CUMULATIVE:
+        description: code 2
+  OrificeType:
+    description: OpenSWMM enum OrificeType (catalog revision 2).
+    annotations:
+      catalog_enum: OrificeType
+    permissible_values:
+      SIDE:
+        description: code 0
+      BOTTOM:
+        description: code 1
+  OutfallType:
+    description: OpenSWMM enum OutfallType (catalog revision 2).
+    annotations:
+      catalog_enum: OutfallType
+    permissible_values:
+      FREE:
+        description: code 0
+      NORMAL:
+        description: code 1
+      FIXED:
+        description: code 2
+      TIDAL:
+        description: code 3
+      TIMESERIES:
+        description: code 4
+  StorageShape:
+    description: OpenSWMM enum StorageShape (catalog revision 2).
+    annotations:
+      catalog_enum: StorageShape
+    permissible_values:
+      TABULAR:
+        description: code 0
+      FUNCTIONAL:
+        description: code 1
+      CYLINDRICAL:
+        description: code 2
+      CONICAL:
+        description: code 3
+      PARABOLOID:
+        description: code 4
+      PYRAMIDAL:
+        description: code 5
+  WeirType:
+    description: OpenSWMM enum WeirType (catalog revision 2).
+    annotations:
+      catalog_enum: WeirType
+    permissible_values:
+      TRANSVERSE:
+        description: code 0
+      SIDEFLOW:
+        description: code 1
+      VNOTCH:
+        description: code 2
+      TRAPEZOIDAL:
+        description: code 3
+      ROADWAY:
+        description: code 4
+  XSectShape:
+    description: OpenSWMM enum XSectShape (catalog revision 2).
+    annotations:
+      catalog_enum: XSectShape
+    permissible_values:
+      CIRCULAR:
+        description: code 0
+      FILLED_CIRCULAR:
+        description: code 1
+      RECT_CLOSED:
+        description: code 2
+      RECT_OPEN:
+        description: code 3
+      TRAPEZOIDAL:
+        description: code 4
+      TRIANGULAR:
+        description: code 5
+      PARABOLIC:
+        description: code 6
+      POWER:
+        description: code 7
+      MODBASKETHANDLE:
+        description: code 8
+      EGGSHAPED:
+        description: code 9
+      HORSESHOE:
+        description: code 10
+      GOTHIC:
+        description: code 11
+      CATENARY:
+        description: code 12
+      SEMIELLIPTICAL:
+        description: code 13
+      BASKETHANDLE:
+        description: code 14
+      SEMICIRCULAR:
+        description: code 15
+      RECT_TRIANG:
+        description: code 16
+      RECT_ROUND:
+        description: code 17
+      HORIZ_ELLIPSE:
+        description: code 18
+      VERT_ELLIPSE:
+        description: code 19
+      ARCH:
+        description: code 20
+      IRREGULAR:
+        description: code 21
+      CUSTOM:
+        description: code 22
+      FORCE_MAIN:
+        description: code 23
+      STREET_XSECT:
+        description: code 24
+      DUMMY:
+        description: code 25
