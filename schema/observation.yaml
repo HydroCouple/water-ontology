@@ -67,6 +67,7 @@ enums:
       RAINFALL_DEPTH: {}
       TEMPERATURE: {}
       CONCENTRATION: {}
+      MASS_LOADING: {description: Mass per area or length as specified by the source loading basis}
       TURBIDITY: {}
       PH: {}
       DISSOLVED_OXYGEN: {}
@@ -121,17 +122,27 @@ slots:
   datastream:
     range: Datastream
   entity_iri:
+    slot_uri: sosa:hasFeatureOfInterest
     range: IRI
     required: true
     description: Feature of interest, denormalised onto the observation row for fast filtering.
   property_iri:
+    slot_uri: sosa:observedProperty
     range: IRI
     required: true
+  interval_start:
+    range: datetime
+  interval_end:
+    range: datetime
+  native_unit:
+    range: string
+  conversion_factor:
+    range: double
   phenomenon_time:
     range: datetime
-    required: true
     description: When the observed condition held (SOSA phenomenonTime).
   result_time:
+    slot_uri: sosa:resultTime
     range: datetime
     description: When the result became available (SOSA resultTime); differs from phenomenon_time for forecasts and late data.
   value:
@@ -184,7 +195,8 @@ classes:
     is_a: Asset
     description: A physical or virtual device that observes a property of an asset or area. Mounted on its feature of interest by an ATTACHED_TO edge.
     slots: [sensor_kind, serial_number, datasource_tag, sampling_interval]
-    exact_mappings: [sosa:Sensor, saref:Device]
+    exact_mappings: [sosa:Sensor]
+    broad_mappings: [saref:Device]
 
   ObservedProperty:
     is_a: Entity
@@ -197,16 +209,20 @@ classes:
     mixins: [Dataset]
     description: One sensor observing one property of one feature of interest over time; the unit of telemetry ingestion and the thing a staleness threshold applies to.
     slots: [sensor, observed_property, feature_of_interest, sampling_interval, staleness_threshold, datasource_tag]
-    exact_mappings: [ssn:System, sosa:ObservationCollection]
+    related_mappings: [sosa:ObservationCollection]
 
   Observation:
     is_a: DerivedEntity
     description: One value of one property for one entity at one time. Measurements, forecasts, simulation results and aggregates share this shape, distinguished by result_kind, so they can be compared in one query. was_generated_by is the ingestion job, forecast model version or simulation attempt.
-    slots: [datastream, entity_iri, property_iri, phenomenon_time, result_time, value, unit, quality_flag, result_kind, issued_at, horizon, lower, upper, interval_level, aggregation]
-    exact_mappings: [sosa:Observation, saref:Measurement]
+    slots: [datastream, entity_iri, property_iri, phenomenon_time, interval_start, interval_end, native_unit, conversion_factor, result_time, value, unit, quality_flag, result_kind, issued_at, horizon, lower, upper, interval_level, aggregation]
+    related_mappings: [sosa:Observation, saref:Measurement]
 
   Setpoint:
     is_a: DerivedEntity
     mixins: [Attributed]
     description: A target value for a controllable property (pump speed, gate opening, tank level band) effective over a period. Agents only propose setpoints; set_by and approved_by record who made them real.
     slots: [target_entity, target_property, value, unit, effective_from, effective_to, set_by, approved_by]
+
+  Constituent:
+    is_a: Entity
+    description: A substance or aggregate such as TSS whose concentration or load may be modeled.

@@ -16,6 +16,8 @@ prefixes:
   linkml: https://w3id.org/linkml/
   prov: http://www.w3.org/ns/prov#
   dcterms: http://purl.org/dc/terms/
+  xsd: http://www.w3.org/2001/XMLSchema#
+  spdx: http://spdx.org/rdf/terms#
   dcat: http://www.w3.org/ns/dcat#
   foaf: http://xmlns.com/foaf/0.1/
   schema: http://schema.org/
@@ -121,8 +123,11 @@ slots:
     slot_uri: dcat:byteSize
   checksum:
     range: string
-    slot_uri: dcat:checksum
-    description: SHA-256 of the distribution.
+    description: Legacy hexadecimal SHA-256 of the distribution.
+  integrity_checksum:
+    range: ArtifactChecksum
+    inlined: true
+    slot_uri: spdx:checksum
   delta_version:
     range: integer
     description: Delta table version when the distribution is a Unity Catalog table.
@@ -137,7 +142,7 @@ classes:
 
   Distribution:
     description: One concrete form of a dataset-like entity - a Delta table at a version, a file in a Volume, a model artifact.
-    slots: [access_url, media_type, byte_size, checksum, delta_version, dc_license]
+    slots: [access_url, media_type, byte_size, checksum, integrity_checksum, delta_version, dc_license]
     exact_mappings: [dcat:Distribution]
 
   Attributed:
@@ -156,3 +161,16 @@ classes:
     description: Mixin for dataset-like entities that should be discoverable - training data, revisions, datastreams, the repo's own releases.
     slots: [distributions, dc_publisher, dc_source]
     exact_mappings: [dcat:Dataset]
+
+  ArtifactChecksum:
+    description: An SPDX digest value and algorithm for a distribution.
+    class_uri: spdx:Checksum
+    attributes:
+      algorithm: {range: IRI, required: true, slot_uri: spdx:algorithm}
+      digest: {range: Sha256Hex, required: true, slot_uri: spdx:checksumValue}
+
+types:
+  Sha256Hex:
+    typeof: string
+    uri: xsd:hexBinary
+    pattern: "^[a-f0-9]{64}$"

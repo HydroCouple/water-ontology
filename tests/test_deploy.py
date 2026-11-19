@@ -38,3 +38,8 @@ def test_retarget_and_manifest():
     if m.exists():
         tables = json.loads(m.read_text())["tables"]
         assert "water_core.topology.edge" in tables and any(c["name"] == "relation" for c in tables["water_core.topology.edge"])
+
+
+def test_retarget_preserves_terminology_payloads():
+    statement = "INSERT INTO water_core.reference.terminology_record VALUES ('water_core.model.node')"
+    assert apply.retarget(statement,"staging") == "INSERT INTO staging.reference.terminology_record VALUES ('water_core.model.node')"

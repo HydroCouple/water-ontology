@@ -30,6 +30,8 @@ import yaml
 HERE = Path(__file__).resolve().parent.parent
 MAPPINGS = HERE / "schema" / "mappings" / "swmm_to_wsys.yaml"
 OUT = HERE / "schema" / "model.yaml"
+SHARED = OUT.with_name("swmm_codes.yaml")
+SHARED_ENUMS = {"XSectShape", "OutfallType", "OrificeType", "WeirType", "StorageShape", "GageRainType"}
 LOCK = HERE / "schema" / "model.lock.json"
 
 # names that already exist as core/topology slots; prefix to avoid global-slot clashes
@@ -157,6 +159,7 @@ class CatalogToLinkML:
             if not self.range_for(m.get("type", "str"), attr):
                 self.skipped.append(m["path"]); continue
             ann = attr.setdefault("annotations", {})
+            attr["slot_uri"] = "model:" + m["path"]
             ann["catalog_path"] = m["path"]
             if m.get("access"):
                 ann["access"] = m["access"]
@@ -201,7 +204,7 @@ class CatalogToLinkML:
                 cls["abstract"] = True
                 cls["annotations"]["subtype_field"] = t["subtype_field"]
             if cname in self.mappings:
-                cls["exact_mappings"] = [self.mappings[cname]]
+                cls["annotations"]["represents_domain_class"] = self.mappings[cname]
             self.classes[cname] = cls
         # subtype views -> subclasses; component views -> inlined classes
         for target, t in self.targets.items():
@@ -211,25 +214,28 @@ class CatalogToLinkML:
             pname = KIND_CLASS[parent]
             attrs, methods = self.attributes_for(target)
             if t.get("subtypes"):
+                if "type" in attrs and "type" in self.classes[pname]["attributes"]:
+                    attrs[parent + "_kind"] = self.classes[pname]["attributes"]["type"].copy()
                 code = t["subtypes"][0]
                 cname = SUBTYPE_CLASS[code]
                 cls = {"is_a": pname, "description": (t.get("doc") or f"{t['class']}: {parent} of subtype {code}").strip(),
                        "attributes": attrs, "annotations": self.class_annotations(target, methods, {"subtype_code": code})}
                 if cname in self.mappings:
-                    cls["exact_mappings"] = [self.mappings[cname]]
+                    cls["annotations"]["represents_domain_class"] = self.mappings[cname]
                 self.classes[cname] = cls
             elif not attrs and any(m.get("target") == target and m.get("form") == "item" for m in self.members):
                 slot = target.split(".")[-1]
                 self.classes[pname]["attributes"][slot] = {
                     "range": "string", "multivalued": True,
                     "description": f"Keyed items of {t['class']} ({target}); one 'key=value' entry per item. Read and write through the engine tools, e.g. get(kind='{parent}', fields=['{slot}.<key>']).",
+                    "slot_uri": "model:" + target,
                     "annotations": {"catalog_target": target, "python_class": t["class"], "item_view": "true"}}
             else:
                 cname = "Swmm" + camel(target)           # node.stats -> SwmmNodeStats
                 self.classes[cname] = {"description": (t.get("doc") or f"{t['class']} component view of {parent}").strip(),
                                        "attributes": attrs, "annotations": self.class_annotations(target, methods)}
                 slot = target.split(".")[-1]
-                self.classes[pname]["attributes"][slot] = {"range": cname, "inlined": True,
+                self.classes[pname]["attributes"][slot] = {"range": cname, "inlined": True, "slot_uri": "model:" + target,
                                                            "description": f"{t['class']} view ({target})."}
         # subtypes with no dedicated view (JUNCTION, CONDUIT) still get a class
         for enum_name, parent in (("NodeType", "SwmmNode"), ("LinkType", "SwmmLink")):
@@ -239,7 +245,7 @@ class CatalogToLinkML:
                     cls = {"is_a": parent, "description": f"{parent} of subtype {code}; no additional engine properties.",
                            "annotations": {"subtype_code": code, "catalog_revision": str(self.cat["revision"])}}
                     if cname in self.mappings:
-                        cls["exact_mappings"] = [self.mappings[cname]]
+                        cls["annotations"]["represents_domain_class"] = self.mappings[cname]
                     self.classes[cname] = cls
             self.use_enum(enum_name)
         services = sorted(k for k, v in self.targets.items() if not v.get("collection") and not (v.get("parent") in KIND_CLASS))
@@ -256,14 +262,14 @@ class CatalogToLinkML:
             "prefixes": {"wsys": "https://w3id.org/wsys/", "model": "https://w3id.org/wsys/model/", "linkml": "https://w3id.org/linkml/"},
             "default_prefix": "model",
             "default_range": "string",
-            "imports": ["linkml:types", "core", "analysis"],
+            "imports": ["linkml:types", "core", "analysis", "swmm_codes"],
             "annotations": {"catalog_revision": str(self.cat["revision"]), "catalog_services": ",".join(services),
                             "skipped_navigation_properties": str(len(self.skipped))},
             "slots": {
                 "element_id": {"range": "string", "required": True, "description": "The element's id in the SWMM model (.inp name)."},
                 "revision": {"range": "Revision", "required": True, "description": "The immutable packaged model revision this element belongs to (hydrocouple.platform revision-manifest)."},
             },
-            "enums": self.enums_out,
+            "enums": {k: v for k, v in self.enums_out.items() if k not in SHARED_ENUMS},
             "classes": self.classes,
         }
 
@@ -278,13 +284,19 @@ def main() -> None:
     gen = CatalogToLinkML(cat, mappings)
     schema = gen.build()
     text = yaml.safe_dump(schema, sort_keys=False, allow_unicode=True, width=120)
+    shared = {k: schema[k] for k in ("prefixes", "default_prefix", "license", "version")}
+    shared.update(id="https://w3id.org/wsys/swmm-codes", name="wsys-swmm-codes",
+                  title="SWMM shared code lists", imports=["linkml:types"],
+                  enums={k: gen.enums_out[k] for k in sorted(SHARED_ENUMS)})
+    shared_text = yaml.safe_dump(shared, sort_keys=False, allow_unicode=True, width=120)
     digest = hashlib.sha256(json.dumps(cat, sort_keys=True).encode()).hexdigest()
     lock = {"catalog_revision": cat["revision"], "catalog_sha256": digest, "classes": len(schema["classes"]),
-            "enums": len(schema["enums"]), "skipped_navigation_properties": gen.skipped}
+            "enums": len(gen.enums_out), "skipped_navigation_properties": gen.skipped}
     if a.check:
-        if OUT.read_text() != text or json.loads(LOCK.read_text()).get("catalog_sha256") != digest:
+        if not SHARED.exists() or SHARED.read_text() != shared_text or OUT.read_text() != text or json.loads(LOCK.read_text()).get("catalog_sha256") != digest:
             raise SystemExit("schema/model.yaml is stale: run `make model`")
         print("model.yaml up to date"); return
+    SHARED.write_text(shared_text)
     OUT.write_text(text)
     lock["generated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     LOCK.write_text(json.dumps(lock, indent=2) + "\n")

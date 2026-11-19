@@ -23,6 +23,8 @@ import argparse
 import re
 from pathlib import Path
 
+from generators.profile import annotation
+
 from linkml_runtime.utils.schemaview import SchemaView
 
 # --- type mapping ----------------------------------------------------------
@@ -222,7 +224,9 @@ class DeltaGenerator:
             "wsys_class": self.sv.get_uri(cls, expand=True),
             "wsys_parent": self.sv.get_uri(self.sv.get_class(cls.is_a), expand=True) if cls.is_a else "",
             "wsys_ancestors": ",".join(self.sv.class_ancestors(cls_name)),
-            "saref_mapping": ",".join(cls.exact_mappings or []),
+            "wsys_exact_mappings": ",".join(cls.exact_mappings or []),
+            "wsys_close_mappings": ",".join(cls.close_mappings or []),
+            "wsys_represents": annotation(cls, "represents_domain_class") or "",
             "delta.enableChangeDataFeed": "true",
         }
         tbl = (f"CREATE SCHEMA IF NOT EXISTS {self.catalog}.{schema};\n"
@@ -244,6 +248,8 @@ class DeltaGenerator:
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "00_enums.sql").write_text(self.emit_enums())
         (out_dir / "01_asset_class.sql").write_text(self.emit_class_table())
+        from generators.delta_registry import emit
+        (out_dir / "02_terminology.sql").write_text(emit(self))
         for i, c in enumerate(self.concrete_classes(), start=10):
             (out_dir / f"{i:02d}_{self.module_of(c)}_{snake(c)}.sql").write_text(self.emit_table(c))
         (out_dir / "90_asset_union_view.sql").write_text(self.emit_union_view("Asset"))

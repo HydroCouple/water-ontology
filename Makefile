@@ -74,7 +74,7 @@ assertions: | $(DIST)
 EXAMPLE ?= examples/site_drainage
 
 example:
-	python -m loaders.swmm_to_rows $(EXAMPLE)/model.inp --utility demo --system site-drainage --run -o $(EXAMPLE)/rows
+	python -m loaders.swmm_to_rows $(EXAMPLE)/model.inp --utility demo --system site-drainage --run --input-license Apache-2.0 -o $(EXAMPLE)/rows
 
 check-example:
 	python -m harness.duckdb_harness $(EXAMPLE)/rows
@@ -85,3 +85,23 @@ prompt: | $(DIST)
 
 glossary: | $(DIST)
 	python -m generators.linkml_to_glossary $(ROOT) -o $(DIST)/glossary
+
+ROWS ?= examples/site_drainage/rows
+SQLITE_FILE ?= $(DIST)/water-ontology.sqlite
+
+.PHONY: sqlite inventory verify-portable
+sqlite: $(SQLITE_FILE)
+
+$(SQLITE_FILE): $(wildcard $(ROWS)/*.jsonl $(ROWS)/SUMMARY.json $(ROWS)/artifacts/* schema/*.yaml schema/profiles/*.yaml schema/mappings/*.yaml generators/*.py)
+	@mkdir -p "$(@D)"
+	@set -e; tempdir=$$(mktemp -d "$(@D)/.sqlite.XXXXXXXX"); trap 'rm -rf "$$tempdir"' EXIT; \
+	python -m generators.linkml_to_sqlite "$(ROWS)" "$$tempdir/release.sqlite"; \
+	mv "$$tempdir/release.sqlite" "$@"
+
+
+inventory:
+	python -m generators.release_inventory $(ROWS) -o $(DIST)/release/inventory.json
+
+verify-portable: model-check platform-check inventory sqlite shacl
+	python -m loaders.rows_to_rdf $(ROWS) --shapes $(DIST)/wsys.shacl.ttl
+	python -m pytest -q

@@ -1,6 +1,6 @@
 [project]
 name = "water-ontology"
-version = "0.1.0"
+version = "0.2.0"
 description = "Water systems ontology: LinkML source of truth, generated OWL/SHACL/Delta DDL/Unity Catalog metadata."
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -11,9 +11,11 @@ dependencies = [
     "rdflib>=7.0",
     "pyyaml>=6.0",
     "jinja2>=3.1",
+    "filelock>=3.13",
 ]
 
 [project.optional-dependencies]
+sqlite = ["sqlglot>=25"]
 engine = ["openswmm>=6.0.0a4.dev1"]   # PyPI build for now; loaders switch to the catalog API when a catalog-aware wheel is published
 dev = ["pytest>=8.0", "sqlglot>=25", "duckdb>=1.0"]
 docs = ["mkdocs-material>=9.5", "pymdown-extensions>=10"]
@@ -26,4 +28,8 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["generators", "loaders", "harness"]
+packages = ["generators", "loaders", "harness", "deploy", "migrations", "schema", "vendor"]
+
+[tool.setuptools.package-data]
+schema = ["*.yaml", "*.json", "profiles/*.yaml", "mappings/*.yaml"]
+vendor = ["baselines/*.json", "openswmm/*.yaml", "openswmm/*.json", "hydrocouple.platform/*.yaml", "hydrocouple.platform/schemas/*.json"]

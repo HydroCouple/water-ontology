@@ -16,9 +16,10 @@ imports:
 - linkml:types
 - core
 - analysis
+- swmm_codes
 annotations:
   catalog_revision: '2'
-  catalog_services: aquifers,builder,checkpoints,climate,controls,coupling,coupling.surface,editor,events,forcing,gages,geopackage,groundwater2d,groundwater2d.options,groundwater2d.transport,groundwater2d.transport.options,heat,heat.cloud,heat.element_overrides,heat.modules,heat.node_overrides,heat.radiative,heat.sediment,heat.solar,heat.sources,heat_snapshot,hotstart,inflows,infrastructure,infrastructure.inlet_usages,infrastructure.inlets,infrastructure.lids,infrastructure.streets,infrastructure.transects,initial_quality,links,mass_balance,nodes,options,options.ext,output,patterns,pollutants,process_components,quality,quality.landuses,reactions,reactions.coefficients,reactions.initial,reactions.species,reactions.terms,save_schedule,snow,snowpacks,solver,spatial,split,split_frame,statistics,subcatchments,surface2d,surface2d.infiltration,surface2d.infiltration.defaults,surface2d.quality,surface2d.snow,surface_output,tables,trace,transport,userflags,water_age,water_age.globals,water_age.node_overrides,xsect
+  catalog_services: aquifers,builder,checkpoints,climate,controls,coupling,coupling.surface,editor,events,forcing,gages,geopackage,groundwater2d,groundwater2d.options,groundwater2d.transport,groundwater2d.transport.options,heat,heat.cloud,heat.element_overrides,heat.modules,heat.node_overrides,heat.radiative,heat.sediment,heat.solar,heat.sources,heat_snapshot,hotstart,inflows,infrastructure,infrastructure.inlet_usages,infrastructure.inlets,infrastructure.lids,infrastructure.streets,infrastructure.transects,initial_quality,links,mass_balance,material_split,nodes,options,options.ext,output,passive_exchange,patterns,pollutants,process_components,quality,quality.landuses,reactions,reactions.coefficients,reactions.initial,reactions.species,reactions.terms,save_schedule,snow,snowpacks,solver,spatial,split,split_frame,statistics,subcatchments,surface2d,surface2d.infiltration,surface2d.infiltration.defaults,surface2d.quality,surface2d.snow,surface_output,tables,trace,transport,userflags,water_age,water_age.globals,water_age.node_overrides,xsect
   skipped_navigation_properties: '8'
 slots:
   element_id:
@@ -67,17 +68,6 @@ enums:
         description: code 0
       FILE:
         description: code 1
-  GageRainType:
-    description: OpenSWMM enum GageRainType (catalog revision 2).
-    annotations:
-      catalog_enum: GageRainType
-    permissible_values:
-      INTENSITY:
-        description: code 0
-      VOLUME:
-        description: code 1
-      CUMULATIVE:
-        description: code 2
   ConcentrationUnits:
     description: OpenSWMM enum ConcentrationUnits (catalog revision 2).
     annotations:
@@ -115,15 +105,6 @@ enums:
         description: code 2
       FORMULA:
         description: code 3
-  OrificeType:
-    description: OpenSWMM enum OrificeType (catalog revision 2).
-    annotations:
-      catalog_enum: OrificeType
-    permissible_values:
-      SIDE:
-        description: code 0
-      BOTTOM:
-        description: code 1
   OutletRatingType:
     description: OpenSWMM enum OutletRatingType (catalog revision 2).
     annotations:
@@ -137,110 +118,6 @@ enums:
         description: code 2
       TABULAR_DEPTH:
         description: code 3
-  WeirType:
-    description: OpenSWMM enum WeirType (catalog revision 2).
-    annotations:
-      catalog_enum: WeirType
-    permissible_values:
-      TRANSVERSE:
-        description: code 0
-      SIDEFLOW:
-        description: code 1
-      VNOTCH:
-        description: code 2
-      TRAPEZOIDAL:
-        description: code 3
-      ROADWAY:
-        description: code 4
-  XSectShape:
-    description: OpenSWMM enum XSectShape (catalog revision 2).
-    annotations:
-      catalog_enum: XSectShape
-    permissible_values:
-      CIRCULAR:
-        description: code 0
-      FILLED_CIRCULAR:
-        description: code 1
-      RECT_CLOSED:
-        description: code 2
-      RECT_OPEN:
-        description: code 3
-      TRAPEZOIDAL:
-        description: code 4
-      TRIANGULAR:
-        description: code 5
-      PARABOLIC:
-        description: code 6
-      POWER:
-        description: code 7
-      MODBASKETHANDLE:
-        description: code 8
-      EGGSHAPED:
-        description: code 9
-      HORSESHOE:
-        description: code 10
-      GOTHIC:
-        description: code 11
-      CATENARY:
-        description: code 12
-      SEMIELLIPTICAL:
-        description: code 13
-      BASKETHANDLE:
-        description: code 14
-      SEMICIRCULAR:
-        description: code 15
-      RECT_TRIANG:
-        description: code 16
-      RECT_ROUND:
-        description: code 17
-      HORIZ_ELLIPSE:
-        description: code 18
-      VERT_ELLIPSE:
-        description: code 19
-      ARCH:
-        description: code 20
-      IRREGULAR:
-        description: code 21
-      CUSTOM:
-        description: code 22
-      FORCE_MAIN:
-        description: code 23
-      STREET_XSECT:
-        description: code 24
-      DUMMY:
-        description: code 25
-  OutfallType:
-    description: OpenSWMM enum OutfallType (catalog revision 2).
-    annotations:
-      catalog_enum: OutfallType
-    permissible_values:
-      FREE:
-        description: code 0
-      NORMAL:
-        description: code 1
-      FIXED:
-        description: code 2
-      TIDAL:
-        description: code 3
-      TIMESERIES:
-        description: code 4
-  StorageShape:
-    description: OpenSWMM enum StorageShape (catalog revision 2).
-    annotations:
-      catalog_enum: StorageShape
-    permissible_values:
-      TABULAR:
-        description: code 0
-      FUNCTIONAL:
-        description: code 1
-      CYLINDRICAL:
-        description: code 2
-      CONICAL:
-        description: code 3
-      PARABOLOID:
-        description: code 4
-      PYRAMIDAL:
-        description: code 5
   InfilModel:
     description: OpenSWMM enum InfilModel (catalog revision 2).
     annotations:
@@ -277,6 +154,7 @@ classes:
           access: r
           c_symbols: swmm_node_get_crown_elev
           unit_kind: length
+        slot_uri: model:node.crown_elev
         readonly: engine-computed; not settable through the API
       degree:
         description: Get the degree (number of connected links) of a node.
@@ -285,6 +163,7 @@ classes:
           catalog_path: node.degree
           access: r
           c_symbols: swmm_node_get_degree
+        slot_uri: model:node.degree
         readonly: engine-computed; not settable through the API
       depth:
         description: Get the current water depth at a node.
@@ -295,6 +174,7 @@ classes:
           c_symbols: swmm_node_get_depth,swmm_node_set_depth
           bulk: nodes.depths
           unit_kind: length
+        slot_uri: model:node.depth
       full_volume:
         description: Get the full (maximum) stored volume at a node.
         range: float
@@ -303,6 +183,7 @@ classes:
           access: r
           c_symbols: swmm_node_get_full_volume
           unit_kind: volume
+        slot_uri: model:node.full_volume
         readonly: engine-computed; not settable through the API
       head:
         description: Get the current hydraulic head at a node (invert + depth).
@@ -313,6 +194,7 @@ classes:
           c_symbols: swmm_node_get_head
           bulk: nodes.heads
           unit_kind: length
+        slot_uri: model:node.head
         readonly: engine-computed; not settable through the API
       id:
         description: Get the string identifier of a node by index.
@@ -322,6 +204,7 @@ classes:
           access: r
           c_symbols: swmm_node_id
           bulk: nodes.ids
+        slot_uri: model:node.id
         readonly: engine-computed; not settable through the API
       index:
         description: node.index
@@ -329,6 +212,7 @@ classes:
         annotations:
           catalog_path: node.index
           access: r
+        slot_uri: model:node.index
         readonly: engine-computed; not settable through the API
       inflow:
         description: Read the current assembled lateral-inflow field.
@@ -339,6 +223,7 @@ classes:
           c_symbols: swmm_node_get_inflow
           bulk: nodes.inflows
           unit_kind: flow
+        slot_uri: model:node.inflow
         readonly: engine-computed; not settable through the API
       initial_depth:
         description: Get the initial depth at a node.
@@ -348,6 +233,7 @@ classes:
           access: rw
           c_symbols: swmm_node_get_initial_depth,swmm_node_set_initial_depth
           unit_kind: length
+        slot_uri: model:node.initial_depth
       invert_elev:
         description: Get a node's invert elevation.
         range: float
@@ -356,6 +242,7 @@ classes:
           access: rw
           c_symbols: swmm_node_get_invert_elev,swmm_node_set_invert_elev
           unit_kind: length
+        slot_uri: model:node.invert_elev
       is_inlet:
         description: True when this node is an inlet junction.
         range: boolean
@@ -363,6 +250,7 @@ classes:
           catalog_path: node.is_inlet
           access: rw
           c_symbols: swmm_node_is_inlet,swmm_node_set_inlet
+        slot_uri: model:node.is_inlet
       is_virtual:
         description: True when this node is a virtual junction.
         range: boolean
@@ -370,6 +258,7 @@ classes:
           catalog_path: node.is_virtual
           access: rw
           c_symbols: swmm_node_is_virtual,swmm_node_set_virtual
+        slot_uri: model:node.is_virtual
       lateral_inflow:
         description: Get the current lateral inflow at a node.
         range: float
@@ -379,6 +268,7 @@ classes:
           c_symbols: swmm_node_get_lateral_inflow,swmm_node_set_lateral_inflow
           bulk: nodes.lateral_inflows
           unit_kind: flow
+        slot_uri: model:node.lateral_inflow
       losses:
         description: Get the cumulative water losses at a node (evaporation + exfiltration).
         range: float
@@ -388,6 +278,7 @@ classes:
           c_symbols: swmm_node_get_losses
           bulk: nodes.losses
           unit_kind: volume
+        slot_uri: model:node.losses
         readonly: engine-computed; not settable through the API
       max_depth:
         description: Get a node's maximum depth.
@@ -397,6 +288,7 @@ classes:
           access: rw
           c_symbols: swmm_node_get_max_depth,swmm_node_set_max_depth
           unit_kind: length
+        slot_uri: model:node.max_depth
       outflow:
         description: Get the total outflow from a node through downstream links.
         range: float
@@ -406,6 +298,7 @@ classes:
           c_symbols: swmm_node_get_outflow
           bulk: nodes.outflows
           unit_kind: flow
+        slot_uri: model:node.outflow
         readonly: engine-computed; not settable through the API
       overflow:
         description: Get the current overflow (flooding) rate at a node.
@@ -416,6 +309,7 @@ classes:
           c_symbols: swmm_node_get_overflow
           bulk: nodes.overflows
           unit_kind: flow
+        slot_uri: model:node.overflow
         readonly: engine-computed; not settable through the API
       ponded_area:
         description: Get the ponded area at a node.
@@ -425,6 +319,7 @@ classes:
           access: rw
           c_symbols: swmm_node_get_ponded_area,swmm_node_set_pond_area
           unit_kind: area
+        slot_uri: model:node.ponded_area
       rim_depth:
         description: Rendering-only rim (ground) depth above the invert; 0 = unset.
         range: float
@@ -433,6 +328,7 @@ classes:
           access: rw
           c_symbols: swmm_node_get_rim_depth,swmm_node_set_rim_depth
           unit_kind: length
+        slot_uri: model:node.rim_depth
       storage_area:
         description: Physical junction chamber area (ft2/m2); zero retains legacy behavior.
         range: float
@@ -441,6 +337,7 @@ classes:
           access: rw
           c_symbols: swmm_node_get_storage_area,swmm_node_set_storage_area
           unit_kind: area
+        slot_uri: model:node.storage_area
       surcharge_depth:
         description: Get the surcharge depth above the node's crown.
         range: float
@@ -449,6 +346,7 @@ classes:
           access: rw
           c_symbols: swmm_node_get_surcharge_depth,swmm_node_set_surcharge_depth
           unit_kind: length
+        slot_uri: model:node.surcharge_depth
       tag:
         description: The node's free-form tag string (from the INP [TAGS] section).
         range: string
@@ -456,13 +354,15 @@ classes:
           catalog_path: node.tag
           access: rw
           c_symbols: swmm_node_get_tag,swmm_node_set_tag
+        slot_uri: model:node.tag
       type:
         description: Get the type of a node.
         range: NodeType
-        annotations:
+        annotations: &id002
           catalog_path: node.type
           access: r
           c_symbols: swmm_node_get_type
+        slot_uri: model:node.type
         readonly: engine-computed; not settable through the API
       virtual_rule_violation:
         description: Dry-run check of the virtual-junction usage rules for this node.
@@ -471,6 +371,7 @@ classes:
           catalog_path: node.virtual_rule_violation
           access: r
           c_symbols: swmm_node_virtual_eligible
+        slot_uri: model:node.virtual_rule_violation
         readonly: engine-computed; not settable through the API
       swmm_volume:
         description: Get the current stored water volume at a node.
@@ -481,10 +382,12 @@ classes:
           c_symbols: swmm_node_get_volume
           bulk: nodes.volumes
           unit_kind: volume
+        slot_uri: model:node.volume
         readonly: engine-computed; not settable through the API
       stats:
         range: SwmmNodeStats
         inlined: true
+        slot_uri: model:node.stats
         description: NodeStatsView view (node.stats).
     annotations:
       catalog_target: node
@@ -504,6 +407,7 @@ classes:
           catalog_path: link.barrels
           access: rw
           c_symbols: swmm_link_get_barrels,swmm_link_set_barrels
+        slot_uri: model:link.barrels
       capacity:
         description: Get the current flow capacity utilization (depth / full depth).
         range: float
@@ -513,6 +417,7 @@ classes:
           c_symbols: swmm_link_get_capacity
           bulk: links.capacities
           unit_kind: fraction
+        slot_uri: model:link.capacity
         readonly: engine-computed; not settable through the API
       closed:
         description: Read the current link closed/open flag.
@@ -521,6 +426,7 @@ classes:
           catalog_path: link.closed
           access: rw
           c_symbols: swmm_link_get_closed,swmm_link_set_closed
+        slot_uri: model:link.closed
       control_setting:
         description: Read the stored link current control setting.
         range: float
@@ -530,6 +436,7 @@ classes:
           c_symbols: swmm_link_get_control_setting,swmm_link_set_control_setting
           bulk: links.control_settings
           unit_kind: dimensionless
+        slot_uri: model:link.control_setting
       culvert_code:
         description: Get the FHWA culvert inlet geometry code.
         range: integer
@@ -537,6 +444,7 @@ classes:
           catalog_path: link.culvert_code
           access: rw
           c_symbols: swmm_link_get_culvert_code,swmm_link_set_culvert_code
+        slot_uri: model:link.culvert_code
       depth:
         description: Get the current water depth in a link.
         range: float
@@ -546,6 +454,7 @@ classes:
           c_symbols: swmm_link_get_depth
           bulk: links.depths
           unit_kind: length
+        slot_uri: model:link.depth
         readonly: engine-computed; not settable through the API
       flap_gate:
         description: Get whether a flap gate exists on a link.
@@ -554,6 +463,7 @@ classes:
           catalog_path: link.flap_gate
           access: rw
           c_symbols: swmm_link_get_flap_gate,swmm_link_set_flap_gate
+        slot_uri: model:link.flap_gate
       flow:
         description: Get the current flow rate in a link.
         range: float
@@ -563,6 +473,7 @@ classes:
           c_symbols: swmm_link_get_flow,swmm_link_set_flow
           bulk: links.flows
           unit_kind: flow
+        slot_uri: model:link.flow
       from_node:
         description: Upstream Node wrapper.
         range: SwmmNode
@@ -570,6 +481,7 @@ classes:
           catalog_path: link.from_node
           access: r
           c_symbols: swmm_link_get_from_node
+        slot_uri: model:link.from_node
         readonly: engine-computed; not settable through the API
       hyd_power:
         description: Read a link hydraulic head-change power magnitude.
@@ -580,6 +492,7 @@ classes:
           c_symbols: swmm_link_get_hyd_power
           bulk: links.hyd_powers
           unit_kind: ft-lb/s
+        slot_uri: model:link.hyd_power
         readonly: engine-computed; not settable through the API
       id:
         description: Get the string identifier of a link by index.
@@ -589,6 +502,7 @@ classes:
           access: r
           c_symbols: swmm_link_id
           bulk: links.ids
+        slot_uri: model:link.id
         readonly: engine-computed; not settable through the API
       index:
         description: link.index
@@ -596,6 +510,7 @@ classes:
         annotations:
           catalog_path: link.index
           access: r
+        slot_uri: model:link.index
         readonly: engine-computed; not settable through the API
       initial_flow:
         description: Get the initial flow in a link at simulation start.
@@ -605,6 +520,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_initial_flow,swmm_link_set_initial_flow
           unit_kind: flow
+        slot_uri: model:link.initial_flow
       swmm_length:
         description: Get the conduit length.
         range: float
@@ -613,6 +529,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_length,swmm_link_set_length
           unit_kind: length
+        slot_uri: model:link.length
       loss_coeff:
         description: (inlet, outlet, avg) loss coefficients.
         range: float
@@ -622,6 +539,7 @@ classes:
           catalog_path: link.loss_coeff
           access: rw
           c_symbols: swmm_link_get_loss_coeff,swmm_link_set_loss_coeff
+        slot_uri: model:link.loss_coeff
       max_flow:
         description: Get the maximum allowable flow in a link.
         range: float
@@ -630,6 +548,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_max_flow,swmm_link_set_max_flow
           unit_kind: flow
+        slot_uri: model:link.max_flow
       offset_dn:
         description: Get the downstream (outlet) offset.
         range: float
@@ -638,6 +557,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_offset_dn,swmm_link_set_offset_dn
           unit_kind: length
+        slot_uri: model:link.offset_dn
       offset_up:
         description: Get the upstream (inlet) offset.
         range: float
@@ -646,6 +566,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_offset_up,swmm_link_set_offset_up
           unit_kind: length
+        slot_uri: model:link.offset_up
       swmm_roughness:
         description: Get the Manning's roughness coefficient.
         range: float
@@ -654,6 +575,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_roughness,swmm_link_set_roughness
           unit_kind: manning_n
+        slot_uri: model:link.roughness
       seep_rate:
         description: Get the seepage loss rate for a conduit.
         range: float
@@ -662,6 +584,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_seep_rate,swmm_link_set_seep_rate
           unit_kind: rain_rate
+        slot_uri: model:link.seep_rate
       slope:
         description: Get the computed slope of a conduit.
         range: float
@@ -670,6 +593,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_slope
           unit_kind: fraction
+        slot_uri: model:link.slope
         readonly: engine-computed; not settable through the API
       slot_volume:
         description: Water held in the Preissmann slot, in project volume units.
@@ -679,6 +603,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_slot_volume
           unit_kind: volume
+        slot_uri: model:link.slot_volume
         readonly: engine-computed; not settable through the API
       tag:
         description: The link's free-form tag string (from the INP [TAGS] section).
@@ -687,6 +612,7 @@ classes:
           catalog_path: link.tag
           access: rw
           c_symbols: swmm_link_get_tag,swmm_link_set_tag
+        slot_uri: model:link.tag
       target_setting:
         description: Read the stored link target control setting.
         range: float
@@ -696,6 +622,7 @@ classes:
           c_symbols: swmm_link_get_target_setting,swmm_link_set_target_setting
           bulk: links.target_settings
           unit_kind: dimensionless
+        slot_uri: model:link.target_setting
       to_node:
         description: Downstream Node wrapper.
         range: SwmmNode
@@ -703,14 +630,16 @@ classes:
           catalog_path: link.to_node
           access: r
           c_symbols: swmm_link_get_to_node
+        slot_uri: model:link.to_node
         readonly: engine-computed; not settable through the API
       type:
         description: Get the type of a link.
         range: LinkType
-        annotations:
+        annotations: &id001
           catalog_path: link.type
           access: r
           c_symbols: swmm_link_get_type
+        slot_uri: model:link.type
         readonly: engine-computed; not settable through the API
       velocity:
         description: Get the current flow velocity in a link.
@@ -721,6 +650,7 @@ classes:
           c_symbols: swmm_link_get_velocity
           bulk: links.velocities
           unit_kind: velocity
+        slot_uri: model:link.velocity
         readonly: engine-computed; not settable through the API
       swmm_volume:
         description: Get the current water volume stored in a link.
@@ -731,14 +661,17 @@ classes:
           c_symbols: swmm_link_get_volume
           bulk: links.volumes
           unit_kind: volume
+        slot_uri: model:link.volume
         readonly: engine-computed; not settable through the API
       stats:
         range: SwmmLinkStats
         inlined: true
+        slot_uri: model:link.stats
         description: LinkStatsView view (link.stats).
       xsect:
         range: SwmmLinkXsect
         inlined: true
+        slot_uri: model:link.xsect
         description: XSection view (link.xsect).
     annotations:
       catalog_target: link
@@ -758,6 +691,7 @@ classes:
           catalog_path: subcatchment.aquifer
           access: rw
           c_symbols: swmm_aquifer_count,swmm_aquifer_index,swmm_subcatch_get_aquifer,swmm_subcatch_set_aquifer
+        slot_uri: model:subcatchment.aquifer
       area:
         description: Get the subcatchment area.
         range: float
@@ -766,6 +700,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_area,swmm_subcatch_set_area
           unit_kind: land_area
+        slot_uri: model:subcatchment.area
       ds_imperv:
         description: Get the depression storage depth for the impervious area.
         range: float
@@ -774,6 +709,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_ds_imperv,swmm_subcatch_set_ds_imperv
           unit_kind: rain_depth
+        slot_uri: model:subcatchment.ds_imperv
       ds_perv:
         description: Get the depression storage depth for the pervious area.
         range: float
@@ -782,6 +718,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_ds_perv,swmm_subcatch_set_ds_perv
           unit_kind: rain_depth
+        slot_uri: model:subcatchment.ds_perv
       evap:
         description: Get the current evaporation rate at a subcatchment.
         range: float
@@ -791,6 +728,18 @@ classes:
           c_symbols: swmm_subcatch_get_evap
           bulk: subcatchments.evaps
           unit_kind: evap_rate
+        slot_uri: model:subcatchment.evap
+        readonly: engine-computed; not settable through the API
+      frozen_ground:
+        description: Frozen-ground state of the pervious area, or None without a [FROZEN_GROUND] row.
+        range: float
+        multivalued: true
+        annotations:
+          python_type: tuple[float, float, float]
+          catalog_path: subcatchment.frozen_ground
+          access: r
+          c_symbols: swmm_subcatch_get_frozen_ground
+        slot_uri: model:subcatchment.frozen_ground
         readonly: engine-computed; not settable through the API
       gage:
         description: The Gage wrapper assigned to this subcatchment.
@@ -799,6 +748,7 @@ classes:
           catalog_path: subcatchment.gage
           access: rw
           c_symbols: swmm_gage_count,swmm_gage_index,swmm_subcatch_get_gage,swmm_subcatch_set_gage
+        slot_uri: model:subcatchment.gage
       groundwater:
         description: Get the current groundwater flow from a subcatchment.
         range: float
@@ -807,6 +757,7 @@ classes:
           access: r
           c_symbols: swmm_subcatch_get_groundwater
           unit_kind: flow
+        slot_uri: model:subcatchment.groundwater
         readonly: engine-computed; not settable through the API
       gw_node:
         description: The node index receiving this subcatchment's groundwater flow, or None when none is assigned.
@@ -815,6 +766,7 @@ classes:
           catalog_path: subcatchment.gw_node
           access: rw
           c_symbols: swmm_node_count,swmm_node_index,swmm_subcatch_get_gw_node,swmm_subcatch_set_gw_node
+        slot_uri: model:subcatchment.gw_node
       gw_params:
         description: Groundwater flow parameters as a GroundwaterParams named tuple (surf_elev, a1, b1, a2, b2, a3, tw, hstar)
           — the [GROUNDWATER] token order.
@@ -826,6 +778,7 @@ classes:
           catalog_path: subcatchment.gw_params
           access: r
           c_symbols: swmm_subcatch_get_gw_params
+        slot_uri: model:subcatchment.gw_params
         readonly: engine-computed; not settable through the API
       id:
         description: Get the string identifier of a subcatchment by index.
@@ -835,6 +788,7 @@ classes:
           access: r
           c_symbols: swmm_subcatch_id
           bulk: subcatchments.ids
+        slot_uri: model:subcatchment.id
         readonly: engine-computed; not settable through the API
       imperv_pct:
         description: Get the percentage of impervious area.
@@ -844,6 +798,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_imperv_pct,swmm_subcatch_set_imperv_pct
           unit_kind: percent
+        slot_uri: model:subcatchment.imperv_pct
         unit:
           ucum_code: '%'
       index:
@@ -852,6 +807,7 @@ classes:
         annotations:
           catalog_path: subcatchment.index
           access: r
+        slot_uri: model:subcatchment.index
         readonly: engine-computed; not settable through the API
       infil:
         description: Get the current infiltration rate at a subcatchment.
@@ -862,6 +818,7 @@ classes:
           c_symbols: swmm_subcatch_get_infil
           bulk: subcatchments.infils
           unit_kind: rain_rate
+        slot_uri: model:subcatchment.infil
         readonly: engine-computed; not settable through the API
       n_imperv:
         description: Get Manning's n for the impervious area.
@@ -871,6 +828,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_n_imperv,swmm_subcatch_set_n_imperv
           unit_kind: manning_n
+        slot_uri: model:subcatchment.n_imperv
       n_perv:
         description: Get Manning's n for the pervious area.
         range: float
@@ -879,6 +837,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_n_perv,swmm_subcatch_set_n_perv
           unit_kind: manning_n
+        slot_uri: model:subcatchment.n_perv
       outlet:
         description: The downstream Node (or Subcatchment if the outlet is another subcatchment).
         range: SwmmElement
@@ -887,6 +846,7 @@ classes:
           catalog_path: subcatchment.outlet
           access: r
           c_symbols: swmm_subcatch_get_outlet,swmm_subcatch_get_outlet_subcatch
+        slot_uri: model:subcatchment.outlet
         readonly: engine-computed; not settable through the API
       rain_scale_factor:
         description: Per-subcatchment rainfall scale factor (dimensionless, > 0; 1.0 = no scaling).
@@ -896,6 +856,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_rain_scale_factor,swmm_subcatch_set_rain_scale_factor
           unit_kind: dimensionless
+        slot_uri: model:subcatchment.rain_scale_factor
       rainfall:
         description: Get the current rainfall intensity at a subcatchment.
         range: float
@@ -905,6 +866,7 @@ classes:
           c_symbols: swmm_subcatch_get_rainfall,swmm_subcatch_set_rainfall
           bulk: subcatchments.rainfalls
           unit_kind: rain_rate
+        slot_uri: model:subcatchment.rainfall
       runoff:
         description: Get the current runoff rate from a subcatchment.
         range: float
@@ -914,6 +876,7 @@ classes:
           c_symbols: swmm_subcatch_get_runoff
           bulk: subcatchments.runoffs
           unit_kind: flow
+        slot_uri: model:subcatchment.runoff
         readonly: engine-computed; not settable through the API
       slope:
         description: Get the average surface slope.
@@ -923,6 +886,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_slope,swmm_subcatch_set_slope
           unit_kind: percent
+        slot_uri: model:subcatchment.slope
         unit:
           ucum_code: '%'
       snow_depth:
@@ -934,6 +898,7 @@ classes:
           c_symbols: swmm_subcatch_get_snow_depth
           bulk: subcatchments.snow_depths
           unit_kind: length
+        slot_uri: model:subcatchment.snow_depth
         readonly: engine-computed; not settable through the API
       snow_scale_factor:
         description: Per-subcatchment snowfall scale factor (dimensionless, > 0; 1.0 = no scaling).
@@ -943,6 +908,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_snow_scale_factor,swmm_subcatch_set_snow_scale_factor
           unit_kind: dimensionless
+        slot_uri: model:subcatchment.snow_scale_factor
       snowpack:
         description: Assigned snow-pack name; empty when unassigned. Edit before initialization.
         range: string
@@ -950,6 +916,7 @@ classes:
           catalog_path: subcatchment.snowpack
           access: rw
           c_symbols: swmm_subcatch_get_snowpack,swmm_subcatch_set_snowpack
+        slot_uri: model:subcatchment.snowpack
       tag:
         description: The subcatchment's free-form tag string (INP [TAGS] section).
         range: string
@@ -957,6 +924,7 @@ classes:
           catalog_path: subcatchment.tag
           access: rw
           c_symbols: swmm_subcatch_get_tag,swmm_subcatch_set_tag
+        slot_uri: model:subcatchment.tag
       width:
         description: Get the characteristic overland flow width.
         range: float
@@ -965,6 +933,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_width,swmm_subcatch_set_width
           unit_kind: length
+        slot_uri: model:subcatchment.width
       zero_imperv_pct:
         description: Percent of the impervious area with no depression storage.
         range: float
@@ -973,6 +942,7 @@ classes:
           access: rw
           c_symbols: swmm_subcatch_get_zero_imperv_pct,swmm_subcatch_set_zero_imperv_pct
           unit_kind: percent
+        slot_uri: model:subcatchment.zero_imperv_pct
         unit:
           ucum_code: '%'
       coverage:
@@ -980,6 +950,7 @@ classes:
         multivalued: true
         description: Keyed items of CoverageView (subcatchment.coverage); one 'key=value' entry per item. Read and write through
           the engine tools, e.g. get(kind='subcatchment', fields=['coverage.<key>']).
+        slot_uri: model:subcatchment.coverage
         annotations:
           catalog_target: subcatchment.coverage
           python_class: CoverageView
@@ -987,12 +958,14 @@ classes:
       infiltration:
         range: SwmmSubcatchmentInfiltration
         inlined: true
+        slot_uri: model:subcatchment.infiltration
         description: InfiltrationView view (subcatchment.infiltration).
       loadings:
         range: string
         multivalued: true
         description: Keyed items of LoadingsView (subcatchment.loadings); one 'key=value' entry per item. Read and write through
           the engine tools, e.g. get(kind='subcatchment', fields=['loadings.<key>']).
+        slot_uri: model:subcatchment.loadings
         annotations:
           catalog_target: subcatchment.loadings
           python_class: LoadingsView
@@ -1000,14 +973,14 @@ classes:
       stats:
         range: SwmmSubcatchmentStats
         inlined: true
+        slot_uri: model:subcatchment.stats
         description: SubcatchmentStatsView view (subcatchment.stats).
     annotations:
       catalog_target: subcatchment
       python_class: Subcatchment
       catalog_revision: '2'
       method_count: '11'
-    exact_mappings:
-    - wsys:Subcatchment
+      represents_domain_class: wsys:Subcatchment
   SwmmGage:
     is_a: SwmmElement
     description: SWMM Gage
@@ -1019,6 +992,7 @@ classes:
           catalog_path: gage.data_source
           access: rw
           c_symbols: swmm_gage_get_data_source,swmm_gage_set_data_source
+        slot_uri: model:gage.data_source
       file_column:
         description: Data column name for a multi-column rain file (empty when unset).
         range: string
@@ -1026,6 +1000,7 @@ classes:
           catalog_path: gage.file_column
           access: rw
           c_symbols: swmm_gage_get_file_column,swmm_gage_set_file_column
+        slot_uri: model:gage.file_column
       file_format:
         description: Rain file format code (meaningful for FILE gages).
         range: integer
@@ -1033,6 +1008,7 @@ classes:
           catalog_path: gage.file_format
           access: rw
           c_symbols: swmm_gage_get_file_format,swmm_gage_set_file_format
+        slot_uri: model:gage.file_format
       id:
         description: Get the string identifier of a rain gage by index.
         range: string
@@ -1041,6 +1017,7 @@ classes:
           access: r
           c_symbols: swmm_gage_id
           bulk: gages.ids
+        slot_uri: model:gage.id
         readonly: engine-computed; not settable through the API
       index:
         description: gage.index
@@ -1048,6 +1025,7 @@ classes:
         annotations:
           catalog_path: gage.index
           access: r
+        slot_uri: model:gage.index
         readonly: engine-computed; not settable through the API
       rain_interval:
         description: Rain recording interval in seconds.
@@ -1057,6 +1035,7 @@ classes:
           access: rw
           c_symbols: swmm_gage_get_rain_interval
           unit_kind: s
+        slot_uri: model:gage.rain_interval
         unit:
           ucum_code: s
       rain_type:
@@ -1066,6 +1045,7 @@ classes:
           catalog_path: gage.rain_type
           access: rw
           c_symbols: swmm_gage_get_rain_type,swmm_gage_set_rain_type
+        slot_uri: model:gage.rain_type
       rain_units:
         description: 'Rain-depth units declared for a file source: 0 = IN, 1 = MM.'
         range: integer
@@ -1073,6 +1053,7 @@ classes:
           catalog_path: gage.rain_units
           access: rw
           c_symbols: swmm_gage_get_rain_units,swmm_gage_set_rain_units
+        slot_uri: model:gage.rain_units
       rainfall:
         description: Read the current gage rainfall intensity.
         range: float
@@ -1082,6 +1063,7 @@ classes:
           c_symbols: swmm_gage_get_rainfall,swmm_gage_set_rainfall
           bulk: gages.rainfalls
           unit_kind: rain_rate
+        slot_uri: model:gage.rainfall
       rainfall_series:
         description: The rainfall the engine will actually apply, as a structured array.
         range: string
@@ -1091,6 +1073,7 @@ classes:
           catalog_path: gage.rainfall_series
           access: r
           c_symbols: swmm_gage_get_rainfall_series,swmm_gage_get_rainfall_series_count
+        slot_uri: model:gage.rainfall_series
         readonly: engine-computed; not settable through the API
       scale_factor:
         description: Rainfall scaling factor (dimensionless, > 0; 1.0 = no scaling).
@@ -1100,6 +1083,7 @@ classes:
           access: rw
           c_symbols: swmm_gage_get_scale_factor,swmm_gage_set_scale_factor
           unit_kind: dimensionless
+        slot_uri: model:gage.scale_factor
       snow_factor:
         description: Snow-catch deficiency correction factor (SCF; 1.0 = no correction).
         range: float
@@ -1108,6 +1092,7 @@ classes:
           access: rw
           c_symbols: swmm_gage_get_snow_factor,swmm_gage_set_snow_factor
           unit_kind: dimensionless
+        slot_uri: model:gage.snow_factor
       station_id:
         description: Station id for a file source (empty when unset).
         range: string
@@ -1115,6 +1100,7 @@ classes:
           catalog_path: gage.station_id
           access: rw
           c_symbols: swmm_gage_get_station_id,swmm_gage_set_station_id
+        slot_uri: model:gage.station_id
       timeseries:
         description: Assigned time-series id (empty when the source is not a series).
         range: string
@@ -1122,14 +1108,14 @@ classes:
           catalog_path: gage.timeseries
           access: r
           c_symbols: swmm_gage_get_timeseries
+        slot_uri: model:gage.timeseries
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: gage
       python_class: Gage
       catalog_revision: '2'
       method_count: '3'
-    exact_mappings:
-    - wsys:RainGage
+      represents_domain_class: wsys:RainGage
   SwmmPollutant:
     is_a: SwmmElement
     description: SWMM Pollutant
@@ -1144,6 +1130,7 @@ classes:
           catalog_path: pollutant.co_pollutant
           access: r
           c_symbols: swmm_pollutant_get_co_pollutant
+        slot_uri: model:pollutant.co_pollutant
         readonly: engine-computed; not settable through the API
       dwf_conc:
         description: Dry-weather-flow concentration of this pollutant (pollutant units).
@@ -1153,6 +1140,7 @@ classes:
           access: rw
           c_symbols: swmm_pollutant_get_dwf_conc,swmm_pollutant_set_dwf_conc
           unit_kind: concentration
+        slot_uri: model:pollutant.dwf_conc
       gw_conc:
         description: Get the pollutant concentration in groundwater.
         range: float
@@ -1161,6 +1149,7 @@ classes:
           access: rw
           c_symbols: swmm_pollutant_get_gw_conc,swmm_pollutant_set_gw_conc
           unit_kind: concentration
+        slot_uri: model:pollutant.gw_conc
       id:
         description: Get the string identifier of a pollutant by index.
         range: string
@@ -1168,6 +1157,7 @@ classes:
           catalog_path: pollutant.id
           access: r
           c_symbols: swmm_pollutant_id
+        slot_uri: model:pollutant.id
         readonly: engine-computed; not settable through the API
       index:
         description: pollutant.index
@@ -1175,6 +1165,7 @@ classes:
         annotations:
           catalog_path: pollutant.index
           access: r
+        slot_uri: model:pollutant.index
         readonly: engine-computed; not settable through the API
       init_conc:
         description: Get the initial concentration throughout the conveyance system.
@@ -1184,6 +1175,7 @@ classes:
           access: rw
           c_symbols: swmm_pollutant_get_init_conc,swmm_pollutant_set_init_conc
           unit_kind: concentration
+        slot_uri: model:pollutant.init_conc
       kdecay:
         description: Get the first-order decay coefficient.
         range: float
@@ -1192,6 +1184,7 @@ classes:
           access: rw
           c_symbols: swmm_pollutant_get_kdecay,swmm_pollutant_set_kdecay
           unit_kind: 1/day
+        slot_uri: model:pollutant.kdecay
       mwt:
         description: Get the molecular weight of a pollutant.
         range: float
@@ -1200,6 +1193,7 @@ classes:
           access: rw
           c_symbols: swmm_pollutant_get_mwt,swmm_pollutant_set_mwt
           unit_kind: g/mol
+        slot_uri: model:pollutant.mwt
       rain_conc:
         description: Get the pollutant concentration in rainfall.
         range: float
@@ -1208,6 +1202,7 @@ classes:
           access: rw
           c_symbols: swmm_pollutant_get_rain_conc,swmm_pollutant_set_rain_conc
           unit_kind: concentration
+        slot_uri: model:pollutant.rain_conc
       rdii_conc:
         description: Get the RDII concentration.
         range: float
@@ -1216,6 +1211,7 @@ classes:
           access: rw
           c_symbols: swmm_pollutant_get_rdii_conc,swmm_pollutant_set_rdii_conc
           unit_kind: concentration
+        slot_uri: model:pollutant.rdii_conc
       snow_only:
         description: Get whether a pollutant only builds up during snowfall events.
         range: boolean
@@ -1223,6 +1219,7 @@ classes:
           catalog_path: pollutant.snow_only
           access: rw
           c_symbols: swmm_pollutant_get_snow_only,swmm_pollutant_set_snow_only
+        slot_uri: model:pollutant.snow_only
       units:
         description: 'Change the concentration units (a ConcentrationUnits value or its integer code: 0=MG/L, 1=UG/L, 2=#/L).'
         range: ConcentrationUnits
@@ -1230,13 +1227,13 @@ classes:
           catalog_path: pollutant.units
           access: rw
           c_symbols: swmm_pollutant_get_units,swmm_pollutant_set_units
+        slot_uri: model:pollutant.units
     annotations:
       catalog_target: pollutant
       python_class: Pollutant
       catalog_revision: '2'
       method_count: '1'
-    exact_mappings:
-    - wsys:ObservedProperty
+      represents_domain_class: wsys:Constituent
   SwmmLanduse:
     is_a: SwmmElement
     description: SWMM Landuse
@@ -1248,6 +1245,7 @@ classes:
           catalog_path: landuse.id
           access: r
           c_symbols: swmm_landuse_id
+        slot_uri: model:landuse.id
         readonly: engine-computed; not settable through the API
       index:
         description: landuse.index
@@ -1255,6 +1253,7 @@ classes:
         annotations:
           catalog_path: landuse.index
           access: r
+        slot_uri: model:landuse.index
         readonly: engine-computed; not settable through the API
       sweep_interval:
         description: Interval between street-sweeping events (days).
@@ -1264,6 +1263,7 @@ classes:
           access: rw
           c_symbols: swmm_landuse_get_sweep_interval,swmm_landuse_set_sweep_interval
           unit_kind: d
+        slot_uri: model:landuse.sweep_interval
         unit:
           ucum_code: d
       sweep_removal:
@@ -1274,13 +1274,13 @@ classes:
           access: rw
           c_symbols: swmm_landuse_get_sweep_removal,swmm_landuse_set_sweep_removal
           unit_kind: fraction
+        slot_uri: model:landuse.sweep_removal
     annotations:
       catalog_target: landuse
       python_class: Landuse
       catalog_revision: '2'
       method_count: '1'
-    exact_mappings:
-    - wsys:LandUse
+      represents_domain_class: wsys:LandUse
   SwmmPattern:
     is_a: SwmmElement
     description: SWMM Pattern
@@ -1294,6 +1294,7 @@ classes:
           catalog_path: pattern.factors
           access: r
           c_symbols: swmm_pattern_get_factor,swmm_pattern_get_factor_count
+        slot_uri: model:pattern.factors
         readonly: engine-computed; not settable through the API
       id:
         description: The pattern's string identifier (from the INP [PATTERNS] section).
@@ -1302,6 +1303,7 @@ classes:
           catalog_path: pattern.id
           access: r
           c_symbols: swmm_pattern_id
+        slot_uri: model:pattern.id
         readonly: engine-computed; not settable through the API
       index:
         description: The pattern's zero-based index within Patterns.
@@ -1309,6 +1311,7 @@ classes:
         annotations:
           catalog_path: pattern.index
           access: r
+        slot_uri: model:pattern.index
         readonly: engine-computed; not settable through the API
       type:
         description: The pattern's type as a PatternType (MONTHLY/DAILY/HOURLY/WEEKEND).
@@ -1317,6 +1320,7 @@ classes:
           catalog_path: pattern.type
           access: r
           c_symbols: swmm_pattern_get_type
+        slot_uri: model:pattern.type
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: pattern
@@ -1334,6 +1338,7 @@ classes:
           catalog_path: table.id
           access: r
           c_symbols: swmm_table_id
+        slot_uri: model:table.id
         readonly: engine-computed; not settable through the API
       index:
         description: table.index
@@ -1341,6 +1346,7 @@ classes:
         annotations:
           catalog_path: table.index
           access: r
+        slot_uri: model:table.index
         readonly: engine-computed; not settable through the API
       points:
         description: float64 (n_points, 2) numpy array.
@@ -1351,6 +1357,7 @@ classes:
           catalog_path: table.points
           access: r
           c_symbols: swmm_table_get_point,swmm_table_get_point_count
+        slot_uri: model:table.points
         readonly: engine-computed; not settable through the API
       relative_info:
         description: (number of leading relative rows, OADate anchor in days).
@@ -1361,6 +1368,7 @@ classes:
           catalog_path: table.relative_info
           access: r
           c_symbols: swmm_timeseries_get_relative_info
+        slot_uri: model:table.relative_info
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: table
@@ -1379,6 +1387,7 @@ classes:
           access: r
           c_symbols: swmm_reaction_species_get
           unit_kind: concentration
+        slot_uri: model:species.atol
         readonly: engine-computed; not settable through the API
       index:
         description: Zero-based position in [REACTION_SPECIES].
@@ -1386,6 +1395,7 @@ classes:
         annotations:
           catalog_path: species.index
           access: r
+        slot_uri: model:species.index
         readonly: engine-computed; not settable through the API
       initial:
         description: Model-wide initial concentration, in this species' own units.
@@ -1395,6 +1405,7 @@ classes:
           access: rw
           c_symbols: swmm_reaction_init_global_get,swmm_reaction_init_global_set
           unit_kind: concentration
+        slot_uri: model:species.initial
       is_wall:
         description: True for a WALL species, False for a BULK species.
         range: boolean
@@ -1402,6 +1413,7 @@ classes:
           catalog_path: species.is_wall
           access: r
           c_symbols: swmm_reaction_species_get
+        slot_uri: model:species.is_wall
         readonly: engine-computed; not settable through the API
       name:
         description: Species name as referenced from expressions.
@@ -1410,6 +1422,7 @@ classes:
           catalog_path: species.name
           access: r
           c_symbols: swmm_reaction_species_get
+        slot_uri: model:species.name
         readonly: engine-computed; not settable through the API
       pipe_expression:
         description: (form, expression) for the conduit (flowing) scope.
@@ -1418,6 +1431,7 @@ classes:
         annotations:
           catalog_path: species.pipe_expression
           access: r
+        slot_uri: model:species.pipe_expression
         readonly: engine-computed; not settable through the API
       rain_conc:
         description: Rainfall concentration in species units; zero means clean rainfall.
@@ -1427,6 +1441,7 @@ classes:
           access: rw
           c_symbols: swmm_reaction_rain_conc_get,swmm_reaction_rain_conc_set
           unit_kind: concentration
+        slot_uri: model:species.rain_conc
       rtol:
         description: Relative solver tolerance; 0.0 means "use the global RTOL".
         range: float
@@ -1435,6 +1450,7 @@ classes:
           access: r
           c_symbols: swmm_reaction_species_get
           unit_kind: dimensionless
+        slot_uri: model:species.rtol
         readonly: engine-computed; not settable through the API
       tank_expression:
         description: (form, expression) for the storage-unit (mixed) scope.
@@ -1443,6 +1459,7 @@ classes:
         annotations:
           catalog_path: species.tank_expression
           access: r
+        slot_uri: model:species.tank_expression
         readonly: engine-computed; not settable through the API
       units:
         description: Concentration units token (e.g. "MG", "UG", "#").
@@ -1451,6 +1468,7 @@ classes:
           catalog_path: species.units
           access: r
           c_symbols: swmm_reaction_species_get
+        slot_uri: model:species.units
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: species
@@ -1467,6 +1485,7 @@ classes:
         annotations:
           catalog_path: coefficient.index
           access: r
+        slot_uri: model:coefficient.index
         readonly: engine-computed; not settable through the API
       is_param:
         description: True for a PARAMETER (pipe/tank-overridable), False for a CONSTANT.
@@ -1475,6 +1494,7 @@ classes:
           catalog_path: coefficient.is_param
           access: r
           c_symbols: swmm_reaction_coeff_get
+        slot_uri: model:coefficient.is_param
         readonly: engine-computed; not settable through the API
       name:
         description: Coefficient name as referenced from expressions.
@@ -1483,6 +1503,7 @@ classes:
           catalog_path: coefficient.name
           access: r
           c_symbols: swmm_reaction_coeff_get
+        slot_uri: model:coefficient.name
         readonly: engine-computed; not settable through the API
       value:
         description: Current numeric value, in whatever units the expressions imply.
@@ -1492,6 +1513,7 @@ classes:
           access: rw
           c_symbols: swmm_reaction_coeff_get,swmm_reaction_coeff_set_value
           unit_kind: user_defined
+        slot_uri: model:coefficient.value
     annotations:
       catalog_target: coefficient
       python_class: ReactionCoefficient
@@ -1508,12 +1530,14 @@ classes:
           catalog_path: term.expression
           access: rw
           c_symbols: swmm_reaction_term_get,swmm_reaction_term_set_expr
+        slot_uri: model:term.expression
       index:
         description: Zero-based position in [REACTION_TERMS] — its ordering rank.
         range: integer
         annotations:
           catalog_path: term.index
           access: r
+        slot_uri: model:term.index
         readonly: engine-computed; not settable through the API
       name:
         description: Term name as referenced from later terms and species expressions.
@@ -1522,6 +1546,7 @@ classes:
           catalog_path: term.name
           access: r
           c_symbols: swmm_reaction_term_get
+        slot_uri: model:term.name
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: term
@@ -1540,6 +1565,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_orifice_open_close_rate,swmm_link_set_orifice_open_close_rate
           unit_kind: 1/s
+        slot_uri: model:link.orifice.open_close_rate
       type:
         description: Get the orifice flow-attack classification.
         range: OrificeType
@@ -1547,14 +1573,20 @@ classes:
           catalog_path: link.orifice.type
           access: rw
           c_symbols: swmm_link_get_orifice_type,swmm_link_set_orifice_type
+        slot_uri: model:link.orifice.type
+      link_kind:
+        description: Get the type of a link.
+        range: LinkType
+        annotations: *id001
+        slot_uri: model:link.type
+        readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: link.orifice
       python_class: OrificeView
       catalog_revision: '2'
       method_count: '0'
       subtype_code: ORIFICE
-    exact_mappings:
-    - wsys:Orifice
+      represents_domain_class: wsys:Orifice
   SwmmOutlet:
     is_a: SwmmLink
     description: 'OutletView: link of subtype OUTLET'
@@ -1567,6 +1599,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_outlet_expon,swmm_link_set_outlet_expon
           unit_kind: dimensionless
+        slot_uri: model:link.outlet.expon
       rating_type:
         description: Read the outlet rating selector.
         range: OutletRatingType
@@ -1574,14 +1607,14 @@ classes:
           catalog_path: link.outlet.rating_type
           access: rw
           c_symbols: swmm_link_get_outlet_rating_type,swmm_link_set_outlet_rating_type
+        slot_uri: model:link.outlet.rating_type
     annotations:
       catalog_target: link.outlet
       python_class: OutletView
       catalog_revision: '2'
       method_count: '0'
       subtype_code: OUTLET
-    exact_mappings:
-    - wsys:Outlet
+      represents_domain_class: wsys:Outlet
   SwmmPump:
     is_a: SwmmLink
     description: 'PumpView: link of subtype PUMP'
@@ -1593,6 +1626,7 @@ classes:
           catalog_path: link.pump.curve
           access: rw
           c_symbols: swmm_link_get_pump_curve,swmm_link_set_pump_curve
+        slot_uri: model:link.pump.curve
       init_state:
         description: Get the initial on/off state of a pump.
         range: boolean
@@ -1600,6 +1634,7 @@ classes:
           catalog_path: link.pump.init_state
           access: rw
           c_symbols: swmm_link_get_pump_init_state,swmm_link_set_pump_init_state
+        slot_uri: model:link.pump.init_state
       shutoff_depth:
         description: Read the pump shutoff depth.
         range: float
@@ -1608,6 +1643,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_pump_shutoff_depth,swmm_link_set_pump_shutoff_depth
           unit_kind: length
+        slot_uri: model:link.pump.shutoff_depth
       startup_depth:
         description: Read the pump startup depth.
         range: float
@@ -1616,14 +1652,14 @@ classes:
           access: rw
           c_symbols: swmm_link_get_pump_startup_depth,swmm_link_set_pump_startup_depth
           unit_kind: length
+        slot_uri: model:link.pump.startup_depth
     annotations:
       catalog_target: link.pump
       python_class: PumpView
       catalog_revision: '2'
       method_count: '0'
       subtype_code: PUMP
-    exact_mappings:
-    - wsys:Pump
+      represents_domain_class: wsys:Pump
   SwmmLinkStats:
     description: LinkStatsView component view of link
     attributes:
@@ -1635,6 +1671,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_max_filling
           unit_kind: fraction
+        slot_uri: model:link.stats.max_filling
         readonly: engine-computed; not settable through the API
       max_flow:
         description: Get the maximum flow recorded in a link during the simulation.
@@ -1644,6 +1681,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_max_flow
           unit_kind: flow
+        slot_uri: model:link.stats.max_flow
         readonly: engine-computed; not settable through the API
       max_velocity:
         description: Get the maximum velocity recorded in a link.
@@ -1653,6 +1691,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_max_velocity
           unit_kind: velocity
+        slot_uri: model:link.stats.max_velocity
         readonly: engine-computed; not settable through the API
       peak_slot_share:
         description: Peak instantaneous slot_volume / volume over the run (0..1).
@@ -1662,6 +1701,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_peak_slot_share
           unit_kind: fraction
+        slot_uri: model:link.stats.peak_slot_share
         readonly: engine-computed; not settable through the API
       pump_cycles:
         description: Cycles for a pump link. Raises BadParamError on non-pumps.
@@ -1670,6 +1710,7 @@ classes:
           catalog_path: link.stats.pump_cycles
           access: r
           c_symbols: swmm_link_get_stat_pump_cycles
+        slot_uri: model:link.stats.pump_cycles
         readonly: engine-computed; not settable through the API
       pump_on_time:
         description: Read a link recorded pump on-duration.
@@ -1679,6 +1720,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_pump_on_time
           unit_kind: s
+        slot_uri: model:link.stats.pump_on_time
         readonly: engine-computed; not settable through the API
         unit:
           ucum_code: s
@@ -1690,6 +1732,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_pump_volume
           unit_kind: volume
+        slot_uri: model:link.stats.pump_volume
         readonly: engine-computed; not settable through the API
       slot_share:
         description: Run-level slot share (∫ slot_volume dt) / (∫ volume dt) (0..1).
@@ -1699,6 +1742,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_slot_share
           unit_kind: fraction
+        slot_uri: model:link.stats.slot_share
         readonly: engine-computed; not settable through the API
       surcharge_time:
         description: Get the total surcharge duration for a link.
@@ -1708,6 +1752,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_surcharge_time
           unit_kind: s
+        slot_uri: model:link.stats.surcharge_time
         readonly: engine-computed; not settable through the API
         unit:
           ucum_code: s
@@ -1719,6 +1764,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_stat_vol_flow
           unit_kind: volume
+        slot_uri: model:link.stats.vol_flow
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: link.stats
@@ -1737,6 +1783,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_crest_height,swmm_link_set_crest_height
           unit_kind: length
+        slot_uri: model:link.weir.crest_height
       discharge_coeff:
         description: Get the discharge coefficient for a weir link.
         range: float
@@ -1745,6 +1792,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_discharge_coeff,swmm_link_set_discharge_coeff
           unit_kind: weir_coeff
+        slot_uri: model:link.weir.discharge_coeff
       end_contractions:
         description: Get the number of end contractions for a weir link.
         range: float
@@ -1753,6 +1801,7 @@ classes:
           access: rw
           c_symbols: swmm_link_get_end_contractions,swmm_link_set_end_contractions
           unit_kind: count
+        slot_uri: model:link.weir.end_contractions
       type:
         description: Get the weir flow classification.
         range: WeirType
@@ -1760,14 +1809,20 @@ classes:
           catalog_path: link.weir.type
           access: rw
           c_symbols: swmm_link_get_weir_type,swmm_link_set_weir_type
+        slot_uri: model:link.weir.type
+      link_kind:
+        description: Get the type of a link.
+        range: LinkType
+        annotations: *id001
+        slot_uri: model:link.type
+        readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: link.weir
       python_class: WeirView
       catalog_revision: '2'
       method_count: '0'
       subtype_code: WEIR
-    exact_mappings:
-    - wsys:Weir
+      represents_domain_class: wsys:Weir
   SwmmLinkXsect:
     description: XSection component view of link
     attributes:
@@ -1779,6 +1834,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_xsect
           unit_kind: length
+        slot_uri: model:link.xsect.g1
         readonly: engine-computed; not settable through the API
       g2:
         description: Get the cross-section geometry for a conduit link.
@@ -1788,6 +1844,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_xsect
           unit_kind: shape_dependent
+        slot_uri: model:link.xsect.g2
         readonly: engine-computed; not settable through the API
       g3:
         description: Get the cross-section geometry for a conduit link.
@@ -1797,6 +1854,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_xsect
           unit_kind: shape_dependent
+        slot_uri: model:link.xsect.g3
         readonly: engine-computed; not settable through the API
       g4:
         description: Get the cross-section geometry for a conduit link.
@@ -1806,6 +1864,7 @@ classes:
           access: r
           c_symbols: swmm_link_get_xsect
           unit_kind: shape_dependent
+        slot_uri: model:link.xsect.g4
         readonly: engine-computed; not settable through the API
       shape:
         description: Get the cross-section geometry for a conduit link.
@@ -1814,6 +1873,7 @@ classes:
           catalog_path: link.xsect.shape
           access: r
           c_symbols: swmm_link_get_xsect
+        slot_uri: model:link.xsect.shape
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: link.xsect
@@ -1833,6 +1893,7 @@ classes:
           catalog_path: node.divider.params
           access: rw
           c_symbols: swmm_node_get_divider_params,swmm_node_set_divider_params
+        slot_uri: model:node.divider.params
       type:
         description: Get the divider method for a flow-divider node.
         range: integer
@@ -1840,14 +1901,20 @@ classes:
           catalog_path: node.divider.type
           access: rw
           c_symbols: swmm_node_get_divider_type,swmm_node_set_divider_type
+        slot_uri: model:node.divider.type
+      node_kind:
+        description: Get the type of a node.
+        range: NodeType
+        annotations: *id002
+        slot_uri: model:node.type
+        readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: node.divider
       python_class: DividerView
       catalog_revision: '2'
       method_count: '0'
       subtype_code: DIVIDER
-    exact_mappings:
-    - wsys:Divider
+      represents_domain_class: wsys:Divider
   SwmmOutfall:
     is_a: SwmmNode
     description: 'OutfallView: node of subtype OUTFALL'
@@ -1861,6 +1928,7 @@ classes:
           catalog_path: node.outfall.export_receipt
           access: r
           c_symbols: swmm_node_get_export_receipt,swmm_pollutant_count,swmm_pollutant_get_units,swmm_pollutant_id
+        slot_uri: model:node.outfall.export_receipt
         readonly: engine-computed; not settable through the API
       flap_gate:
         description: Get whether a flap gate exists at the outfall.
@@ -1869,6 +1937,7 @@ classes:
           catalog_path: node.outfall.flap_gate
           access: rw
           c_symbols: swmm_node_get_outfall_flap_gate,swmm_node_set_outfall_flap_gate
+        slot_uri: model:node.outfall.flap_gate
       param:
         description: Get the outfall stage parameter (fixed stage, or current computed stage).
         range: float
@@ -1877,6 +1946,7 @@ classes:
           access: r
           c_symbols: swmm_node_get_outfall_param
           unit_kind: length
+        slot_uri: model:node.outfall.param
         readonly: engine-computed; not settable through the API
       route_to:
         description: Index of the subcatchment that receives outfall discharge, or -1 when none configured.
@@ -1885,6 +1955,7 @@ classes:
           catalog_path: node.outfall.route_to
           access: rw
           c_symbols: swmm_node_get_outfall_route_to,swmm_node_set_outfall_route_to
+        slot_uri: model:node.outfall.route_to
       type:
         description: Get the outfall boundary condition type.
         range: OutfallType
@@ -1892,14 +1963,20 @@ classes:
           catalog_path: node.outfall.type
           access: rw
           c_symbols: swmm_node_get_outfall_type,swmm_node_set_outfall_type
+        slot_uri: model:node.outfall.type
+      node_kind:
+        description: Get the type of a node.
+        range: NodeType
+        annotations: *id002
+        slot_uri: model:node.type
+        readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: node.outfall
       python_class: OutfallView
       catalog_revision: '2'
       method_count: '5'
       subtype_code: OUTFALL
-    exact_mappings:
-    - wsys:Outfall
+      represents_domain_class: wsys:Outfall
   SwmmNodeStats:
     description: NodeStatsView component view of node
     attributes:
@@ -1911,6 +1988,7 @@ classes:
           access: r
           c_symbols: swmm_node_get_stat_max_depth
           unit_kind: length
+        slot_uri: model:node.stats.max_depth
         readonly: engine-computed; not settable through the API
       max_overflow:
         description: Get the maximum overflow rate recorded at a node.
@@ -1920,6 +1998,7 @@ classes:
           access: r
           c_symbols: swmm_node_get_stat_max_overflow
           unit_kind: flow
+        slot_uri: model:node.stats.max_overflow
         readonly: engine-computed; not settable through the API
       time_flooded:
         description: Cumulative seconds the node has been flooded.
@@ -1929,6 +2008,7 @@ classes:
           access: r
           c_symbols: swmm_node_get_stat_time_flooded
           unit_kind: s
+        slot_uri: model:node.stats.time_flooded
         readonly: engine-computed; not settable through the API
         unit:
           ucum_code: s
@@ -1940,6 +2020,7 @@ classes:
           access: r
           c_symbols: swmm_node_get_stat_vol_flooded
           unit_kind: volume
+        slot_uri: model:node.stats.vol_flooded
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: node.stats
@@ -1957,6 +2038,7 @@ classes:
           catalog_path: node.storage.curve
           access: rw
           c_symbols: swmm_node_get_storage_curve,swmm_node_set_storage_curve
+        slot_uri: model:node.storage.curve
       exfil_params:
         description: (suction, ksat, imd) Green-Ampt exfiltration parameters.
         range: float
@@ -1966,6 +2048,7 @@ classes:
           catalog_path: node.storage.exfil_params
           access: rw
           c_symbols: swmm_node_get_exfil_params,swmm_node_set_exfil_params
+        slot_uri: model:node.storage.exfil_params
       functional:
         description: (a, b, c) coefficients of the functional storage relation.
         range: float
@@ -1975,6 +2058,7 @@ classes:
           catalog_path: node.storage.functional
           access: rw
           c_symbols: swmm_node_get_storage_functional,swmm_node_set_storage_functional
+        slot_uri: model:node.storage.functional
       swmm_geometry:
         description: (p1, p2, p3) raw dimensions of a geometric storage shape.
         range: float
@@ -1984,6 +2068,7 @@ classes:
           catalog_path: node.storage.geometry
           access: rw
           c_symbols: swmm_node_get_storage_geometry,swmm_node_set_storage_geometry
+        slot_uri: model:node.storage.geometry
       seep_rate:
         description: Constant seepage (exfiltration) rate, in/hr or mm/hr.
         range: float
@@ -1992,6 +2077,7 @@ classes:
           access: rw
           c_symbols: swmm_node_get_storage_seep_rate,swmm_node_set_storage_seep_rate
           unit_kind: rain_rate
+        slot_uri: model:node.storage.seep_rate
       shape:
         description: The surface-area relation as a StorageShape.
         range: StorageShape
@@ -1999,14 +2085,14 @@ classes:
           catalog_path: node.storage.shape
           access: rw
           c_symbols: swmm_node_get_storage_shape,swmm_node_set_storage_shape
+        slot_uri: model:node.storage.shape
     annotations:
       catalog_target: node.storage
       python_class: StorageView
       catalog_revision: '2'
       method_count: '0'
       subtype_code: STORAGE
-    exact_mappings:
-    - wsys:StorageUnit
+      represents_domain_class: wsys:StorageUnit
   SwmmSubcatchmentInfiltration:
     description: InfiltrationView component view of subcatchment
     attributes:
@@ -2018,6 +2104,7 @@ classes:
           access: r
           c_symbols: swmm_subcatch_get_infil_curve_number
           unit_kind: dimensionless
+        slot_uri: model:subcatchment.infiltration.curve_number
         readonly: engine-computed; not settable through the API
       curve_number_drying_time:
         description: Days for a fully saturated soil to dry (third [INFILTRATION] column).
@@ -2027,6 +2114,7 @@ classes:
           access: r
           c_symbols: swmm_subcatch_get_infil_curve_number
           unit_kind: d
+        slot_uri: model:subcatchment.infiltration.curve_number_drying_time
         readonly: engine-computed; not settable through the API
         unit:
           ucum_code: d
@@ -2039,6 +2127,7 @@ classes:
           catalog_path: subcatchment.infiltration.green_ampt
           access: r
           c_symbols: swmm_subcatch_get_infil_green_ampt
+        slot_uri: model:subcatchment.infiltration.green_ampt
         readonly: engine-computed; not settable through the API
       horton:
         description: (f0, fmin, decay, dry_time) — Horton parameters.
@@ -2049,6 +2138,7 @@ classes:
           catalog_path: subcatchment.infiltration.horton
           access: r
           c_symbols: swmm_subcatch_get_infil_horton
+        slot_uri: model:subcatchment.infiltration.horton
         readonly: engine-computed; not settable through the API
       model:
         description: Switch the active infiltration model.
@@ -2057,6 +2147,7 @@ classes:
           catalog_path: subcatchment.infiltration.model
           access: rw
           c_symbols: swmm_subcatch_get_infil_model,swmm_subcatch_set_infil_model
+        slot_uri: model:subcatchment.infiltration.model
     annotations:
       catalog_target: subcatchment.infiltration
       python_class: InfiltrationView
@@ -2073,6 +2164,7 @@ classes:
           access: r
           c_symbols: swmm_subcatch_get_stat_max_runoff
           unit_kind: flow
+        slot_uri: model:subcatchment.stats.max_runoff
         readonly: engine-computed; not settable through the API
       precip:
         description: Get the total precipitation volume at a subcatchment.
@@ -2082,6 +2174,7 @@ classes:
           access: r
           c_symbols: swmm_subcatch_get_stat_precip
           unit_kind: volume
+        slot_uri: model:subcatchment.stats.precip
         readonly: engine-computed; not settable through the API
       runoff_vol:
         description: Get the total runoff volume from a subcatchment.
@@ -2091,6 +2184,7 @@ classes:
           access: r
           c_symbols: swmm_subcatch_get_stat_runoff_vol
           unit_kind: volume
+        slot_uri: model:subcatchment.stats.runoff_vol
         readonly: engine-computed; not settable through the API
     annotations:
       catalog_target: subcatchment.stats
@@ -2103,13 +2197,11 @@ classes:
     annotations:
       subtype_code: JUNCTION
       catalog_revision: '2'
-    exact_mappings:
-    - wsys:Junction
+      represents_domain_class: wsys:Junction
   SwmmConduit:
     is_a: SwmmLink
     description: SwmmLink of subtype CONDUIT; no additional engine properties.
     annotations:
       subtype_code: CONDUIT
       catalog_revision: '2'
-    exact_mappings:
-    - wsys:Conduit
+      represents_domain_class: wsys:Conduit

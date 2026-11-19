@@ -114,6 +114,7 @@ class SchemaToLinkML:
         req = set(node.get("required") or [])
         for prop, sub in (node.get("properties") or {}).items():
             a = self.attr_for(prop, sub, root, cname)
+            a["slot_uri"] = f"hcp:{cname}.{prop}"
             if prop in req:
                 a["required"] = True
             a.setdefault("annotations", {})["json_property"] = prop

@@ -270,6 +270,7 @@ flowchart TB
   subgraph wsys_provenance["provenance"]
     Activity["Activity"]
     Agent["Agent"]
+    ArtifactChecksum["ArtifactChecksum"]
     Attributed["Attributed"]
     Dataset["Dataset"]
     Distribution["Distribution"]
@@ -302,6 +303,7 @@ flowchart TB
     Zone["Zone"]
   end
   subgraph wsys_observation["observation"]
+    Constituent["Constituent"]
     Datastream["Datastream"]
     Observation["Observation"]
     ObservedProperty["ObservedProperty"]
@@ -331,6 +333,10 @@ flowchart TB
     AgentFinding["AgentFinding"]
     Attempt["Attempt"]
     Candidate["Candidate"]
+    IngestionActivity["IngestionActivity"]
+    InputArtifact["InputArtifact"]
+    InputRecord["InputRecord"]
+    ResultArtifact["ResultArtifact"]
     Revision["Revision"]
     Run["Run"]
     Study["Study"]
@@ -356,7 +362,6 @@ flowchart TB
   AgentFinding -.-> DerivedEntity
   Aquifer -.-> SpatialEntity
   Asset -.-> SpatialEntity
-  Attempt -.-> DerivedEntity
   Candidate -.-> DerivedEntity
   Cell2D -.-> SpatialEntity
   Conduit -.-> Link
@@ -380,6 +385,7 @@ flowchart TB
   Prediction -.-> DerivedEntity
   Pump -.-> Link
   RainGage -.-> Asset
+  ResultArtifact -.-> DerivedEntity
   Run -.-> DerivedEntity
   Sensor -.-> Asset
   Setpoint -.-> DerivedEntity
@@ -425,6 +431,8 @@ flowchart TB
   EventStateChange -- event --> Event
   EventStateChange -- changed_by --> Agent
   ExchangeItem -- component --> ModelComponent
+  InputArtifact -- of_revision --> Revision
+  InputRecord -- of_revision --> Revision
   Inspection -- under_work_order --> WorkOrder
   Link -- system --> WaterSystem
   MLModel -- owner --> Agent
@@ -439,6 +447,7 @@ flowchart TB
   Revision -- of_composition --> Composition
   Run -- of_revision --> Revision
   Run -- of_study --> Study
+  Run -- was_associated_with --> Agent
   Setpoint -- set_by --> Agent
   Setpoint -- approved_by --> Agent
   Study -- of_revision --> Revision

@@ -6,13 +6,14 @@ Each module is one LinkML file; arrows are `imports`. Generated modules are rege
 flowchart LR
   wsys["wsys<br/><small>0 classes</small>"]
   wsys_ml["ml<br/><small>7 classes</small>"]
-  wsys_analysis["analysis<br/><small>6 classes</small>"]
+  wsys_analysis["analysis<br/><small>10 classes</small>"]
   wsys_analysis_platform["platform contracts (generated)<br/><small>21 classes</small>"]:::gen
   wsys_coupling["coupling<br/><small>8 classes</small>"]
-  wsys_provenance["provenance<br/><small>5 classes</small>"]
+  wsys_provenance["provenance<br/><small>6 classes</small>"]
   wsys_core["core<br/><small>5 classes</small>"]
-  wsys_observation["observation<br/><small>5 classes</small>"]
+  wsys_observation["observation<br/><small>6 classes</small>"]
   wsys_topology["topology<br/><small>25 classes</small>"]
+  wsys_swmm_codes["wsys-swmm-codes<br/><small>0 classes</small>"]
   wsys_model["SWMM model (generated)<br/><small>26 classes</small>"]:::gen
   wsys_operations["operations<br/><small>2 classes</small>"]
   wsys_event["event<br/><small>3 classes</small>"]
@@ -42,8 +43,10 @@ flowchart LR
   wsys_observation --> wsys_provenance
   wsys_observation --> wsys_topology
   wsys_topology --> wsys_core
+  wsys_topology --> wsys_swmm_codes
   wsys_model --> wsys_core
   wsys_model --> wsys_analysis
+  wsys_model --> wsys_swmm_codes
   wsys_operations --> wsys_core
   wsys_operations --> wsys_provenance
   wsys_event --> wsys_core

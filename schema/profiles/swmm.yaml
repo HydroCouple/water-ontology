@@ -1,0 +1,99 @@
+id: https://w3id.org/wsys/profile/swmm/1
+version: '1'
+owner: HydroCouple/water-ontology
+source: https://www.epa.gov/water-research/storm-water-management-model-swmm
+catalog: vendor/openswmm/catalog.json
+labels:
+  RainGage:
+    notation: {EPA-SWMM-INP: '[RAINGAGES]'}
+property_labels:
+  https://w3id.org/wsys/model/node.type: node kind
+  https://w3id.org/wsys/model/link.type: link kind
+codes:
+  InfiltrationModel:
+    MOD_HORTON: MODIFIED_HORTON
+    MOD_GREEN_AMPT: MODIFIED_GREEN_AMPT
+  XSectShape:
+    EGG: EGGSHAPED
+    MODBASKET: MODBASKETHANDLE
+    RECT_TRIANGULAR: RECT_TRIANG
+    STREET: STREET_XSECT
+# Positions that are lengths in the INP cross-section tuple (one based).
+# Curves, indices, side slopes and exponents retain their source meaning.
+shape_lengths:
+  CIRCULAR: [1]
+  FILLED_CIRCULAR: [1, 2]
+  RECT_CLOSED: [1, 2]
+  RECT_OPEN: [1, 2]
+  TRAPEZOIDAL: [1, 2]
+  TRIANGULAR: [1, 2]
+  PARABOLIC: [1, 2]
+  POWER: [1, 2]
+  MODBASKETHANDLE: [1, 2, 3]
+  EGGSHAPED: [1]
+  HORSESHOE: [1]
+  GOTHIC: [1]
+  CATENARY: [1]
+  SEMIELLIPTICAL: [1]
+  BASKETHANDLE: [1]
+  SEMICIRCULAR: [1]
+  RECT_TRIANG: [1, 2, 3]
+  RECT_ROUND: [1, 2, 3]
+  HORIZ_ELLIPSE: [1, 2]
+  VERT_ELLIPSE: [1, 2]
+  ARCH: [1, 2]
+  IRREGULAR: []
+  CUSTOM: [1]
+  FORCE_MAIN: [1]
+  STREET_XSECT: []
+  DUMMY: []
+sections:
+  POLLUTANTS: {fields: [id, concentration_unit, rain, groundwater, rdii, decay, snow_only, co_pollutant, co_fraction, dwf, initial], refs: {0: pollutant, 7: pollutant}}
+  LANDUSES: {fields: [id, sweeping_interval, removal_fraction, last_swept], refs: {0: landuse}}
+  COVERAGES: {fields: [subcatchment, landuse, percent], refs: {0: subcatchment, 1: landuse}}
+  LOADINGS: {fields: [subcatchment, pollutant, initial_buildup], refs: {0: subcatchment, 1: pollutant}}
+  BUILDUP: {fields: [landuse, pollutant, function, coefficient_1, coefficient_2, coefficient_3, basis], refs: {0: landuse, 1: pollutant}}
+  WASHOFF: {fields: [landuse, pollutant, function, coefficient_1, coefficient_2, sweeping_removal, bmp_removal], refs: {0: landuse, 1: pollutant}}
+  TIMESERIES: {fields: [series, date, time, value], refs: {0: table}}
+  CURVES: {refs: {0: table}}
+  PATTERNS: {refs: {0: pattern}}
+  RAINGAGES: {fields: [id, format, interval, snow_factor, source, source_id], refs: {0: gage}}
+  SUBCATCHMENTS: {fields: [id, gage, outlet, area, impervious_percent, width, slope, curb_length, snowpack], refs: {0: subcatchment, 1: gage}}
+  JUNCTIONS: {refs: {0: node}}
+  OUTFALLS: {refs: {0: node}}
+  STORAGE: {refs: {0: node}}
+  DIVIDERS: {refs: {0: node}}
+  CONDUITS: {refs: {0: link, 1: node, 2: node}}
+  PUMPS: {refs: {0: link, 1: node, 2: node}}
+  WEIRS: {refs: {0: link, 1: node, 2: node}}
+  ORIFICES: {refs: {0: link, 1: node, 2: node}}
+  OUTLETS: {refs: {0: link, 1: node, 2: node}}
+  XSECTIONS: {fields: [link, shape, geom1, geom2, geom3, geom4, barrels, culvert], refs: {0: link}}
+  INFILTRATION: {refs: {0: subcatchment}}
+  SUBAREAS: {refs: {0: subcatchment}}
+  OPTIONS: {fields: [option, value]}
+  COORDINATES: {fields: [node, x, y], refs: {0: node}}
+  VERTICES: {fields: [link, x, y], refs: {0: link}}
+  POLYGONS: {fields: [subcatchment, x, y], refs: {0: subcatchment}}
+  SYMBOLS: {fields: [gage, x, y], refs: {0: gage}}
+  GROUNDWATER: {refs: {0: subcatchment}}
+  LID_USAGE: {refs: {0: subcatchment}}
+  DWF: {refs: {0: node}}
+  INFLOWS: {refs: {0: node}}
+  TREATMENT: {refs: {0: node, 1: pollutant}}
+  EVAPORATION: {fields: [method]}
+  TEMPERATURE: {fields: [parameter]}
+  AQUIFERS: {fields: [aquifer, porosity, wilting_point, field_capacity, conductivity]}
+  SNOWPACKS: {fields: [snowpack, surface]}
+  LID_CONTROLS: {fields: [control, layer_or_type]}
+  HYDROGRAPHS: {fields: [hydrograph]}
+  RDII: {fields: [node, hydrograph, sewershed_area], refs: {0: node}}
+  LOSSES: {fields: [link, inlet, outlet, average, flap_gate, seepage], refs: {0: link}}
+  STREETS: {fields: [street, crown_width, curb_height, cross_slope, roughness]}
+  INLETS: {fields: [inlet, inlet_type]}
+  INLET_USAGE: {fields: [link, inlet, capture_node], refs: {0: link, 2: node}}
+  TRANSECTS: {fields: [record_type]}
+  CONTROLS: {fields: [clause]}
+  REPORT: {fields: [setting]}
+  TAGS: {fields: [object_kind, id, tag]}
+  FILES: {fields: [action, interface, path]}

@@ -1,0 +1,14 @@
+id: https://w3id.org/wsys/profile/openswmm-2d/1
+version: '1'
+extends: https://w3id.org/wsys/profile/swmm/1
+owner: HydroCouple/openswmm.engine
+source: https://github.com/HydroCouple/openswmm.engine/blob/4067ab6d30258519c3cafc16aa3942a45875f260/python/openswmm/engine/catalog.json
+sections:
+  2D_OPTIONS: {fields: [option, value]}
+  2D_VERTICES: {fields: [x, y, elevation]}
+  2D_QUADS: {fields: [v1, v2, v3, v4, roughness, region]}
+  2D_AQUIFER_OPTIONS: {fields: [option, value]}
+  GW_TRANSPORT_OPTIONS: {fields: [option, value]}
+  2D_AQUIFER: {fields: [record_kind, cell_id]}
+  GW_TRANSPORT_PARAMS: {fields: [selector]}
+  GW_INITIAL_QUALITY: {fields: [selector]}

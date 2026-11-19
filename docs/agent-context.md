@@ -1,6 +1,6 @@
 # Ontology context for agents
 
-Generated from the water-ontology schema (version 0.1.0); do not edit. Tables are in catalog `water_core`; the table for a class is shown in brackets. Abstract classes have no table; query the union views `topology.asset` and `model.swmm_element`, or `reference.entity` (every entity with its class).
+Generated from the water-ontology schema (version 0.2.0); do not edit. Tables are in catalog `water_core`; the table for a class is shown in brackets. Abstract classes have no table; query the union views `topology.asset` and `model.swmm_element`, or `reference.entity` (every entity with its class).
 
 ## Identity and conventions
 
@@ -10,6 +10,10 @@ Generated from the water-ontology schema (version 0.1.0); do not edit. Tables ar
 - Tables with `valid_to` are versioned; read the `<table>_current` view unless the question is historical.
 - Every derived value carries `was_generated_by`; cite it (attempt, model version, job) with any number you report.
 - Units are QUDT IRIs in a `unit` column or a column tag; never assume a unit.
+
+## Resolving model and operator terminology
+
+Use registry.json bindings to resolve a term in its class and source scheme. Look up rain gauge and rain gage under RainGage. [RAINGAGES] is the input section. Identify an instance with its system, object kind and source ID. Check the mapping predicate and governing profile before treating terms as interchangeable.
 
 ## Classes
 
@@ -23,6 +27,7 @@ Generated from the water-ontology schema (version 0.1.0); do not edit. Tables ar
 
 ### provenance
 
+- ArtifactChecksum: An SPDX digest value and algorithm for a distribution.
 - Distribution: One concrete form of a dataset-like entity - a Delta table at a version, a file in a Volume, a model artifact.
 - (under Entity)
   - Agent  [reference.agent]: Someone or something responsible for an entity or activity (PROV-O Agent).
@@ -66,7 +71,8 @@ Generated from the water-ontology schema (version 0.1.0); do not edit. Tables ar
   - Observation  [observation.observation]: One value of one property for one entity at one time.
   - Setpoint  [observation.setpoint]: A target value for a controllable property (pump speed, gate opening, tank level band) effective over a period.
 - (under Entity)
-  - Datastream  [observation.datastream]: One sensor observing one property of one feature of interest over time; the unit of telemetry ingestion and the thing a staleness threshold 
+  - Constituent  [observation.constituent]: A substance or aggregate such as TSS whose concentration or load may be modeled.
+  - Datastream  [observation.datastream]: One sensor observing one property of one feature of interest over time; the unit of telemetry ingestion and the thing a staleness threshold
   - ObservedProperty  [observation.observed_property]: A measurable property such as flow, depth or TSS concentration, with its physical kind and default unit.
 
 ### event
@@ -93,18 +99,22 @@ Generated from the water-ontology schema (version 0.1.0); do not edit. Tables ar
     - Input  [coupling.input]: A consumer of values.
     - Output  [coupling.output]: A provider of values.
       - AdaptedOutput  [coupling.adapted_output]: An output transformed in time, space or unit from a provider output by an adapter factory.
-  - ModelComponent  [coupling.model_component]: A configured instance of a HydroCouple model component inside a composition - a SWMM model, a 2D mesh, a data reader, an adapter factory or 
+  - ModelComponent  [coupling.model_component]: A configured instance of a HydroCouple model component inside a composition - a SWMM model, a 2D mesh, a data reader, an adapter factory or
 
 ### analysis
 
 - (under DerivedEntity)
   - AgentFinding  [analysis.agent_finding]: What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict.
-  - Attempt  [analysis.attempt]: One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest).
   - Candidate  [analysis.candidate]: One evaluated design or policy in a study, with its decision variables and objective values.
+  - ResultArtifact  [analysis.result_artifact]: An output produced by an execution attempt, identified by the digest of its bytes.
   - Run  [analysis.run]: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).
   - Study  [analysis.study]: An ask/tell optimisation over an evaluator pool (platform study view): objectives, budget, state and the Pareto set.
 - (under Entity)
-  - Revision  [analysis.revision]: An immutable packaged composition (files, components, findings) recorded by a hydrocouple.platform revision manifest.
+  - Attempt  [analysis.attempt]: One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest).
+  - IngestionActivity  [analysis.ingestion_activity]: A particular import of a revision under a versioned mapping profile.
+  - InputArtifact  [analysis.input_artifact]: A hashed primary input or an external dependency in a revision bundle.
+  - InputRecord  [analysis.input_record]: An original INP record retained with its line number and ordered native tokens.
+  - Revision  [analysis.revision]: An immutable model revision identified by its platform manifest or by a local input bundle and its checksum.
 
 ### ml
 
@@ -151,7 +161,7 @@ Generated from the water-ontology schema (version 0.1.0); do not edit. Tables ar
 
 ## Key enumerations
 
-- LifecycleStatus: PROPOSED, UNDER_CONSTRUCTION, IN_SERVICE, OUT_OF_SERVICE, ABANDONED, REMOVED
+- LifecycleStatus: PROPOSED, UNDER_CONSTRUCTION, UNKNOWN, IN_SERVICE, OUT_OF_SERVICE, ABANDONED, REMOVED
 - QualityFlag: GOOD, SUSPECT, BAD, MISSING, ESTIMATED, STALE, OUT_OF_RANGE, MANUAL
 - ResultKind: MEASUREMENT, FORECAST, SETPOINT, SIMULATION, AGGREGATE
 - EventLifecycleState: DETECTED, CONFIRMED, IN_PROGRESS, RESOLVED, FALSE_POSITIVE, SUPERSEDED
@@ -170,7 +180,7 @@ The validator enforces these; open violations are in `reference.ontology_violati
 - Every Sensor has at least one ATTACHED_TO edge.
 - Every Asset has at least one PART_OF_SYSTEM edge.
 - An asset is REPRESENTED_BY at most one model element per revision.
-- An asset with model links is REPRESENTED_BY an element in some system's current revision.
+- An asset with model links is REPRESENTED_BY an element in its own system's current revision.
 - A WaterSystem's current_revision is a known Revision.
 - A work order that resolves an event is COMPLETED with a completion time.
 - A work order proposed by an AI agent is not APPROVED or beyond without a human approver.
@@ -181,6 +191,11 @@ The validator enforces these; open violations are in `reference.ontology_violati
 - occurred_at <= detected_at <= ended_at where present.
 - A prediction's target entity is an instance of its model's applies_to_class.
 - A model has at most one CHAMPION version.
+- A model element with an INP source locator points to a record in the same revision.
+- An imported SWMM simulation result resolves its source line, attempt, run, input revision, software agent and output artifact.
+- A local SWMM bundle records a primary artifact matching its input checksum.
+- An observation has an instant or an ordered time interval.
+- An input record belongs to an existing revision.
 - An observation's unit is its property's default unit (after normalisation).
 - Each relation only connects the classes listed under Relations.
 

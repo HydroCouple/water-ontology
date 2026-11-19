@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 review branch
+
+- Generate a governed SQLite snapshot, scoped term registry, versioned Delta terminology records and native-to-ontology coverage inventory.
+- Preserve SWMM source evidence, model water quality, checksummed results, occurrence identity, unit metadata and provenance across the import and simulation.
+- Share SWMM code schemes and aliases across projections. Migrate legacy identifiers and publish or roll back local releases with an audit trail.
+
+
 ## 0.1.0 (unreleased)
 - LinkML source of truth: `core`, `topology`, `analysis` (stub), `ml`, generated `model`; release root `wsys.yaml`.
 - Generators: OpenSWMM catalog → `model.yaml` (with lock and staleness check); LinkML → Delta DDL, Unity Catalog comments/tags, enum reference tables, class hierarchy table, SCD2 views, asset union view, STRUCT component views.

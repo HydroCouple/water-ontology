@@ -15,6 +15,10 @@ classDiagram
     string external_identity
     Agent acts_on_behalf_of
   }
+  class ArtifactChecksum {
+    IRI algorithm*
+    Sha256Hex digest*
+  }
   class Attributed {
     Agent was_attributed_to
     string dc_title
@@ -35,6 +39,7 @@ classDiagram
     string media_type
     integer byte_size
     string checksum
+    ArtifactChecksum integrity_checksum
     integer delta_version
     string dc_license
   }
@@ -44,6 +49,7 @@ classDiagram
   Attributed --> "1" Agent : dc_creator
   Dataset *-- "*" Distribution : distributions
   Dataset --> "1" Agent : dc_publisher
+  Distribution *-- "1" ArtifactChecksum : integrity_checksum
 ```
 
 ## Classes
@@ -52,6 +58,7 @@ classDiagram
 | --- | --- | --- |
 | `Activity` |  | Mixin for activities (runs, attempts, state changes, pipeline executions). |
 | `Agent` | Entity | Someone or something responsible for an entity or activity (PROV-O Agent). People, organisations, service principals, AI agents, ML model versions and other software all appear here so attribution is uniform. |
+| `ArtifactChecksum` |  | An SPDX digest value and algorithm for a distribution. |
 | `Attributed` |  | Mixin for anything PROV-attributed and Dublin-Core-described. |
 | `Dataset` |  | Mixin for dataset-like entities that should be discoverable - training data, revisions, datastreams, the repo's own releases. |
 | `Distribution` |  | One concrete form of a dataset-like entity - a Delta table at a version, a file in a Volume, a model artifact. |

@@ -28,12 +28,15 @@ classDiagram
     string alt_ids
     Utility utility
     string source_system
+    IRI source_record
+    IRI ingestion_activity
     datetime valid_from
     datetime valid_to
   }
   class SpatialEntity {
     <<abstract>>
     WKT geometry
+    string geometry_crs
     string h3_cell
   }
   class Utility {

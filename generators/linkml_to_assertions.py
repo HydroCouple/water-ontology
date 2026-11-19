@@ -114,11 +114,12 @@ SELECT e.from_iri AS focus_iri, concat('asset is represented by ', count(*), ' e
 FROM {edge} e JOIN {self.t('model', 'swmm_element')} m ON m.iri = e.to_iri
 WHERE e.relation = 'REPRESENTED_BY' GROUP BY e.from_iri, m.revision HAVING count(*) > 1""")
         ws = self.t("topology", "water_system_current")
-        self.add("represented_by_current_revision", "WARNING", "An asset with model links is REPRESENTED_BY an element in some system's current revision.", f"""
+        self.add("represented_by_current_revision", "WARNING", "An asset with model links is REPRESENTED_BY an element in its own system's current revision.", f"""
 SELECT a.focus_iri, 'asset is only linked to model elements in non-current revisions' AS message
 FROM (SELECT e.from_iri AS focus_iri, max(CASE WHEN w.iri IS NOT NULL THEN 1 ELSE 0 END) AS has_current
       FROM {edge} e JOIN {self.t('model', 'swmm_element')} m ON m.iri = e.to_iri
-      LEFT JOIN {ws} w ON w.current_revision = m.revision
+      LEFT JOIN {edge} membership ON membership.from_iri = e.from_iri AND membership.relation = 'PART_OF_SYSTEM'
+      LEFT JOIN {ws} w ON w.iri = membership.to_iri AND w.current_revision = m.revision
       WHERE e.relation = 'REPRESENTED_BY' GROUP BY e.from_iri) a
 WHERE a.has_current = 0""")
         self.add("system_current_revision_exists", "ERROR", "A WaterSystem's current_revision is a known Revision.", f"""
@@ -172,6 +173,37 @@ WHERE m.applies_to_class IS NOT NULL AND c.class_iri IS NULL""")
         self.add("only_one_champion", "ERROR", "A model has at most one CHAMPION version.", f"""
 SELECT v.of_model AS focus_iri, concat(count(*), ' CHAMPION versions') AS message
 FROM {self.t('ml', 'ml_model_version')} v WHERE v.stage = 'CHAMPION' GROUP BY v.of_model HAVING count(*) > 1""")
+        self.add("swmm_model_source_revision", "ERROR", "A model element with an INP source locator points to a record in the same revision.", f"""
+SELECT m.iri AS focus_iri, 'model source line is missing or belongs to a different revision' AS message
+FROM {self.t('model','swmm_element')} m
+LEFT JOIN {self.t('analysis','input_record')} s ON s.iri=m.source_record AND s.of_revision=m.revision
+WHERE m.source_record IS NOT NULL AND m.ingestion_activity IS NOT NULL AND s.iri IS NULL""")
+        self.add("swmm_result_lineage", "ERROR", "An imported SWMM simulation result resolves its source line, attempt, run, input revision, software agent and output artifact.", f"""
+SELECT o.iri AS focus_iri, 'incomplete SWMM observation provenance' AS message
+FROM {self.t('observation','observation')} o
+LEFT JOIN {self.t('analysis','ingestion_activity')} i ON i.iri=o.ingestion_activity
+LEFT JOIN {self.t('analysis','attempt')} a ON a.iri=o.was_generated_by
+LEFT JOIN {self.t('analysis','run')} r ON r.iri=a.of_run
+LEFT JOIN {self.t('analysis','revision')} rv ON rv.iri=r.of_revision
+LEFT JOIN {self.t('analysis','input_record')} rec ON rec.iri=o.source_record AND rec.of_revision=rv.iri
+LEFT JOIN {self.t('reference','agent')} agent ON agent.iri=a.was_associated_with
+WHERE o.result_kind='SIMULATION' AND o.ingestion_activity IS NOT NULL
+AND (i.iri IS NULL OR rec.iri IS NULL OR agent.iri IS NULL OR rv.bundle_sha256 IS NULL
+OR NOT EXISTS (SELECT 1 FROM {self.t('analysis','result_artifact')} output WHERE output.was_generated_by=a.iri))""")
+        self.add("swmm_input_bundle_evidence", "ERROR", "A local SWMM bundle records a primary artifact matching its input checksum.", f"""
+SELECT r.iri AS focus_iri, 'primary input artifact is missing or differs from the input digest' AS message
+FROM {self.t('analysis','revision')} r WHERE r.bundle_sha256 IS NOT NULL AND NOT EXISTS
+(SELECT 1 FROM {self.t('analysis','input_artifact')} f
+ WHERE f.of_revision=r.iri AND f.file_role='primary' AND f.input_sha256=r.input_sha256)""")
+        self.add("observation_time_evidence", "ERROR", "An observation has an instant or an ordered time interval.", f"""
+SELECT iri AS focus_iri, 'observation lacks valid temporal support' AS message
+FROM {self.t('observation', 'observation')}
+WHERE (phenomenon_time IS NULL AND (interval_start IS NULL OR interval_end IS NULL))
+   OR interval_start > interval_end""")
+        self.add("input_record_revision", "ERROR", "An input record belongs to an existing revision.", f"""
+SELECT s.iri AS focus_iri, 'input record has no known revision' AS message
+FROM {self.t('analysis', 'input_record')} s LEFT JOIN {self.t('analysis', 'revision')} r ON r.iri=s.of_revision
+WHERE r.iri IS NULL""")
         # observations
         self.add("observation_unit_matches_property", "WARNING", "An observation's unit is its property's default unit (after normalisation).", f"""
 SELECT o.iri AS focus_iri, concat('unit ', o.unit, ' differs from default ', p.default_unit, ' for ', o.property_iri) AS message

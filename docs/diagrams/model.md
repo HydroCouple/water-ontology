@@ -9,6 +9,7 @@ classDiagram
   class SwmmDivider {
     string params
     integer type
+    NodeType node_kind
   }
   class SwmmElement {
     <<abstract>>
@@ -103,6 +104,7 @@ classDiagram
   class SwmmOrifice {
     float open_close_rate
     OrificeType type
+    LinkType link_kind
   }
   class SwmmOutfall {
     string export_receipt
@@ -110,6 +112,7 @@ classDiagram
     float param
     integer route_to
     OutfallType type
+    NodeType node_kind
   }
   class SwmmOutlet {
     float expon
@@ -178,6 +181,7 @@ classDiagram
     float ds_imperv
     float ds_perv
     float evap
+    float frozen_ground
     SwmmGage gage
     float groundwater
     integer gw_node
@@ -186,8 +190,7 @@ classDiagram
     float imperv_pct
     integer index
     float infil
-    float n_imperv
-    ... 16 more
+    ... 17 more
   }
   class SwmmSubcatchmentInfiltration {
     float curve_number
@@ -212,6 +215,7 @@ classDiagram
     float discharge_coeff
     float end_contractions
     WeirType type
+    LinkType link_kind
   }
   SwmmLink <|-- SwmmConduit
   SwmmNode <|-- SwmmDivider
