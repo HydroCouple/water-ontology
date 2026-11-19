@@ -187,16 +187,29 @@ def test_native_pollutograph_matches_every_report_period():
             {"PUMPS", "STORAGE", "ORIFICES", "WEIRS", "OUTLETS", "CONTROLS"},
         ),
         ("hydrology", {"AQUIFERS", "GROUNDWATER", "SNOWPACKS", "PATTERNS"}),
-        ("groundwater_2d", {"2D_QUADS", "2D_AQUIFER", "GW_INITIAL_QUALITY"}),
+        (
+            "groundwater_2d_base",
+            {"2D_QUADS", "2D_AQUIFER", "GW_INITIAL_QUALITY", "GW_TRANSPORT_OPTIONS"},
+        ),
+        (
+            "groundwater_2d",
+            {"2D_QUADS", "2D_AQUIFER", "GW_INITIAL_QUALITY", "GW_TRANSPORT_OPTIONS"},
+        ),
     ],
 )
 def test_native_fixture_sections_reach_sqlite(name, sections, tmp_path):
     pytest.importorskip("openswmm.engine")
     from loaders.swmm_to_rows import Loader
 
+    if name == "groundwater_2d":
+        pytest.importorskip(
+            "openswmm",
+            minversion="6.0.0a4.dev2",
+            reason="THERMAL_MODEL and UNSAT_TRANSPORT require the dev2 groundwater parser",
+        )
     src = ROOT / "tests/fixtures/native" / (name + ".inp")
     extension = (
-        ROOT / "schema/profiles/openswmm-2d.yaml" if name == "groundwater_2d" else None
+        ROOT / "schema/profiles/openswmm-2d.yaml" if "2D_AQUIFER" in sections else None
     )
     load = Loader(src, "fixture", name, extension)
     load.load_static()
@@ -211,6 +224,17 @@ def test_native_fixture_sections_reach_sqlite(name, sections, tmp_path):
         )
         assert sections <= actual.keys()
         assert sum(actual.values()) == len(read_records(src))
+        if extension:
+            options = dict(
+                db.execute("""
+                SELECT json_extract(native_fields, '$.option'), json_extract(native_fields, '$.value')
+                FROM analysis__input_record WHERE section='GW_TRANSPORT_OPTIONS'
+            """)
+            )
+            assert options["DISPERSION"] == "YES"
+            if name == "groundwater_2d":
+                assert options["THERMAL_MODEL"] == "POROUS_EQUILIBRIUM"
+                assert options["UNSAT_TRANSPORT"] == "LAYERED"
         if name == "structures":
             for table in ("pump", "orifice", "weir", "outlet", "storage_unit"):
                 assert (
