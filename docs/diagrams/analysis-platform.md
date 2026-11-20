@@ -33,6 +33,16 @@ classDiagram
     string sha256*
     integer size*
   }
+  class PlatformArtifactInput {
+    string attempt_id*
+    string key*
+    string path*
+    string role
+    string run_id*
+    string sha256*
+    integer size*
+    string source_path*
+  }
   class PlatformAttemptManifest {
     PlatformArtifactEntry artifacts*
     PlatformProvenance provenance*
@@ -82,6 +92,7 @@ classDiagram
     integer size*
   }
   class PlatformInputs {
+    PlatformArtifactInput artifacts
     string composition
     PlatformInputFile files*
     string manifest_sha256*
@@ -131,6 +142,23 @@ classDiagram
     PlatformPlacementInterruption interruption
     string target_id*
   }
+  class PlatformProposalView {
+    datetime applied_at*
+    string applied_run_id*
+    datetime created_at*
+    datetime decided_at*
+    string decided_by*
+    string decision_note*
+    datetime effective_from*
+    datetime issued_at*
+    string link*
+    string note*
+    string property*
+    string proposal_id*
+    string proposed_by*
+    string run_id*
+    ... 3 more
+  }
   class PlatformProvenance {
     PlatformActor actor*
     string attempt_id*
@@ -141,12 +169,12 @@ classDiagram
     string job_id*
     string parameters*
     string profile
+    PlatformResumedFrom resumed_from
     string revision_id*
     string revision_manifest_sha256*
     string run_id*
     PlatformRuntimeVersions runtime*
-    string seeds
-    ... 4 more
+    ... 5 more
   }
   class PlatformResources {
     float cpu
@@ -157,6 +185,12 @@ classDiagram
     string profile
     integer ranks
     float scratch_gib
+  }
+  class PlatformResumedFrom {
+    string attempt_id*
+    string path*
+    string run_id*
+    string sha256*
   }
   class PlatformRevisionManifest {
     string components*
@@ -174,6 +208,7 @@ classDiagram
     string parameters
     string profile
     string project_id*
+    string resume_from
     integer retry_budget
     string revision_id*
     string session_id
@@ -200,6 +235,32 @@ classDiagram
     string image
     string platform*
     string python*
+  }
+  class PlatformScheduleCycleView {
+    integer attempt*
+    datetime cycle_end*
+    string job_id*
+    string job_state*
+    integer number*
+    string resumed_from*
+    string run_id*
+  }
+  class PlatformScheduleView {
+    string agent_session_id*
+    boolean await_decisions*
+    datetime created_at*
+    float cycle_minutes*
+    integer cycles*
+    datetime first_cycle_end*
+    PlatformScheduleCycleView history*
+    float lag_seconds*
+    string last_run_id*
+    integer next_cycle*
+    Pace pace*
+    string parameters*
+    string pause_reason*
+    string project_id*
+    ... 7 more
   }
   class PlatformStudyDefinition {
     PlatformStudyDimension dimensions*
@@ -259,6 +320,7 @@ classDiagram
   PlatformAgentSessionView *-- "1" PlatformBudget : budget
   PlatformAttemptManifest *-- "*" PlatformArtifactEntry : artifacts
   PlatformAttemptManifest *-- "1" PlatformProvenance : provenance
+  PlatformInputs *-- "*" PlatformArtifactInput : artifacts
   PlatformInputs *-- "*" PlatformInputFile : files
   PlatformJobSpec *-- "1" PlatformActor : actor
   PlatformJobSpec *-- "1" PlatformInputs : inputs
@@ -269,9 +331,11 @@ classDiagram
   PlatformJobSpec *-- "1" PlatformRuntime : runtime
   PlatformJobSpec *-- "1" PlatformWorkload : workload
   PlatformProvenance *-- "1" PlatformActor : actor
+  PlatformProvenance *-- "1" PlatformResumedFrom : resumed_from
   PlatformProvenance *-- "1" PlatformRuntimeVersions : runtime
   PlatformRevisionManifest *-- "1" PlatformDerivedFrom : derived_from
   PlatformRevisionManifest *-- "*" PlatformManifestFile : files
+  PlatformScheduleView *-- "*" PlatformScheduleCycleView : history
   PlatformStudyDefinition *-- "*" PlatformStudyDimension : dimensions
   PlatformStudyDefinition *-- "*" PlatformObjective : objectives
   PlatformStudyManifest *-- "1" PlatformStudyDefinition : definition
@@ -287,6 +351,7 @@ classDiagram
 | `PlatformAgentSessionView` |  | An agent session as its creator sees it (the credential is returned only once). |
 | `PlatformApprovalView` |  | A request outside an agent session's budget, waiting for a person. |
 | `PlatformArtifactEntry` |  | ArtifactEntry |
+| `PlatformArtifactInput` |  | A file another run published, staged as an input: a twin cycle's previous state. |
 | `PlatformAttemptManifest` |  | AttemptManifest |
 | `PlatformBudget` |  | A delegated budget for one AI agent session. ``None`` means no limit. |
 | `PlatformDerivedFrom` |  | The revision a revision was made from, and the study evaluation that chose it. |
@@ -300,13 +365,17 @@ classDiagram
 | `PlatformObjective` |  | Objective |
 | `PlatformOutputs` |  | Outputs |
 | `PlatformPlacement` |  | Placement |
+| `PlatformProposalView` |  | ProposalView |
 | `PlatformProvenance` |  | Execution provenance; ``to_prov`` renders it in W3C PROV-JSON terms. |
 | `PlatformResources` |  | Resources |
+| `PlatformResumedFrom` |  | The saved state an attempt resumed from: an artifact of an earlier run's attempt. |
 | `PlatformRevisionManifest` |  | RevisionManifest |
 | `PlatformRunRequest` |  | RunRequest |
 | `PlatformRunSummary` |  | The engine's end-of-run report as data: the tables of the text report.  It names model elements, so it is an artifact in the target's storage and is subject to the target's egress policy; it is never sent in events. |
 | `PlatformRuntime` |  | Runtime |
 | `PlatformRuntimeVersions` |  | RuntimeVersions |
+| `PlatformScheduleCycleView` |  | ScheduleCycleView |
+| `PlatformScheduleView` |  | ScheduleView |
 | `PlatformStudyDefinition` |  | What a study evaluates and how it searches: the same wherever it runs. |
 | `PlatformStudyDimension` |  | One component of the decision vector, with the decision key it belongs to. |
 | `PlatformStudyEvaluation` |  | One evaluated candidate, as ``evaluations.jsonl`` records it. |

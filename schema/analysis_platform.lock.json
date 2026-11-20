@@ -1,5 +1,5 @@
 {
-  "schemas_sha256": "577419e2940ed918491ae47831d7f4a5abf4285d24a33355ececb865d0c0f511",
+  "schemas_sha256": "55f450eaad4f3009fa38e6c2a1de537f1db0ce8481f1aa8b58d50243c249f982",
   "contracts": [
     "agent-session-view-1",
     "approval-view-1",
@@ -7,13 +7,15 @@
     "error-1",
     "event-1",
     "job-spec-1",
+    "proposal-view-1",
     "revision-manifest-1",
     "run-request-1",
     "run-summary-1",
+    "schedule-view-1",
     "study-manifest-1",
     "study-view-1"
   ],
-  "classes": 30,
-  "enums": 11,
-  "generated_at": "2026-11-20T16:22:55+00:00"
+  "classes": 35,
+  "enums": 14,
+  "generated_at": "2026-11-20T20:54:00+00:00"
 }

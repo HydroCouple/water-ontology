@@ -4,7 +4,7 @@ title: Water Systems Ontology — hydrocouple.platform contracts (generated)
 description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
   contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
   embeds these as manifests.
-version: platform-577419e2940e
+version: platform-55f450eaad4f
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -70,6 +70,10 @@ enums:
         description: platform value 'evaluations'
       OTHER:
         description: platform value 'other'
+      STATE:
+        description: platform value 'state'
+      FORECAST:
+        description: platform value 'forecast'
   PlatformAttemptManifestStatus:
     description: hydrocouple.platform enum PlatformAttemptManifestStatus.
     permissible_values:
@@ -115,6 +119,35 @@ enums:
         description: platform value 'FAILED'
       REJECTED:
         description: platform value 'REJECTED'
+  Pace:
+    description: hydrocouple.platform enum Pace.
+    permissible_values:
+      REPLAY:
+        description: platform value 'replay'
+      WALL_CLOCK:
+        description: platform value 'wall_clock'
+  ScheduleState:
+    description: hydrocouple.platform enum ScheduleState.
+    permissible_values:
+      ACTIVE:
+        description: platform value 'ACTIVE'
+      PAUSED:
+        description: platform value 'PAUSED'
+      COMPLETED:
+        description: platform value 'COMPLETED'
+  ProposalState:
+    description: hydrocouple.platform enum ProposalState.
+    permissible_values:
+      PROPOSED:
+        description: platform value 'PROPOSED'
+      APPROVED:
+        description: platform value 'APPROVED'
+      REJECTED:
+        description: platform value 'REJECTED'
+      SUPERSEDED:
+        description: platform value 'SUPERSEDED'
+      APPLIED:
+        description: platform value 'APPLIED'
   EventKind:
     description: hydrocouple.platform enum EventKind.
     permissible_values:
@@ -334,6 +367,13 @@ classes:
         required: true
         annotations:
           json_property: project_id
+      resume_from:
+        description: A published run of the same resumable workflow, project and target whose saved state this run continues
+          from
+        range: string
+        slot_uri: hcp:PlatformRunRequest.resume_from
+        annotations:
+          json_property: resume_from
       retry_budget:
         description: Retry Budget
         range: integer
@@ -551,6 +591,15 @@ classes:
   PlatformInputs:
     description: Inputs
     attributes:
+      artifacts:
+        description: Artifacts
+        range: PlatformArtifactInput
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: hcp:PlatformInputs.artifacts
+        annotations:
+          json_property: artifacts
       composition:
         description: Composition
         range: string
@@ -590,6 +639,69 @@ classes:
           json_property: storage_prefix
     annotations:
       json_schema_id: Inputs
+      platform_contract: 'true'
+  PlatformArtifactInput:
+    description: 'A file another run published, staged as an input: a twin cycle''s previous state.'
+    attributes:
+      attempt_id:
+        description: Attempt Id
+        range: string
+        slot_uri: hcp:PlatformArtifactInput.attempt_id
+        required: true
+        annotations:
+          json_property: attempt_id
+      key:
+        description: Its object key in the target's storage
+        range: string
+        slot_uri: hcp:PlatformArtifactInput.key
+        required: true
+        annotations:
+          json_property: key
+      path:
+        description: Where the runner stages it, relative to its inputs
+        range: string
+        slot_uri: hcp:PlatformArtifactInput.path
+        required: true
+        annotations:
+          json_property: path
+      role:
+        description: Role
+        range: string
+        annotations:
+          const: resume
+          json_property: role
+        slot_uri: hcp:PlatformArtifactInput.role
+      run_id:
+        description: Run Id
+        range: string
+        slot_uri: hcp:PlatformArtifactInput.run_id
+        required: true
+        annotations:
+          json_property: run_id
+      sha256:
+        description: Sha256
+        range: string
+        slot_uri: hcp:PlatformArtifactInput.sha256
+        required: true
+        annotations:
+          json_property: sha256
+      size:
+        description: Size
+        range: integer
+        minimum_value: 0
+        slot_uri: hcp:PlatformArtifactInput.size
+        required: true
+        annotations:
+          json_property: size
+      source_path:
+        description: Its path among that attempt's artifacts
+        range: string
+        slot_uri: hcp:PlatformArtifactInput.source_path
+        required: true
+        annotations:
+          json_property: source_path
+    annotations:
+      json_schema_id: ArtifactInput
       platform_contract: 'true'
   PlatformInputFile:
     description: InputFile
@@ -981,6 +1093,13 @@ classes:
           const: hydrocouple.platform/provenance/1
           json_property: profile
         slot_uri: hcp:PlatformProvenance.profile
+      resumed_from:
+        description: The saved state of an earlier run this attempt resumed from
+        range: PlatformResumedFrom
+        inlined: true
+        slot_uri: hcp:PlatformProvenance.resumed_from
+        annotations:
+          json_property: resumed_from
       revision_id:
         description: Revision Id
         range: string
@@ -1047,6 +1166,40 @@ classes:
           json_property: workflow_version
     annotations:
       json_schema_id: Provenance
+      platform_contract: 'true'
+  PlatformResumedFrom:
+    description: 'The saved state an attempt resumed from: an artifact of an earlier run''s attempt.'
+    attributes:
+      attempt_id:
+        description: Attempt Id
+        range: string
+        slot_uri: hcp:PlatformResumedFrom.attempt_id
+        required: true
+        annotations:
+          json_property: attempt_id
+      path:
+        description: Path
+        range: string
+        slot_uri: hcp:PlatformResumedFrom.path
+        required: true
+        annotations:
+          json_property: path
+      run_id:
+        description: Run Id
+        range: string
+        slot_uri: hcp:PlatformResumedFrom.run_id
+        required: true
+        annotations:
+          json_property: run_id
+      sha256:
+        description: Sha256
+        range: string
+        slot_uri: hcp:PlatformResumedFrom.sha256
+        required: true
+        annotations:
+          json_property: sha256
+    annotations:
+      json_schema_id: ResumedFrom
       platform_contract: 'true'
   PlatformRuntimeVersions:
     description: RuntimeVersions
@@ -1678,6 +1831,347 @@ classes:
     annotations:
       json_schema_id: Budget
       platform_contract: 'true'
+  PlatformScheduleView:
+    description: ScheduleView
+    attributes:
+      agent_session_id:
+        description: Agent Session Id
+        range: string
+        slot_uri: hcp:PlatformScheduleView.agent_session_id
+        required: true
+        annotations:
+          json_property: agent_session_id
+      await_decisions:
+        description: Await Decisions
+        range: boolean
+        slot_uri: hcp:PlatformScheduleView.await_decisions
+        required: true
+        annotations:
+          json_property: await_decisions
+      created_at:
+        description: Created At
+        range: datetime
+        slot_uri: hcp:PlatformScheduleView.created_at
+        required: true
+        annotations:
+          json_property: created_at
+      cycle_minutes:
+        description: Cycle Minutes
+        range: float
+        slot_uri: hcp:PlatformScheduleView.cycle_minutes
+        required: true
+        annotations:
+          json_property: cycle_minutes
+      cycles:
+        description: Cycles
+        range: integer
+        slot_uri: hcp:PlatformScheduleView.cycles
+        required: true
+        annotations:
+          json_property: cycles
+      first_cycle_end:
+        description: First Cycle End
+        range: datetime
+        slot_uri: hcp:PlatformScheduleView.first_cycle_end
+        required: true
+        annotations:
+          json_property: first_cycle_end
+      history:
+        description: History
+        range: PlatformScheduleCycleView
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: hcp:PlatformScheduleView.history
+        required: true
+        annotations:
+          json_property: history
+      lag_seconds:
+        description: Lag Seconds
+        range: float
+        slot_uri: hcp:PlatformScheduleView.lag_seconds
+        required: true
+        annotations:
+          json_property: lag_seconds
+      last_run_id:
+        description: The last cycle that succeeded
+        range: string
+        slot_uri: hcp:PlatformScheduleView.last_run_id
+        required: true
+        annotations:
+          json_property: last_run_id
+      next_cycle:
+        description: The cycle running now, or the next one to submit
+        range: integer
+        slot_uri: hcp:PlatformScheduleView.next_cycle
+        required: true
+        annotations:
+          json_property: next_cycle
+      pace:
+        description: PlatformScheduleView.pace
+        range: Pace
+        slot_uri: hcp:PlatformScheduleView.pace
+        required: true
+        annotations:
+          json_property: pace
+      parameters:
+        description: Parameters
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: parameters
+        slot_uri: hcp:PlatformScheduleView.parameters
+        required: true
+      pause_reason:
+        description: Pause Reason
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: pause_reason
+        slot_uri: hcp:PlatformScheduleView.pause_reason
+        required: true
+      project_id:
+        description: Project Id
+        range: string
+        slot_uri: hcp:PlatformScheduleView.project_id
+        required: true
+        annotations:
+          json_property: project_id
+      revision_id:
+        description: Revision Id
+        range: string
+        slot_uri: hcp:PlatformScheduleView.revision_id
+        required: true
+        annotations:
+          json_property: revision_id
+      schedule_id:
+        description: Schedule Id
+        range: string
+        slot_uri: hcp:PlatformScheduleView.schedule_id
+        required: true
+        annotations:
+          json_property: schedule_id
+      state:
+        description: PlatformScheduleView.state
+        range: ScheduleState
+        slot_uri: hcp:PlatformScheduleView.state
+        required: true
+        annotations:
+          json_property: state
+      target_id:
+        description: Target Id
+        range: string
+        slot_uri: hcp:PlatformScheduleView.target_id
+        required: true
+        annotations:
+          json_property: target_id
+      updated_at:
+        description: Updated At
+        range: datetime
+        slot_uri: hcp:PlatformScheduleView.updated_at
+        required: true
+        annotations:
+          json_property: updated_at
+      workflow:
+        description: Workflow
+        range: string
+        slot_uri: hcp:PlatformScheduleView.workflow
+        required: true
+        annotations:
+          json_property: workflow
+      workflow_version:
+        description: Workflow Version
+        range: string
+        slot_uri: hcp:PlatformScheduleView.workflow_version
+        required: true
+        annotations:
+          json_property: workflow_version
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/schedule-view-1.json
+      platform_contract: 'true'
+      schema_file: schedule-view-1.json
+  PlatformScheduleCycleView:
+    description: ScheduleCycleView
+    attributes:
+      attempt:
+        description: 1 for the first submission, more after a resume
+        range: integer
+        slot_uri: hcp:PlatformScheduleCycleView.attempt
+        required: true
+        annotations:
+          json_property: attempt
+      cycle_end:
+        description: Cycle End
+        range: datetime
+        slot_uri: hcp:PlatformScheduleCycleView.cycle_end
+        required: true
+        annotations:
+          json_property: cycle_end
+      job_id:
+        description: Job Id
+        range: string
+        slot_uri: hcp:PlatformScheduleCycleView.job_id
+        required: true
+        annotations:
+          json_property: job_id
+      job_state:
+        description: Job State
+        range: string
+        slot_uri: hcp:PlatformScheduleCycleView.job_state
+        required: true
+        annotations:
+          json_property: job_state
+      number:
+        description: Number
+        range: integer
+        slot_uri: hcp:PlatformScheduleCycleView.number
+        required: true
+        annotations:
+          json_property: number
+      resumed_from:
+        description: Resumed From
+        range: string
+        slot_uri: hcp:PlatformScheduleCycleView.resumed_from
+        required: true
+        annotations:
+          json_property: resumed_from
+      run_id:
+        description: Run Id
+        range: string
+        slot_uri: hcp:PlatformScheduleCycleView.run_id
+        required: true
+        annotations:
+          json_property: run_id
+    annotations:
+      json_schema_id: ScheduleCycleView
+      platform_contract: 'true'
+  PlatformProposalView:
+    description: ProposalView
+    attributes:
+      applied_at:
+        description: Model time it took effect
+        range: datetime
+        slot_uri: hcp:PlatformProposalView.applied_at
+        required: true
+        annotations:
+          json_property: applied_at
+      applied_run_id:
+        description: Applied Run Id
+        range: string
+        slot_uri: hcp:PlatformProposalView.applied_run_id
+        required: true
+        annotations:
+          json_property: applied_run_id
+      created_at:
+        description: Created At
+        range: datetime
+        slot_uri: hcp:PlatformProposalView.created_at
+        required: true
+        annotations:
+          json_property: created_at
+      decided_at:
+        description: Decided At
+        range: datetime
+        slot_uri: hcp:PlatformProposalView.decided_at
+        required: true
+        annotations:
+          json_property: decided_at
+      decided_by:
+        description: The person who decided it
+        range: string
+        slot_uri: hcp:PlatformProposalView.decided_by
+        required: true
+        annotations:
+          json_property: decided_by
+      decision_note:
+        description: Decision Note
+        range: string
+        slot_uri: hcp:PlatformProposalView.decision_note
+        required: true
+        annotations:
+          json_property: decision_note
+      effective_from:
+        description: Effective From
+        range: datetime
+        slot_uri: hcp:PlatformProposalView.effective_from
+        required: true
+        annotations:
+          json_property: effective_from
+      issued_at:
+        description: The cycle end its forecast was issued at
+        range: datetime
+        slot_uri: hcp:PlatformProposalView.issued_at
+        required: true
+        annotations:
+          json_property: issued_at
+      link:
+        description: Link
+        range: string
+        slot_uri: hcp:PlatformProposalView.link
+        required: true
+        annotations:
+          json_property: link
+      note:
+        description: Note
+        range: string
+        slot_uri: hcp:PlatformProposalView.note
+        required: true
+        annotations:
+          json_property: note
+      property:
+        description: Property
+        range: string
+        slot_uri: hcp:PlatformProposalView.property
+        required: true
+        annotations:
+          json_property: property
+      proposal_id:
+        description: Proposal Id
+        range: string
+        slot_uri: hcp:PlatformProposalView.proposal_id
+        required: true
+        annotations:
+          json_property: proposal_id
+      proposed_by:
+        description: Proposed By
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: proposed_by
+        slot_uri: hcp:PlatformProposalView.proposed_by
+        required: true
+      run_id:
+        description: The cycle whose forecast proposed it
+        range: string
+        slot_uri: hcp:PlatformProposalView.run_id
+        required: true
+        annotations:
+          json_property: run_id
+      schedule_id:
+        description: Schedule Id
+        range: string
+        slot_uri: hcp:PlatformProposalView.schedule_id
+        required: true
+        annotations:
+          json_property: schedule_id
+      state:
+        description: PlatformProposalView.state
+        range: ProposalState
+        slot_uri: hcp:PlatformProposalView.state
+        required: true
+        annotations:
+          json_property: state
+      platform_value:
+        description: Value
+        range: float
+        slot_uri: hcp:PlatformProposalView.value
+        required: true
+        annotations:
+          json_property: value
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/proposal-view-1.json
+      platform_contract: 'true'
+      schema_file: proposal-view-1.json
   PlatformEvent:
     description: Event
     attributes:
