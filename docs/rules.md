@@ -52,6 +52,10 @@
 | `scenario_override_writable` | ERROR | A scenario overrides only writable float, int or bool element fields of the engine catalog. |
 | `derived_revision_base_known` | ERROR | A revision derived from another names a known revision. |
 | `approval_decided_by_a_person` | ERROR | An approval is decided by a person, never by an AI agent. |
+| `setpoint_decided_by_a_person` | ERROR | A setpoint is approved or rejected by a person, never by an AI agent; an approved one names that person in approved_by. |
+| `setpoint_applied_after_approval` | ERROR | Only an approved setpoint takes effect, and it names the attempt that applied it. |
+| `attempt_resumed_from_a_saved_state` | ERROR | An attempt that resumed names a result artifact of another attempt. |
+| `forecast_issued_with_a_horizon` | ERROR | A forecast records when it was issued and its lead time. |
 | `parameter_set_members_in_study` | ERROR | A parameter set's members are candidates of its study. |
 | `event_set_events_exist` | ERROR | An event set's events are forcing events. |
 | `observation_unit_matches_property` | WARNING | An observation's unit is its property's default unit (after normalisation). |

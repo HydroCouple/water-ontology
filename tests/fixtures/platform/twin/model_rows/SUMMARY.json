@@ -1,0 +1,145 @@
+{
+  "inp": "model.inp",
+  "inp_sha256": "65e2ebb1b252a422f144ce52d74dec9cf18d1582ff91bbf5ad7ecdf922649840",
+  "revision": "wsys:revision/demo/twin-tanks/2c3d603d41a052eb09e005b417e3648d3c464241cc4f726a7fc7a8b535dcd86f",
+  "system": "wsys:system/demo/twin-tanks",
+  "bundle_sha256": "2c3d603d41a052eb09e005b417e3648d3c464241cc4f726a7fc7a8b535dcd86f",
+  "mapping_release": "https://w3id.org/wsys/profile/swmm/1",
+  "coverage": {
+    "CONDUITS": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "COORDINATES": {
+      "source_records": 3,
+      "exported": 3,
+      "binding": "configured"
+    },
+    "EVAPORATION": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "configured"
+    },
+    "INFILTRATION": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "MAP": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "source_only"
+    },
+    "OPTIONS": {
+      "source_records": 33,
+      "exported": 33,
+      "binding": "configured"
+    },
+    "ORIFICES": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "OUTFALLS": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "RAINGAGES": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "REPORT": {
+      "source_records": 5,
+      "exported": 5,
+      "binding": "configured"
+    },
+    "STORAGE": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "configured"
+    },
+    "SUBAREAS": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "SUBCATCHMENTS": {
+      "source_records": 1,
+      "exported": 1,
+      "binding": "configured"
+    },
+    "TIMESERIES": {
+      "source_records": 6,
+      "exported": 6,
+      "binding": "configured"
+    },
+    "TITLE": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "source_only"
+    },
+    "XSECTIONS": {
+      "source_records": 2,
+      "exported": 2,
+      "binding": "configured"
+    }
+  },
+  "row_sha256": {
+    "analysis.ingestion_activity.jsonl": "352a5b01fa7455e3ee14d73c98077c0dc5dc7fc14f7b637eab356257f87c1300",
+    "analysis.input_artifact.jsonl": "ad8bee238ff2cc8c7a8389ae0c4f66be466da26577c651e999abea322f8d0bf4",
+    "analysis.input_record.jsonl": "09535b968ebf9fb50bf2ffc34ca51d09fdb0af99f9c6038eecfbf6f91b4f2ea5",
+    "analysis.revision.jsonl": "a297811151afe90b9b4bd0a22ccf82a2ef736bd4256fb20cdd1c9516a4f1ca8b",
+    "model.swmm_conduit.jsonl": "9099ebc9b7de4c3778ff177e2105bb950541149844ca8db1a6ace2402b077634",
+    "model.swmm_gage.jsonl": "921fd49edca13ef0311f4c4bd067107fb42f40f3ca14bb1c1e8279c61d49925b",
+    "model.swmm_orifice.jsonl": "1085e7ed20045288ab41d0553b2f5c19c8911c86f507ea6c4cfcb931b99726c4",
+    "model.swmm_outfall.jsonl": "9ff052d249785c9bea187fbb46debfbb822b18ee8848b171595154f84119ebb4",
+    "model.swmm_storage.jsonl": "b0299f77cb3445712c3c79d40c78ae763228e12d47d095796f2dab582b7a29b9",
+    "model.swmm_subcatchment.jsonl": "d5669fe13f5f16bfbc7180ab72367f449d93aa97259489f94d450b3670fadb54",
+    "model.swmm_table.jsonl": "1f40063debfa86473d5b2ad97fa59c23dc1942cb35bc6c75f46aedf351421392",
+    "reference.agent.jsonl": "ca30dfda9c938c0f9340c80b83552ee2b1cd822df68c86647bc025a370da22e5",
+    "topology.conduit.jsonl": "7f4327f0b07708b0920f09b0bb32be4939cd8a27da864389167144144e62baa0",
+    "topology.edge.jsonl": "5c5ed19311b08080e71b35b9bb6568b32495cc3bd1b427fd8a2f0b3333f33597",
+    "topology.orifice.jsonl": "f5b806fa2132af2e9064824df0a11849fa11c89e5a75802b22a22b0b6177ee7e",
+    "topology.outfall.jsonl": "10906caddb3da2b8c9a953a1561a7a4213d871673a9a8f69820cd37c6b73a4d3",
+    "topology.rain_gage.jsonl": "591ed88ba8642179a0cc16148a333ba3e6a211c44cae8f47ea53d55c2924f722",
+    "topology.storage_unit.jsonl": "2c14f3fe3e16c8e32674c2f13168e1f18c00ccab13a588241b0332620745c469",
+    "topology.subcatchment.jsonl": "9e5a2d506892da6cf7333e6da07f9d87547eb6a32a5914275f5bd980471cec61",
+    "topology.water_system.jsonl": "c6fcc48b573ef0ab2524b293190c7ed83bfe3a76ac69600517c1920b5432712b"
+  },
+  "artifacts": [
+    "65e2ebb1b252a422f144ce52d74dec9cf18d1582ff91bbf5ad7ecdf922649840.input"
+  ],
+  "engine": "6.0.0a4.dev2",
+  "rows": {
+    "analysis.ingestion_activity": 1,
+    "analysis.input_artifact": 1,
+    "analysis.input_record": 64,
+    "analysis.revision": 1,
+    "model.swmm_conduit": 1,
+    "model.swmm_gage": 1,
+    "model.swmm_orifice": 1,
+    "model.swmm_outfall": 1,
+    "model.swmm_storage": 2,
+    "model.swmm_subcatchment": 1,
+    "model.swmm_table": 1,
+    "reference.agent": 1,
+    "topology.conduit": 1,
+    "topology.edge": 21,
+    "topology.orifice": 1,
+    "topology.outfall": 1,
+    "topology.rain_gage": 1,
+    "topology.storage_unit": 2,
+    "topology.subcatchment": 1,
+    "topology.water_system": 1
+  },
+  "catalog_properties_not_readable_with_this_engine": {
+    "node.outfall.export_receipt": 1,
+    "table.relative_info": 1
+  },
+  "notes": [
+    "unit system US, flow units CFS; topology and observations converted to SI (m, ha, mm, m3/s); model.* rows keep model units"
+  ]
+}

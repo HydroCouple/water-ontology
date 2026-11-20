@@ -1,0 +1,93 @@
+{
+  "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+  "state": "COMPLETED",
+  "project_id": "prj_09e124348d80c35111e5",
+  "revision_id": "rev_603281eabeeae566a87b",
+  "target_id": "tgt_3be65f66db50f669e021",
+  "workflow": "twin.cycle",
+  "workflow_version": "1",
+  "parameters": {
+    "policy": {
+      "x": [
+        0.0,
+        2.0,
+        6.0
+      ],
+      "link": "ORIF",
+      "element": "T1",
+      "observe": "node.depth",
+      "setting": [
+        1.0,
+        0.6,
+        0.2
+      ],
+      "resolution": 0.2
+    },
+    "forecast": {
+      "observe": [
+        {
+          "id": "T1",
+          "path": "node.depth"
+        }
+      ],
+      "every_minutes": 10,
+      "horizon_minutes": 60
+    },
+    "telemetry": [
+      {
+        "gage": "RG",
+        "series": "data/rain.csv"
+      }
+    ]
+  },
+  "first_cycle_end": "2024-01-01T00:40:00",
+  "cycle_minutes": 40.0,
+  "cycles": 4,
+  "pace": "replay",
+  "lag_seconds": 0.0,
+  "await_decisions": true,
+  "next_cycle": 4,
+  "last_run_id": "run_d7f3c388d8a1259ef469",
+  "pause_reason": null,
+  "agent_session_id": null,
+  "history": [
+    {
+      "number": 0,
+      "cycle_end": "2024-01-01T00:40:00",
+      "attempt": 1,
+      "run_id": "run_093dcff21eab7ce9536e",
+      "job_id": "job_03a1d5b0caa59af2264c",
+      "job_state": "SUCCEEDED",
+      "resumed_from": null
+    },
+    {
+      "number": 1,
+      "cycle_end": "2024-01-01T01:20:00",
+      "attempt": 1,
+      "run_id": "run_9d965f9247d2fb207b72",
+      "job_id": "job_e0fd893729d78d24bb1c",
+      "job_state": "SUCCEEDED",
+      "resumed_from": "run_093dcff21eab7ce9536e"
+    },
+    {
+      "number": 2,
+      "cycle_end": "2024-01-01T02:00:00",
+      "attempt": 1,
+      "run_id": "run_6ce913f231ac112230b8",
+      "job_id": "job_938e45cddd32ffc1b97b",
+      "job_state": "SUCCEEDED",
+      "resumed_from": "run_9d965f9247d2fb207b72"
+    },
+    {
+      "number": 3,
+      "cycle_end": "2024-01-01T02:40:00",
+      "attempt": 1,
+      "run_id": "run_d7f3c388d8a1259ef469",
+      "job_id": "job_e94270b12b3f65006001",
+      "job_state": "SUCCEEDED",
+      "resumed_from": "run_6ce913f231ac112230b8"
+    }
+  ],
+  "created_at": "2026-11-20T16:41:32.983810-05:00",
+  "updated_at": "2026-11-20T16:41:38.224729-05:00"
+}

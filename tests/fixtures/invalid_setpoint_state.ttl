@@ -1,0 +1,10 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+ex:setpoint-1 a wsys:Setpoint ; wsys:class_iri wsys:Setpoint ; prov:wasGeneratedBy ex:attempt-2 ;
+    wsys:target_entity ex:orifice-1 ; wsys:target_property ex:setting ; wsys:value "0.4"^^xsd:float ;
+    wsys:unit unit:UNITLESS ; wsys:effective_from "2024-01-01T01:20:00Z"^^xsd:dateTime ;
+    wsys:setpoint_state "ACCEPTED" .

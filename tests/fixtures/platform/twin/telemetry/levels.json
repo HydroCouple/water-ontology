@@ -1,0 +1,12 @@
+{
+  "file": "levels.csv",
+  "source": "synthetic truth run with 2 % noise",
+  "streams": [
+    {
+      "column": "T1",
+      "path": "node.depth",
+      "id": "T1",
+      "unit": "ft"
+    }
+  ]
+}

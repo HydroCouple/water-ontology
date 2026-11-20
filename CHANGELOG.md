@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased: the digital twin loop (ecosystem Phase 4)
+
+- `Schedule` (a digital twin's cycles on one revision: state, pace, cycle length, the platform schedule view embedded); a `Run` names its `in_schedule`, `cycle_number` and `cycle_end`; an `Attempt` names the saved state it `resumed_from` (a result artifact of the attempt before it).
+- `Setpoint` gains `setpoint_state` (`PROPOSED`, `APPROVED`, `REJECTED`, `SUPERSEDED`, `APPLIED`), `proposal_id`, `for_schedule`, `decided_by` and `decided_at`, `applied_in` (the attempt) and `applied_at`. Every change adds, so there is no migration.
+- `platform_to_rows` loads a schedule with its setpoint proposals (`--schedule VIEW PROPOSALS`): who proposed each (the twin's control policy, an AI agent acting for its person, or a person) and who decided it; a twin cycle's `forecast.json` as `FORECAST` observations with their issue time and lead time; and telemetry (`--telemetry`, a JSON description of a CSV) as `MEASUREMENT` observations with a sensor and a datastream per column, each sensor attached to the asset it measures. Forecasts and measurements are normalised to SI at the model's UTC wall clock, so the two of the same element, property and time share their keys.
+- Four assertions: a setpoint is decided by a person, never an AI agent, and an approved one names that person; only an approved setpoint is applied, naming the attempt that applied it; an attempt resumed from another attempt's result artifact; a forecast records its issue time and horizon.
+- Re-vendor the platform schemas at `fdb0de1` (schedules, setpoint proposals, `provenance.resumed_from`).
+
 ## Unreleased: experiments (ecosystem Phase 3)
 
 - `Study` gains `study_kind` (`SAMPLING`, `OPTIMIZATION`, `ALTERNATIVES`), `search_algorithm`, `acceptance_rule` (an inlined `AcceptanceRule` of `AcceptanceThreshold`s and a best fraction) and `scored_over`, the `EventSet` its candidates are scored on; `Candidate` gains `metric_values`, every value the evaluator reported; `ParameterSet` is a calibration's behavioural set: the candidates of one study its acceptance rule accepts. Every change adds; no existing property changed, so there is no migration (the semantic diff is empty).

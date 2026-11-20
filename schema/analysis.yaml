@@ -66,6 +66,17 @@ enums:
       SAMPLING: {description: "A design of experiments drawn before any candidate is scored: Latin hypercube, Sobol, random or grid"}
       OPTIMIZATION: {description: "A search that chooses later candidates from earlier scores, e.g. NSGA-II"}
       ALTERNATIVES: {description: Designs a person listed}
+  ScheduleState:
+    description: Where a digital twin's schedule of cycles stands.
+    permissible_values:
+      ACTIVE: {description: Submitting its cycles}
+      PAUSED: {description: "Stopped by a person, or because a cycle did not succeed; resuming submits that cycle again"}
+      COMPLETED: {description: Every cycle succeeded}
+  SchedulePace:
+    description: When a schedule submits its next cycle.
+    permissible_values:
+      REPLAY: {description: As soon as the cycle before it succeeded}
+      WALL_CLOCK: {description: Once the cycle's end and a lag have passed on the clock}
 
 slots:
   revision_id:
@@ -271,6 +282,32 @@ slots:
     range: Candidate
     multivalued: true
     description: The candidates a parameter set accepts.
+  schedule_id:
+    range: string
+    description: hydrocouple.platform schedule id.
+  schedule_view:
+    range: PlatformScheduleView
+    inlined: true
+    description: The schedule's cadence, state and cycle history (platform schedule view).
+  schedule_state:
+    range: ScheduleState
+  schedule_pace:
+    range: SchedulePace
+  cycle_minutes:
+    range: float
+    description: The model time each cycle covers.
+  in_schedule:
+    range: Schedule
+    description: The schedule whose cycle a run is.
+  cycle_number:
+    range: integer
+    description: Which cycle of its schedule a run is, from 0.
+  cycle_end:
+    range: datetime
+    description: The model time (UTC wall clock) a twin cycle runs to and records its state at.
+  resumed_from:
+    range: ResultArtifact
+    description: The saved state of an earlier attempt this attempt continued from (its provenance's resumed_from).
 
 classes:
   Revision:
@@ -286,15 +323,23 @@ classes:
     is_a: DerivedEntity
     mixins: [Attributed]
     description: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).
-    slots: [run_id, of_revision, of_study, of_scenario, workflow, started_at, ended_at, was_associated_with, used, tool_call_id, session_id, run_request, job_spec]
+    slots: [run_id, of_revision, of_study, of_scenario, workflow, started_at, ended_at, was_associated_with, used, tool_call_id, session_id, run_request, job_spec, in_schedule, cycle_number, cycle_end]
     broad_mappings: [prov:Plan]
 
   Attempt:
     is_a: Entity
     mixins: [Attributed, Activity, Dataset]
     description: One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest). Simulation results ingested as Observations of result_kind SIMULATION point here through was_generated_by.
-    slots: [was_generated_by, generated_at, attempt_id, of_run, attempt_manifest, manifest_sha256]
+    slots: [was_generated_by, generated_at, attempt_id, of_run, attempt_manifest, manifest_sha256, resumed_from]
     exact_mappings: [prov:Activity]
+
+  Schedule:
+    is_a: Entity
+    mixins: [Attributed]
+    description: The cycles of a digital twin on one revision, each a run continuing from the state the cycle before it saved (platform schedule view). Its runs name it in in_schedule; the setpoints proposed for it are Setpoints with for_schedule.
+    slots: [schedule_id, of_revision, workflow, schedule_state, schedule_pace, cycle_minutes, schedule_view]
+    slot_usage:
+      schedule_id: {required: true}
 
   Study:
     is_a: DerivedEntity

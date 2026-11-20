@@ -352,6 +352,7 @@ flowchart TB
     Run["Run"]
     Scenario["Scenario"]
     ScenarioOverride["ScenarioOverride"]
+    Schedule["Schedule"]
     Study["Study"]
     Tool["Tool"]
     ToolCall["ToolCall"]
@@ -428,6 +429,7 @@ flowchart TB
   Approval -- of_study --> Study
   Aquifer -- system --> WaterSystem
   Attempt -- of_run --> Run
+  Attempt -- resumed_from --> ResultArtifact
   Attributed -- was_attributed_to --> Agent
   Attributed -- dc_creator --> Agent
   Candidate -- of_study --> Study
@@ -474,10 +476,13 @@ flowchart TB
   Run -- of_study --> Study
   Run -- of_scenario --> Scenario
   Run -- was_associated_with --> Agent
+  Run -- in_schedule --> Schedule
   Scenario -- of_revision --> Revision
   ScenarioOverride -- of_scenario --> Scenario
+  Schedule -- of_revision --> Revision
   Setpoint -- set_by --> Agent
   Setpoint -- approved_by --> Agent
+  Setpoint -- decided_by --> Agent
   Study -- of_revision --> Revision
   Study -- scored_over --> EventSet
   Subcatchment -- system --> WaterSystem

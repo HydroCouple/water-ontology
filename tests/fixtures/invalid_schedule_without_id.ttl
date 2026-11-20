@@ -1,0 +1,4 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+
+ex:schedule-1 a wsys:Schedule ; wsys:class_iri wsys:Schedule ; wsys:schedule_state "ACTIVE" .

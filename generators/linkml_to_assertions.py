@@ -281,6 +281,27 @@ WHERE b.iri IS NULL""")
 SELECT p.iri AS focus_iri, concat('approval was decided by ', p.was_associated_with) AS message
 FROM {self.t('analysis', 'approval')} p JOIN {agent} a ON a.iri = p.was_associated_with
 WHERE a.agent_kind = 'AI_AGENT'""")
+        # digital twin cycles, forecasts and setpoints
+        setpoint, attempt = self.t("observation", "setpoint"), self.t("analysis", "attempt")
+        self.add("setpoint_decided_by_a_person", "ERROR", "A setpoint is approved or rejected by a person, never by an AI agent; an approved one names that person in approved_by.", f"""
+SELECT s.iri AS focus_iri, concat('setpoint ', s.setpoint_state, ' without a person deciding it') AS message
+FROM {setpoint} s LEFT JOIN {agent} d ON d.iri = s.decided_by LEFT JOIN {agent} a ON a.iri = s.approved_by
+WHERE (s.setpoint_state IN ('APPROVED', 'REJECTED', 'APPLIED') AND (d.iri IS NULL OR d.agent_kind <> 'PERSON'))
+   OR (s.setpoint_state IN ('APPROVED', 'APPLIED') AND (a.iri IS NULL OR a.agent_kind <> 'PERSON'))
+   OR (s.approved_by IS NOT NULL AND (a.iri IS NULL OR a.agent_kind <> 'PERSON'))""")
+        self.add("setpoint_applied_after_approval", "ERROR", "Only an approved setpoint takes effect, and it names the attempt that applied it.", f"""
+SELECT s.iri AS focus_iri, 'setpoint applied without being approved, or without the attempt that applied it' AS message
+FROM {setpoint} s LEFT JOIN {attempt} t ON t.iri = s.applied_in
+WHERE (s.applied_in IS NOT NULL OR s.applied_at IS NOT NULL OR s.setpoint_state = 'APPLIED')
+  AND (s.setpoint_state <> 'APPLIED' OR t.iri IS NULL OR s.applied_at IS NULL)""")
+        self.add("attempt_resumed_from_a_saved_state", "ERROR", "An attempt that resumed names a result artifact of another attempt.", f"""
+SELECT t.iri AS focus_iri, concat('resumed from ', t.resumed_from, ', not a result artifact of another attempt') AS message
+FROM {attempt} t LEFT JOIN {self.t('analysis', 'result_artifact')} x ON x.iri = t.resumed_from
+WHERE t.resumed_from IS NOT NULL AND (x.iri IS NULL OR x.was_generated_by = t.iri)""")
+        self.add("forecast_issued_with_a_horizon", "ERROR", "A forecast records when it was issued and its lead time.", f"""
+SELECT o.iri AS focus_iri, 'forecast without issued_at or horizon' AS message
+FROM {self.t('observation', 'observation')} o
+WHERE o.result_kind = 'FORECAST' AND (o.issued_at IS NULL OR o.horizon IS NULL)""")
         # experiments
         self.add("parameter_set_members_in_study", "ERROR", "A parameter set's members are candidates of its study.", f"""
 SELECT m.iri AS focus_iri, concat('member ', m.member_iri, ' is not a candidate of ', m.of_study) AS message

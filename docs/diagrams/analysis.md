@@ -50,6 +50,7 @@ classDiagram
     Run of_run
     PlatformAttemptManifest attempt_manifest
     string manifest_sha256
+    ResultArtifact resumed_from
   }
   class Candidate {
     Study of_study
@@ -140,6 +141,8 @@ classDiagram
     string session_id
     PlatformRunRequest run_request
     PlatformJobSpec job_spec
+    Schedule in_schedule
+    ... 2 more
   }
   class Scenario {
     Revision of_revision*
@@ -151,6 +154,15 @@ classDiagram
     float override_value*
     float base_value
     string override_unit
+  }
+  class Schedule {
+    string schedule_id*
+    Revision of_revision
+    string workflow
+    ScheduleState schedule_state
+    SchedulePace schedule_pace
+    float cycle_minutes
+    PlatformScheduleView schedule_view
   }
   class Study {
     string study_id*
@@ -208,6 +220,7 @@ classDiagram
   Entity <|-- Attempt
   Attempt --> "1" Run : of_run
   Attempt *-- "1" PlatformAttemptManifest : attempt_manifest
+  Attempt --> "1" ResultArtifact : resumed_from
   DerivedEntity <|-- Candidate
   Candidate --> "1" Study : of_study
   Candidate *-- "*" DecisionValue : decision_values
@@ -238,10 +251,14 @@ classDiagram
   Run --> "1" Agent : was_associated_with
   Run *-- "1" PlatformRunRequest : run_request
   Run *-- "1" PlatformJobSpec : job_spec
+  Run --> "1" Schedule : in_schedule
   Entity <|-- Scenario
   Scenario --> "1" Revision : of_revision
   Entity <|-- ScenarioOverride
   ScenarioOverride --> "1" Scenario : of_scenario
+  Entity <|-- Schedule
+  Schedule --> "1" Revision : of_revision
+  Schedule *-- "1" PlatformScheduleView : schedule_view
   DerivedEntity <|-- Study
   Study --> "1" Revision : of_revision
   Study *-- "1" PlatformStudyView : study_view
@@ -280,6 +297,7 @@ classDiagram
 | `Run` | DerivedEntity | A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it). |
 | `Scenario` | Entity | A variant of a revision - the revision plus element field overrides - as a swmm.simulation@2 run executes it. Its overrides are ScenarioOverride rows. |
 | `ScenarioOverride` | Entity | One field value a scenario writes over its revision, by engine catalog path, before the model initializes. |
+| `Schedule` | Entity | The cycles of a digital twin on one revision, each a run continuing from the state the cycle before it saved (platform schedule view). Its runs name it in in_schedule; the setpoints proposed for it are Setpoints with for_schedule. |
 | `Study` | DerivedEntity | An ask/tell optimisation, sampling design or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, from the platform, its view. |
 | `Tool` | Entity | A tool an agent can call, as its server registers it. |
 | `ToolCall` | Entity | One call an agent made to a tool. The arguments and the result are kept as checksums, not as content. |

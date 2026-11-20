@@ -52,6 +52,13 @@ classDiagram
     datetime effective_to
     Agent set_by
     Agent approved_by
+    Agent decided_by
+    datetime decided_at
+    SetpointState setpoint_state
+    string proposal_id
+    IRI for_schedule
+    IRI applied_in
+    ... 1 more
   }
   Entity <|-- Constituent
   Entity <|-- Datastream
@@ -64,6 +71,7 @@ classDiagram
   DerivedEntity <|-- Setpoint
   Setpoint --> "1" Agent : set_by
   Setpoint --> "1" Agent : approved_by
+  Setpoint --> "1" Agent : decided_by
 ```
 
 ## Classes

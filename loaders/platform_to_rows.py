@@ -12,6 +12,10 @@ its results came from:
   analysis.tool                         each tool a journal names, as the server registers it
   analysis.scenario, .scenario_override a swmm.simulation@2 run's revision and field overrides
   analysis.study, .candidate            a study manifest (local or platform) and its evaluations
+  analysis.schedule                     a digital twin's schedule; its runs name it and their cycle
+  observation.observation (FORECAST)    a twin cycle's forecast (forecast.json beside attempt.json)
+  observation.setpoint                  the setpoints proposed for a schedule and who decided them
+  observation.observation (MEASUREMENT) telemetry, with its sensors and datastreams
 
 An attempt is a folder holding attempt.json as the platform wrote it. Where the
 folder also holds the run summary (summary.json), the file is checked against
@@ -39,6 +43,8 @@ always give the same rows:
   wsys:tool/<server>/<server version>/<tool name>
   wsys:scenario/<sha256 of revision and overrides>   <scenario>/override/<n>
   wsys:study/<study id>        <study>/candidate/<evaluation>
+  wsys:schedule/<schedule id>  wsys:setpoint/<proposal id>
+  <attempt>/forecast/<path>/<element>/<n>    wsys:datastream/<utility>/<system>/<column>
   <study>/event_set            <study>/event/<event name>
   <study>/parameter_set/<sha256 of its acceptance rule, 16 hex digits>
 
@@ -51,18 +57,28 @@ its manifest's definition; each candidate carries its metrics. A parameter set
 is a behavioural set (openswmm_gymnasium.optimize.behavioural_set, as JSON)
 loaded with the manifest of its study.
 
+An attempt that resumed from an earlier one's saved state names that artifact in resumed_from;
+the earlier attempt must be loaded first. A forecast's values and telemetry are normalised to SI
+(unit, native unit and factor kept), at the model's UTC wall clock written with Z, so a forecast
+and a measurement of the same element, property and time share entity_iri, property_iri and
+phenomenon_time. Telemetry is described by a JSON file naming its CSV (beside it) and, per
+column, the element and property it measures and its unit.
+
 Usage:
     python -m loaders.platform_to_rows --utility demo --system site-drainage \\
         --revision package/revision-manifest.json --attempt downloads/att_1 \\
         --journal mcp/journal/jr_1.jsonl --study study/study-manifest.json \\
-        --parameter-set study/behavioural-set.json study/study-manifest.json -o rows
+        --parameter-set study/behavioural-set.json study/study-manifest.json \\
+        --schedule schedule.json proposals.json --telemetry levels.json -o rows
 """
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import shutil
+from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote
 
@@ -86,11 +102,40 @@ def acceptance(rule: dict | None) -> dict | None:
            "best_fraction": rule.get("best_fraction"), "ranked_by": rule.get("by")}
     return {k: v for k, v in row.items() if v is not None}
 SHA256 = "http://spdx.org/rdf/terms#checksumAlgorithm_sha256"
-MEDIA_TYPES = {"json": "application/json", "swmm_rpt": "text/plain", "swmm_out": "application/octet-stream"}
+MEDIA_TYPES = {"json": "application/json", "swmm_rpt": "text/plain", "swmm_out": "application/octet-stream",
+               "openswmm_restart_hdf5": "application/x-hdf5"}
+
+#: Native units of model values and telemetry -> (QUDT unit, factor to it).
+UNITS = {"ft": ("unit:M", 0.3048), "m": ("unit:M", 1.0),
+         "CFS": ("unit:M3-PER-SEC", 0.028316846592), "GPM": ("unit:M3-PER-SEC", 6.30901964e-05),
+         "MGD": ("unit:M3-PER-SEC", 0.0438126364), "CMS": ("unit:M3-PER-SEC", 1.0),
+         "LPS": ("unit:M3-PER-SEC", 0.001), "MLD": ("unit:M3-PER-SEC", 1 / 86.4),
+         "in/hr": ("unit:MilliM-PER-HR", 25.4), "mm/hr": ("unit:MilliM-PER-HR", 1.0)}
+#: Engine catalog paths a forecast or a datastream may carry -> (property, its kind, asset kind).
+PROPERTIES = {"node.depth": ("depth", "DEPTH", "node"), "link.flow": ("flow", "FLOW", "link"),
+              "gage.rainfall": ("rainfall_intensity", "RAINFALL_INTENSITY", "gage")}
+SENSOR_KINDS = {"DEPTH": "LEVEL_SENSOR", "FLOW": "FLOW_METER", "RAINFALL_INTENSITY": "RAIN_GAGE"}
+SETTING = "wsys:prop/setting"
 
 
 def part(value: str) -> str:
     return quote(str(value), safe="")
+
+
+def wall_clock(value: str) -> str:
+    """A model time (the engine's UTC wall clock, written without a zone) as ISO 8601 in UTC."""
+    at = datetime.fromisoformat(value)
+    if at.tzinfo is not None:
+        raise ValueError(f"{value} names a zone; model times are the UTC wall clock without one")
+    return at.isoformat(timespec="seconds") + "Z"
+
+
+def duration(delta: timedelta) -> str:
+    """A non-negative timedelta as an ISO 8601 duration in whole seconds (PT600S)."""
+    seconds = round(delta.total_seconds())
+    if seconds < 0:
+        raise ValueError(f"negative lead time {delta}")
+    return f"PT{seconds}S"
 
 
 class PlatformLoader(Rows):
@@ -101,6 +146,8 @@ class PlatformLoader(Rows):
         self.attempts: list[str] = []
         self.copies: dict[str, Path] = {}      # file name under artifacts/ -> source
         self.seen: set[str] = set()
+        self.attempt_iris: dict[str, str] = {}  # platform attempt id -> its IRI
+        self.run_attempts: dict[str, str] = {}  # run id -> the IRI of its loaded attempt
 
     def once(self, cls: str, row: dict) -> str:
         """Add a row unless one with its IRI is there already; return the IRI."""
@@ -180,16 +227,26 @@ class PlatformLoader(Rows):
                                        "agent_kind": "SOFTWARE", "external_identity": f"{name}=={version}"})
 
         scenario = self.add_scenario(revision, p, manifest.get("quality") or {})
+        cycle_end = p["parameters"].get("cycle_end") if p["workflow"] == "twin.cycle" else None
         run = self.once("Run", {"iri": f"wsys:run/{part(p['run_id'])}", "label": p["run_id"], "run_id": p["run_id"], "of_revision": revision,
                                 "of_scenario": scenario, "workflow": f"{p['workflow']}@{p['workflow_version']}", "was_generated_by": generated_by,
                                 "was_attributed_to": asked_by, "generated_at": p["started_at"],
-                                "session_id": actor.get("agent_session_id"), "tool_call_id": actor.get("tool_call_id")})
+                                "session_id": actor.get("agent_session_id"), "tool_call_id": actor.get("tool_call_id"),
+                                "cycle_end": wall_clock(cycle_end) if cycle_end else None})
+        resumed = p.get("resumed_from")
+        if resumed and resumed["attempt_id"] not in self.attempt_iris:
+            raise ValueError(f"{manifest_path}: resumed from attempt {resumed['attempt_id']} of run {resumed['run_id']}; "
+                             "load that attempt first")
         attempt = self.once("Attempt", {"iri": f"{run.replace('wsys:run/', 'wsys:attempt/')}/{p['attempt_number']}", "label": p["attempt_id"],
                                         "attempt_id": p["attempt_id"], "of_run": run, "manifest_sha256": file_digest(manifest_path),
                                         "attempt_manifest": self.embed("PlatformAttemptManifest", manifest),
                                         "was_associated_with": software, "used": [revision], "started_at": p["started_at"],
                                         "ended_at": p["finished_at"], "generated_at": p["finished_at"],
-                                        "dc_conforms_to": [f"openswmm=={engine}"] if engine else None})
+                                        "dc_conforms_to": [f"openswmm=={engine}"] if engine else None,
+                                        "resumed_from": f"{self.attempt_iris[resumed['attempt_id']]}/artifact/{part(resumed['path'])}"
+                                        if resumed else None})
+        self.attempt_iris[p["attempt_id"]] = attempt
+        self.run_attempts[p["run_id"]] = attempt
         for a in manifest["artifacts"]:
             where, source = a["path"], folder / a["path"]
             if a["kind"] == "summary" and source.is_file():
@@ -202,8 +259,144 @@ class PlatformLoader(Rows):
                 "was_generated_by": attempt, "was_derived_from": [revision], "generated_at": p["finished_at"],
                 "distributions": [{"access_url": where, "byte_size": a["size"], "media_type": MEDIA_TYPES.get(a["format"]),
                                    "integrity_checksum": {"algorithm": SHA256, "digest": a["sha256"]}}]})
+            if a["kind"] == "forecast" and source.is_file():
+                if file_digest(source) != a["sha256"]:
+                    raise ValueError(f"{source} is not the file the attempt manifest lists (checksum differs)")
+                self.add_forecast(attempt, json.loads(source.read_text(encoding="utf-8")), p["finished_at"])
         self.attempts.append(attempt)
         return attempt
+
+    def asset(self, kind: str, element: str) -> str:
+        """The asset IRI loaders.swmm_to_rows gives a model element of this system."""
+        return f"wsys:asset/{self.scope}/{kind}/{part(element)}"
+
+    def observed(self, path: str, unit: str | None) -> tuple[str, str, str, str, float]:
+        """(asset kind, property IRI, native unit, QUDT unit, factor) for a catalog path's value."""
+        if path not in PROPERTIES:
+            raise ValueError(f"no observed property for {path}; known: {', '.join(PROPERTIES)}")
+        if unit not in UNITS:
+            raise ValueError(f"{path} is in {unit!r}, which has no SI conversion; known: {', '.join(UNITS)}")
+        name, kind, asset_kind = PROPERTIES[path]
+        qudt, factor = UNITS[unit]
+        prop = self.once("ObservedProperty", {"iri": f"wsys:prop/{name}", "label": name, "property_kind": kind,
+                                              "default_unit": qudt})
+        return asset_kind, prop, unit, qudt, factor
+
+    def add_forecast(self, attempt: str, forecast: dict, generated: str) -> None:
+        """A twin cycle's forecast (forecast.json) as FORECAST observations of the attempt."""
+        issued = datetime.fromisoformat(forecast["issued_at"])
+        for s in forecast["series"]:
+            asset_kind, prop, native, qudt, factor = self.observed(s["path"], s.get("unit"))
+            entity = self.asset(asset_kind, s["element_id"])
+            for n, (when, value) in enumerate(zip(s["times"], s["values"], strict=True)):
+                at = datetime.fromisoformat(when)
+                self.add("Observation", {
+                    "iri": f"{attempt}/forecast/{part(s['path'])}/{part(s['element_id'])}/{n}", "entity_iri": entity,
+                    "property_iri": prop, "phenomenon_time": wall_clock(when), "result_time": wall_clock(forecast["issued_at"]),
+                    "issued_at": wall_clock(forecast["issued_at"]), "horizon": duration(at - issued),
+                    "value": float(value) * factor, "unit": qudt, "native_unit": native, "conversion_factor": factor,
+                    "quality_flag": "GOOD", "result_kind": "FORECAST", "was_generated_by": attempt,
+                    "generated_at": generated, "source_system": SOURCE})
+
+    def add_schedule(self, view_path: Path, proposals_path: Path | None = None) -> str:
+        """A schedule view as a Schedule, its loaded runs named as its cycles, and each setpoint
+        proposal (the proposals listing) as a Setpoint with who proposed and who decided it."""
+        view = json.loads(view_path.read_text(encoding="utf-8"))
+        revision = next((iri for iri in self.revisions.values()
+                         if any(r["iri"] == iri and r.get("revision_id") == view["revision_id"]
+                                for r in self.rows[self.table("Revision")])), None)
+        iri = self.once("Schedule", {
+            "iri": f"wsys:schedule/{part(view['schedule_id'])}", "label": view["schedule_id"],
+            "schedule_id": view["schedule_id"], "of_revision": revision,
+            "workflow": f"{view['workflow']}@{view['workflow_version']}", "schedule_state": view["state"],
+            "schedule_pace": view["pace"].upper(), "cycle_minutes": float(view["cycle_minutes"]),
+            "schedule_view": self.embed("PlatformScheduleView", view), "dc_created": view["created_at"]})
+        runs = {r["iri"]: r for r in self.rows[self.table("Run")]}
+        for c in view["history"]:
+            run = runs.get(f"wsys:run/{part(c['run_id'])}")
+            if run is not None:
+                run["in_schedule"], run["cycle_number"] = iri, c["number"]
+        if proposals_path is not None:
+            for p in json.loads(proposals_path.read_text(encoding="utf-8")):
+                self.add_setpoint(iri, p)
+        return iri
+
+    def add_setpoint(self, schedule: str, p: dict) -> str:
+        by = p["proposed_by"]
+        if by["kind"] == "forecast":
+            proposer = self.once("Agent", {"iri": "wsys:agent/software/hydrocouple.platform/twin.cycle", "label": "twin.cycle control policy",
+                                           "agent_kind": "SOFTWARE", "external_identity": "hydrocouple.platform twin.cycle@1"})
+            generated_by = self.run_attempts.get(p["run_id"])
+            if generated_by is None:
+                raise ValueError(f"setpoint {p['proposal_id']} was proposed by run {p['run_id']}; load its attempt first")
+        else:
+            person = self.once("Agent", {"iri": f"wsys:agent/person/{part(by['human_subject'])}", "label": by["human_subject"],
+                                         "agent_kind": "PERSON", "external_identity": by["human_subject"]})
+            proposer, generated_by = person, f"wsys:proposal/{part(p['proposal_id'])}"
+            if by["kind"] == "agent":
+                proposer = self.once("Agent", {"iri": f"wsys:agent/ai/{part(by['agent_session_id'])}", "label": by["agent_session_id"],
+                                               "agent_kind": "AI_AGENT", "external_identity": by["agent_session_id"],
+                                               "acts_on_behalf_of": person})
+                session = f"wsys:session/{part(by['agent_session_id'])}"
+                generated_by = f"{session}/call/{part(by['tool_call_id'])}" if by.get("tool_call_id") else session
+        decider = None
+        if p.get("decided_by"):
+            decider = self.once("Agent", {"iri": f"wsys:agent/person/{part(p['decided_by'])}", "label": p["decided_by"],
+                                          "agent_kind": "PERSON", "external_identity": p["decided_by"]})
+        applied = p.get("applied_run_id")
+        if applied and applied not in self.run_attempts:
+            raise ValueError(f"setpoint {p['proposal_id']} was applied by run {applied}; load its attempt first")
+        self.once("ObservedProperty", {"iri": SETTING, "label": "setting", "property_kind": "STATE", "default_unit": "unit:UNITLESS"})
+        return self.once("Setpoint", {
+            "iri": f"wsys:setpoint/{part(p['proposal_id'])}", "label": f"{p['link']} {p['value']:g}", "proposal_id": p["proposal_id"],
+            "for_schedule": schedule, "target_entity": self.asset("link", p["link"]), "target_property": SETTING,
+            "value": float(p["value"]), "unit": "unit:UNITLESS", "effective_from": wall_clock(p["effective_from"]),
+            "set_by": proposer, "setpoint_state": p["state"], "decided_by": decider,
+            "approved_by": decider if p["state"] in ("APPROVED", "APPLIED") else None,
+            "decided_at": p.get("decided_at"), "applied_in": self.run_attempts.get(applied) if applied else None,
+            "applied_at": wall_clock(p["applied_at"]) if p.get("applied_at") else None,
+            "was_generated_by": generated_by, "generated_at": p["created_at"], "description": p.get("note")})
+
+    def add_telemetry(self, path: Path) -> str:
+        """Telemetry (a JSON description and the CSV beside it) as MEASUREMENT observations, one
+        datastream and one sensor per column. Each sensor is ATTACHED_TO the asset it measures and
+        PART_OF_SYSTEM this system, so the graph needs that system's assets too (load the model
+        with loaders.swmm_to_rows for the same utility and system)."""
+        desc = json.loads(path.read_text(encoding="utf-8"))
+        data = path.parent / desc["file"]
+        digest = file_digest(data)
+        activity = self.once("IngestionActivity", {"iri": f"wsys:ingestion/{self.scope}/telemetry/{digest}",
+                                                   "label": f"telemetry {data.name}", "started_at": desc.get("loaded_at")})
+        with data.open(newline="", encoding="utf-8") as stream:
+            rows = list(csv.DictReader(stream))
+        time_column = desc.get("time_column", "time")
+        for s in desc["streams"]:
+            asset_kind, prop, native, qudt, factor = self.observed(s["path"], s["unit"])
+            entity = self.asset(asset_kind, s["id"])
+            kind = PROPERTIES[s["path"]][1]
+            sensor_iri = f"wsys:sensor/{self.scope}/{part(s['column'])}"
+            if sensor_iri not in self.seen:
+                since = wall_clock(rows[0][time_column]) if rows else None
+                for relation, target in (("ATTACHED_TO", entity), ("PART_OF_SYSTEM", f"wsys:system/{self.scope}")):
+                    self.rows["topology.edge"].append({"from_iri": sensor_iri, "to_iri": target, "relation": relation,
+                                                       "valid_from": since, "source_system": SOURCE,
+                                                       "ingestion_activity": activity})
+            sensor = self.once("Sensor", {"iri": sensor_iri, "label": s["column"],
+                                          "sensor_kind": desc.get("sensor_kind", SENSOR_KINDS[kind]),
+                                          "lifecycle_status": "IN_SERVICE", "datasource_tag": s["column"]})
+            stream_iri = self.once("Datastream", {"iri": f"wsys:datastream/{self.scope}/{part(s['column'])}", "label": s["column"],
+                                                  "sensor": sensor, "observed_property": prop, "feature_of_interest": entity,
+                                                  "datasource_tag": s["column"]})
+            for n, r in enumerate(rows):
+                if not (r.get(s["column"]) or "").strip():
+                    continue
+                self.add("Observation", {
+                    "iri": f"{stream_iri}/{n}", "datastream": stream_iri, "entity_iri": entity, "property_iri": prop,
+                    "phenomenon_time": wall_clock(r[time_column]), "result_time": wall_clock(r[time_column]),
+                    "value": float(r[s["column"]]) * factor, "unit": qudt, "native_unit": native, "conversion_factor": factor,
+                    "quality_flag": "GOOD", "result_kind": "MEASUREMENT", "was_generated_by": activity,
+                    "source_system": desc.get("source", "telemetry")})
+        return activity
 
     def add_scenario(self, revision: str, provenance: dict, quality: dict) -> str | None:
         """The scenario a run with overrides executes, or None for a run of the revision as it is."""
@@ -348,6 +541,9 @@ def main() -> None:
     ap.add_argument("--study", type=Path, action="append", default=[], help="a study-manifest.json, local or platform; repeat for each")
     ap.add_argument("--parameter-set", type=Path, nargs=2, action="append", default=[],
                     metavar=("SET", "STUDY_MANIFEST"), help="a behavioural set and its study's manifest; repeat for each")
+    ap.add_argument("--schedule", type=Path, nargs=2, action="append", default=[], metavar=("VIEW", "PROPOSALS"),
+                    help="a schedule view and its proposals listing; repeat for each")
+    ap.add_argument("--telemetry", type=Path, action="append", default=[], help="a telemetry description; repeat for each")
     ap.add_argument("-o", "--out", type=Path, default=Path("rows"))
     a = ap.parse_args()
     ld = PlatformLoader(a.utility, a.system)
@@ -361,6 +557,10 @@ def main() -> None:
         ld.add_study(path)
     for path, study in a.parameter_set:
         ld.add_parameter_set(path, study)
+    for view, proposals in a.schedule:
+        ld.add_schedule(view, proposals)
+    for path in a.telemetry:
+        ld.add_telemetry(path)
     ld.write(a.out)
 
 

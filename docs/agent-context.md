@@ -129,6 +129,7 @@ Use registry.json bindings to resolve a term in its class and source scheme. Loo
   - Revision  [analysis.revision]: An immutable model revision identified by its platform manifest or by a local input bundle and its checksum.
   - Scenario  [analysis.scenario]: A variant of a revision - the revision plus element field overrides - as a swmm.simulation@2 run executes it.
   - ScenarioOverride  [analysis.scenario_override]: One field value a scenario writes over its revision, by engine catalog path, before the model initializes.
+  - Schedule  [analysis.schedule]: The cycles of a digital twin on one revision, each a run continuing from the state the cycle before it saved (platform schedule view).
   - Tool  [analysis.tool]: A tool an agent can call, as its server registers it.
   - ToolCall  [analysis.tool_call]: One call an agent made to a tool.
 
@@ -219,6 +220,10 @@ The validator enforces these; open violations are in `reference.ontology_violati
 - A scenario overrides only writable float, int or bool element fields of the engine catalog.
 - A revision derived from another names a known revision.
 - An approval is decided by a person, never by an AI agent.
+- A setpoint is approved or rejected by a person, never by an AI agent; an approved one names that person in approved_by.
+- Only an approved setpoint takes effect, and it names the attempt that applied it.
+- An attempt that resumed names a result artifact of another attempt.
+- A forecast records when it was issued and its lead time.
 - A parameter set's members are candidates of its study.
 - An event set's events are forcing events.
 - An observation's unit is its property's default unit (after normalisation).

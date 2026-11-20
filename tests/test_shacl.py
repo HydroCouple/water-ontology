@@ -24,7 +24,7 @@ def run(shapes, name):
 
 
 @pytest.mark.parametrize("name", ["valid_network.ttl", "valid_agent_trace.ttl", "valid_scenarios.ttl",
-                                  "valid_experiments.ttl"])
+                                  "valid_experiments.ttl", "valid_twin.ttl"])
 def test_valid_fixtures_conform(shapes, name):
     ok, text = run(shapes, name)
     assert ok, text
@@ -46,6 +46,9 @@ def test_valid_fixtures_conform(shapes, name):
     ("invalid_parameter_set_without_study.ttl", "of_study"),
     ("invalid_study_kind.ttl", "study_kind"),
     ("invalid_threshold_without_metric.ttl", "metric"),
+    ("invalid_schedule_state.ttl", "schedule_state"),
+    ("invalid_schedule_without_id.ttl", "schedule_id"),
+    ("invalid_setpoint_state.ttl", "setpoint_state"),
 ])
 def test_invalid_fixtures_fail_for_the_right_reason(shapes, name, expect):
     ok, text = run(shapes, name)
