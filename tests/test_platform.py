@@ -195,3 +195,36 @@ def test_the_shared_writer_reproduces_the_committed_example():
     out = OUT / "shared_writer"
     out.mkdir(parents=True, exist_ok=True)
     assert writer.write_tables(out) == json.loads((example / "SUMMARY.json").read_text())["row_sha256"]
+
+
+def test_a_journal_gives_each_call_its_tool_effect_and_position():
+    """The hand-written journal in the fixture names the agent session of both attempts."""
+    out = OUT / "with_journal"
+    shutil.rmtree(out, ignore_errors=True)
+    loader = PlatformLoader("demo", "site-drainage")
+    for case in ("gate_open", "gate_closed"):
+        loader.add_revision(FIX / case / "revision-manifest.json")
+        loader.add_attempt(FIX / case / "attempt")
+    calls = loader.add_journal(FIX / "journal.jsonl")
+    loader.write(out)
+    assert rules(out) == set()
+    assert calls[2] == CALL  # the journal's submitting call is the call the attempt names
+    rows = {r["iri"]: r for r in table(out, "analysis.tool_call")}
+    assert len(rows) == 4
+    submitted = rows[CALL]
+    assert (submitted["sequence"], submitted["effect"]) == (3, "WRITE")
+    assert submitted["tool"] == "wsys:tool/openswmm.mcp/0.4.0/platform_run"
+    assert len(submitted["arguments_sha256"]) == len(submitted["result_sha256"]) == 64
+    tools = {r["tool_name"]: r["read_only"] for r in table(out, "analysis.tool")}
+    assert tools == {"platform_targets": True, "platform_run": False, "platform_results": True}
+    counts = json.loads((out / "SUMMARY.json").read_text())["rows"]
+    assert counts["analysis.agent_session"] == 1 and counts["reference.agent"] == 3
+
+
+def test_a_journal_line_without_a_platform_session_is_refused():
+    path = OUT / "local_journal.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    line = json.loads((FIX / "journal.jsonl").read_text().splitlines()[0])
+    path.write_text(json.dumps({k: v for k, v in line.items() if k != "agent_session_id"}) + "\n")
+    with pytest.raises(ValueError, match="names no platform agent session"):
+        PlatformLoader("demo", "site-drainage").add_journal(path)

@@ -9,6 +9,7 @@
 - Re-vendor the OpenSWMM catalog at engine `0bf55d4f`, where every method carries an `effect`.
 - Agent trace vocabulary: `ToolCall`, `Tool` and `AgentSession`; `AgentFinding` gains `tool_calls` and a `verifier_report`; `trace_id` is no longer tied to MLflow. Every change adds; no existing property changed, so there is no migration.
 - `loaders/platform_to_rows.py` turns hydrocouple.platform revision and attempt manifests into rows with the person, AI agent, agent session and tool call they name. `reference.artifact_lineage` and `reference.finding_lineage` are generated for Databricks, DuckDB and the SQLite snapshot.
+- `platform_to_rows --journal` loads the openswmm.mcp tool-call journal as `ToolCall` and `Tool` rows; a line with no platform agent session is refused.
 - `loaders/findings.py` records an `AgentFinding` and verifies each number it cites against the run summary it cites, by checksum. Four new assertions cover finding evidence, review by a person, tool-call sessions and agent delegation.
 - `loaders/rows.py` holds the row writer both loaders share; `swmm_to_rows` output is unchanged.
 - Re-vendor the platform schemas at `b23c588`, which adds `run-summary-1.json` (`PlatformRunSummary`).

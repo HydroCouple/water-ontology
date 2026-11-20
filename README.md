@@ -208,11 +208,12 @@ Build the committed drainage model with `make sqlite inventory`. Query `analysis
 
 `examples/site_drainage/` carries a SWMM model through the whole chain: `loaders/swmm_to_rows.py` opens the `.inp` with the OpenSWMM engine and writes rows for `model.*` (every catalog property the engine build can supply), `topology.*` (assets in SI units and every edge, including `REPRESENTED_BY`), `analysis.*` (revision, and a local run and attempt) and `observation.*` (simulated maxima and report-period water quality). `harness/duckdb_harness.py` builds the same tables in DuckDB from the schema, transpiles the generated Databricks SQL, and runs all assertions.
 
-Runs of record come from hydrocouple.platform. `loaders/platform_to_rows.py` reads a revision manifest and each attempt's folder (`attempt.json`, and `summary.json` where the target let it be downloaded) and writes `analysis.revision`, `run`, `attempt` and `result_artifact` rows with the person, the AI agent, the agent session and the tool call the manifest names. `reference.artifact_lineage` then answers where a result came from. `loaders/findings.py` records an `AgentFinding` and checks every number it cites against the run summary it cites, by checksum; `reference.finding_lineage` joins a finding's evidence to that lineage. Both loaders write through `loaders/rows.py`.
+Runs of record come from hydrocouple.platform. `loaders/platform_to_rows.py` reads a revision manifest and each attempt's folder (`attempt.json`, and `summary.json` where the target let it be downloaded) and writes `analysis.revision`, `run`, `attempt` and `result_artifact` rows with the person, the AI agent, the agent session and the tool call the manifest names. With `--journal`, it also reads the openswmm.mcp tool-call journal and writes a `ToolCall` row per call (tool, effect, position, argument and result checksums) and a `Tool` row per tool; the call that submitted a run is the row its attempt names. `reference.artifact_lineage` then answers where a result came from. `loaders/findings.py` records an `AgentFinding` and checks every number it cites against the run summary it cites, by checksum; `reference.finding_lineage` joins a finding's evidence to that lineage. Both loaders write through `loaders/rows.py`.
 
 ```bash
 python -m loaders.platform_to_rows --utility demo --system site-drainage \
-    --revision package/revision-manifest.json --attempt downloads/att_1 -o rows
+    --revision package/revision-manifest.json --attempt downloads/att_1 \
+    --journal mcp/journal/jr_1.jsonl -o rows
 python -m harness.duckdb_harness rows
 ```
 

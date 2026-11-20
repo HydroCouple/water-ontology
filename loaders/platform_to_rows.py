@@ -9,12 +9,19 @@ its results came from:
   analysis.result_artifact              every artifact the attempt lists, by checksum
   reference.agent                       the person, the engine, and the AI agent where there is one
   analysis.agent_session, .tool_call    the agent session and the tool call that submitted the run
+  analysis.tool                         each tool a journal names, as the server registers it
 
 An attempt is a folder holding attempt.json as the platform wrote it. Where the
 folder also holds the run summary (summary.json), the file is checked against
 the checksum in the manifest and copied to artifacts/<sha256>.json, so a
 finding can cite a number in it. Nothing is read from the control plane, and
 no other artifact is copied.
+
+A journal is the openswmm.mcp tool-call journal (one JSON line per call). Each
+call made under a platform agent session becomes a ToolCall row with its tool,
+effect, position and checksums; the call that submitted a run is the same row
+the attempt names. A journal line with no platform agent session is refused:
+local sessions are loaded with their own manifests in Phase 2.
 
 Identifiers are built from what the manifests state, so the same manifests
 always give the same rows:
@@ -24,10 +31,12 @@ always give the same rows:
   <attempt>/artifact/<path>    <revision>/file/<path>
   wsys:agent/person/<subject>  wsys:agent/ai/<agent session id>
   wsys:session/<agent session id>            <session>/call/<tool call id>
+  wsys:tool/<server>/<server version>/<tool name>
 
 Usage:
     python -m loaders.platform_to_rows --utility demo --system site-drainage \\
-        --revision package/revision-manifest.json --attempt downloads/att_1 -o rows
+        --revision package/revision-manifest.json --attempt downloads/att_1 \\
+        --journal mcp/journal/jr_1.jsonl -o rows
 """
 from __future__ import annotations
 
@@ -156,6 +165,41 @@ class PlatformLoader(Rows):
         self.attempts.append(attempt)
         return attempt
 
+    def merge(self, cls: str, row: dict) -> str:
+        """Add a row, or fill the fields an earlier row with its IRI left empty."""
+        if row["iri"] not in self.seen:
+            return self.once(cls, row)
+        existing = next(r for r in self.rows[self.table(cls)] if r["iri"] == row["iri"])
+        for key, value in row.items():
+            if value is not None:
+                existing.setdefault(key, value)
+        return row["iri"]
+
+    def add_journal(self, path: Path) -> list[str]:
+        """The tool calls of an openswmm.mcp journal as ToolCall rows, with the tools they call."""
+        calls = []
+        for number, text in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            c = json.loads(text)
+            session_id = c.get("agent_session_id")
+            if not session_id:
+                raise ValueError(f"{path}:{number}: the call names no platform agent session; "
+                                 "journals of local sessions are loaded in Phase 2")
+            person = self.once("Agent", {"iri": f"wsys:agent/person/{part(c['acting_for'])}", "label": c["acting_for"],
+                                         "agent_kind": "PERSON", "external_identity": c["acting_for"]})
+            ai = self.once("Agent", {"iri": f"wsys:agent/ai/{part(session_id)}", "label": c["server"], "agent_kind": "AI_AGENT",
+                                     "external_identity": f"{c['server']}@{c['server_version']}", "acts_on_behalf_of": person})
+            session = self.once("AgentSession", {"iri": f"wsys:session/{part(session_id)}", "label": session_id,
+                                                 "session_id": session_id, "was_associated_with": ai})
+            tool = self.once("Tool", {"iri": f"wsys:tool/{part(c['server'])}/{part(c['server_version'])}/{part(c['tool'])}",
+                                      "label": c["tool"], "tool_name": c["tool"], "tool_version": c["server_version"],
+                                      "read_only": c["read_only"]})
+            calls.append(self.merge("ToolCall", {
+                "iri": f"{session}/call/{part(c['tool_call_id'])}", "label": c["tool_call_id"], "tool_call_id": c["tool_call_id"],
+                "in_session": session, "tool": tool, "effect": c["effect"].upper(), "sequence": c["sequence"],
+                "arguments_sha256": c["arguments_sha256"], "result_sha256": c["result_sha256"],
+                "was_associated_with": ai, "started_at": c["started_at"], "ended_at": c["ended_at"]}))
+        return calls
+
     def write(self, out: Path) -> None:
         out = Path(out)
         if out.exists() and any(out.glob("*.jsonl")):
@@ -176,6 +220,7 @@ def main() -> None:
     ap.add_argument("--system", default="system")
     ap.add_argument("--revision", type=Path, action="append", required=True, help="a revision manifest; repeat for each revision")
     ap.add_argument("--attempt", type=Path, action="append", default=[], help="a folder holding attempt.json; repeat for each attempt")
+    ap.add_argument("--journal", type=Path, action="append", default=[], help="an openswmm.mcp tool-call journal; repeat for each")
     ap.add_argument("-o", "--out", type=Path, default=Path("rows"))
     a = ap.parse_args()
     ld = PlatformLoader(a.utility, a.system)
@@ -183,6 +228,8 @@ def main() -> None:
         ld.add_revision(path)
     for folder in a.attempt:
         ld.add_attempt(folder)
+    for path in a.journal:
+        ld.add_journal(path)
     ld.write(a.out)
 
 
