@@ -49,4 +49,7 @@
 | `finding_reviewed_by_a_person` | ERROR | A finding is never reviewed by an AI agent, or by the agent it is attributed to. |
 | `tool_call_in_a_session` | ERROR | A tool call belongs to a known agent session. |
 | `agent_session_acts_for_someone` | ERROR | The agent of an agent session is an AI agent that acts on behalf of someone. |
+| `scenario_override_writable` | ERROR | A scenario overrides only writable float, int or bool element fields of the engine catalog. |
+| `derived_revision_base_known` | ERROR | A revision derived from another names a known revision. |
+| `approval_decided_by_a_person` | ERROR | An approval is decided by a person, never by an AI agent. |
 | `observation_unit_matches_property` | WARNING | An observation's unit is its property's default unit (after normalisation). |

@@ -20,6 +20,7 @@ from generators.linkml_to_delta import DeltaGenerator, q, snake
 
 HERE = Path(__file__).resolve().parent.parent
 DOMAINS = HERE / "schema" / "mappings" / "edge_domains.yaml"
+ENGINE_CATALOG = HERE / "vendor" / "openswmm" / "catalog.json"
 
 
 class Assertions:
@@ -43,6 +44,18 @@ class Assertions:
 
     def t(self, schema: str, table: str) -> str:
         return f"{self.cat}.{schema}.{table}"
+
+    @staticmethod
+    def overridable_fields() -> list[str]:
+        """Engine catalog paths a scenario may override: writable float, int or bool element
+        fields of the vendored catalog, as swmm.simulation@2's runner accepts them."""
+        import json
+
+        catalog = json.loads(ENGINE_CATALOG.read_text(encoding="utf-8"))
+        kinds = {name for name, entry in catalog["targets"].items() if "collection" in entry}
+        return sorted(m["path"] for m in catalog["members"]
+                      if m["form"] == "property" and m.get("access") == "rw"
+                      and m.get("type") in ("float", "int", "bool") and m["path"].split(".")[0] in kinds)
 
     def add(self, rule_id: str, severity: str, description: str, select: str) -> None:
         self.rules.append((rule_id, severity, description, select.strip()))
@@ -76,6 +89,10 @@ class Assertions:
         """One row per piece of evidence a finding cites."""
         return ("SELECT f.iri AS finding_iri, f.trace_id, f.verifier_passed, explode(f.evidence) AS evidence_iri "
                 f"FROM {self.t('analysis', 'agent_finding')} f")
+
+    def derived_bases(self) -> str:
+        """One row per base revision a revision names in was_derived_from."""
+        return f"SELECT r.iri, explode(r.was_derived_from) AS base_iri FROM {self.t('analysis', 'revision')} r"
 
     def lineage_views(self) -> list[tuple[str, str, str]]:
         """(view, description, select): where a result artifact, and a finding's evidence, came from."""
@@ -242,6 +259,20 @@ WHERE s.iri IS NULL""")
 SELECT s.iri AS focus_iri, 'the session agent is unknown, is not an AI agent, or acts on behalf of no one' AS message
 FROM {self.t('analysis', 'agent_session')} s LEFT JOIN {agent} a ON a.iri = s.was_associated_with
 WHERE a.iri IS NULL OR a.agent_kind <> 'AI_AGENT' OR a.acts_on_behalf_of IS NULL""")
+        # scenarios, derived revisions and approvals
+        revision = self.t("analysis", "revision")
+        self.add("scenario_override_writable", "ERROR", "A scenario overrides only writable float, int or bool element fields of the engine catalog.", f"""
+SELECT o.iri AS focus_iri, concat('catalog path ', o.catalog_path, ' is not a writable scalar element field') AS message
+FROM {self.t('analysis', 'scenario_override')} o
+WHERE o.catalog_path NOT IN ({', '.join(q(f) for f in self.overridable_fields())})""")
+        self.add("derived_revision_base_known", "ERROR", "A revision derived from another names a known revision.", f"""
+SELECT d.iri AS focus_iri, concat('base revision ', d.base_iri, ' is not in analysis.revision') AS message
+FROM ({self.derived_bases()}) d LEFT JOIN {revision} b ON b.iri = d.base_iri
+WHERE b.iri IS NULL""")
+        self.add("approval_decided_by_a_person", "ERROR", "An approval is decided by a person, never by an AI agent.", f"""
+SELECT p.iri AS focus_iri, concat('approval was decided by ', p.was_associated_with) AS message
+FROM {self.t('analysis', 'approval')} p JOIN {agent} a ON a.iri = p.was_associated_with
+WHERE a.agent_kind = 'AI_AGENT'""")
         # observations
         self.add("observation_unit_matches_property", "WARNING", "An observation's unit is its property's default unit (after normalisation).", f"""
 SELECT o.iri AS focus_iri, concat('unit ', o.unit, ' differs from default ', p.default_unit, ' for ', o.property_iri) AS message

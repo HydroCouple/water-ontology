@@ -1,0 +1,8 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+@prefix ag:   <https://w3id.org/wsys/agent/> .
+
+ex:scenario-1-o1 a wsys:ScenarioOverride ; wsys:class_iri wsys:ScenarioOverride ; wsys:of_scenario ex:scenario-1 ;
+    wsys:override_element_id "S1" ; wsys:override_value "300.0"^^xsd:float .

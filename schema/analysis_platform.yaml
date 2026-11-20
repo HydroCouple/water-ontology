@@ -4,7 +4,7 @@ title: Water Systems Ontology — hydrocouple.platform contracts (generated)
 description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
   contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
   embeds these as manifests.
-version: platform-f6e4a81b4052
+version: platform-b2527b511035
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -1334,6 +1334,333 @@ classes:
           json_property: name
     annotations:
       json_schema_id: Objective
+      platform_contract: 'true'
+  PlatformStudyManifest:
+    description: 'A study''s definition, every evaluation and its result, written by a local run and by
+
+      a platform run alike. Two executions of one study differ only in ``runtime``.'
+    attributes:
+      definition:
+        description: PlatformStudyManifest.definition
+        range: PlatformStudyDefinition
+        inlined: true
+        slot_uri: hcp:PlatformStudyManifest.definition
+        required: true
+        annotations:
+          json_property: definition
+      evaluations:
+        description: Evaluations
+        range: PlatformStudyEvaluation
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: hcp:PlatformStudyManifest.evaluations
+        required: true
+        annotations:
+          json_property: evaluations
+      result:
+        description: Pareto set or best candidate, and counts
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: result
+        slot_uri: hcp:PlatformStudyManifest.result
+        required: true
+      runtime:
+        description: 'Where and how it ran: ids, hosts, workers, timings'
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: runtime
+        slot_uri: hcp:PlatformStudyManifest.runtime
+        required: true
+      schema:
+        description: Schema
+        range: string
+        annotations:
+          const: hydrocouple.platform/study-manifest/1
+          json_property: schema
+        slot_uri: hcp:PlatformStudyManifest.schema
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/study-manifest-1.json
+      platform_contract: 'true'
+      schema_file: study-manifest-1.json
+  PlatformStudyDefinition:
+    description: 'What a study evaluates and how it searches: the same wherever it runs.'
+    attributes:
+      dimensions:
+        description: Components in decision-vector order; each evaluation's decisions[key] lists its key's components in this
+          order
+        range: PlatformStudyDimension
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: hcp:PlatformStudyDefinition.dimensions
+        required: true
+        annotations:
+          json_property: dimensions
+      env_config:
+        description: The evaluator env config; its model path is the path in the package
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: env_config
+        slot_uri: hcp:PlatformStudyDefinition.env_config
+        required: true
+      model_inputs:
+        description: Package path to sha256 of every packaged file except composition.json, which records when it was packaged
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: model_inputs
+        slot_uri: hcp:PlatformStudyDefinition.model_inputs
+        required: true
+      objectives:
+        description: Objectives
+        range: PlatformObjective
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: hcp:PlatformStudyDefinition.objectives
+        required: true
+        annotations:
+          json_property: objectives
+      optimization:
+        description: Optimization
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: optimization
+        slot_uri: hcp:PlatformStudyDefinition.optimization
+        required: true
+      seed:
+        description: Seed
+        range: integer
+        slot_uri: hcp:PlatformStudyDefinition.seed
+        annotations:
+          json_property: seed
+      workflow:
+        description: Workflow
+        range: string
+        slot_uri: hcp:PlatformStudyDefinition.workflow
+        required: true
+        annotations:
+          json_property: workflow
+      workflow_version:
+        description: Workflow Version
+        range: string
+        slot_uri: hcp:PlatformStudyDefinition.workflow_version
+        required: true
+        annotations:
+          json_property: workflow_version
+    annotations:
+      json_schema_id: StudyDefinition
+      platform_contract: 'true'
+  PlatformStudyDimension:
+    description: One component of the decision vector, with the decision key it belongs to.
+    attributes:
+      high:
+        description: High
+        range: float
+        slot_uri: hcp:PlatformStudyDimension.high
+        required: true
+        annotations:
+          json_property: high
+      key:
+        description: The key of the component's values in an evaluation's decisions
+        range: string
+        slot_uri: hcp:PlatformStudyDimension.key
+        required: true
+        annotations:
+          json_property: key
+      platform_label:
+        description: Label
+        range: string
+        slot_uri: hcp:PlatformStudyDimension.label
+        required: true
+        annotations:
+          json_property: label
+      low:
+        description: Low
+        range: float
+        slot_uri: hcp:PlatformStudyDimension.low
+        required: true
+        annotations:
+          json_property: low
+    annotations:
+      json_schema_id: StudyDimension
+      platform_contract: 'true'
+  PlatformStudyEvaluation:
+    description: One evaluated candidate, as ``evaluations.jsonl`` records it.
+    attributes:
+      decisions:
+        description: Decisions
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: decisions
+        slot_uri: hcp:PlatformStudyEvaluation.decisions
+        required: true
+      error:
+        description: Error
+        range: string
+        slot_uri: hcp:PlatformStudyEvaluation.error
+        annotations:
+          json_property: error
+      evaluation:
+        description: Evaluation
+        range: integer
+        minimum_value: 1
+        slot_uri: hcp:PlatformStudyEvaluation.evaluation
+        required: true
+        annotations:
+          json_property: evaluation
+      failed:
+        description: Failed
+        range: boolean
+        slot_uri: hcp:PlatformStudyEvaluation.failed
+        annotations:
+          json_property: failed
+      objectives:
+        description: Objectives
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: objectives
+        slot_uri: hcp:PlatformStudyEvaluation.objectives
+        required: true
+      steps:
+        description: Steps
+        range: integer
+        slot_uri: hcp:PlatformStudyEvaluation.steps
+        annotations:
+          json_property: steps
+    annotations:
+      json_schema_id: StudyEvaluation
+      platform_contract: 'true'
+  PlatformApprovalView:
+    description: A request outside an agent session's budget, waiting for a person.
+    attributes:
+      approval_id:
+        description: Approval Id
+        range: string
+        slot_uri: hcp:PlatformApprovalView.approval_id
+        required: true
+        annotations:
+          json_property: approval_id
+      expires_at:
+        description: Expires At
+        range: datetime
+        slot_uri: hcp:PlatformApprovalView.expires_at
+        required: true
+        annotations:
+          json_property: expires_at
+      job_id:
+        description: Job Id
+        range: string
+        slot_uri: hcp:PlatformApprovalView.job_id
+        annotations:
+          json_property: job_id
+      reasons:
+        description: Reasons
+        range: string
+        multivalued: true
+        slot_uri: hcp:PlatformApprovalView.reasons
+        required: true
+        annotations:
+          json_property: reasons
+      run_id:
+        description: Run Id
+        range: string
+        slot_uri: hcp:PlatformApprovalView.run_id
+        annotations:
+          json_property: run_id
+      study_id:
+        description: Study Id
+        range: string
+        slot_uri: hcp:PlatformApprovalView.study_id
+        annotations:
+          json_property: study_id
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/approval-view-1.json
+      platform_contract: 'true'
+      schema_file: approval-view-1.json
+  PlatformAgentSessionView:
+    description: An agent session as its creator sees it (the credential is returned only once).
+    attributes:
+      agent_session_id:
+        description: Agent Session Id
+        range: string
+        slot_uri: hcp:PlatformAgentSessionView.agent_session_id
+        required: true
+        annotations:
+          json_property: agent_session_id
+      budget:
+        description: PlatformAgentSessionView.budget
+        range: PlatformBudget
+        inlined: true
+        slot_uri: hcp:PlatformAgentSessionView.budget
+        required: true
+        annotations:
+          json_property: budget
+      expires_at:
+        description: Expires At
+        range: datetime
+        slot_uri: hcp:PlatformAgentSessionView.expires_at
+        required: true
+        annotations:
+          json_property: expires_at
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/agent-session-view-1.json
+      platform_contract: 'true'
+      schema_file: agent-session-view-1.json
+  PlatformBudget:
+    description: A delegated budget for one AI agent session. ``None`` means no limit.
+    attributes:
+      allowed_job_classes:
+        description: Allowed Job Classes
+        range: JobClass
+        multivalued: true
+        slot_uri: hcp:PlatformBudget.allowed_job_classes
+        annotations:
+          json_property: allowed_job_classes
+      allowed_targets:
+        description: Allowed Targets
+        range: string
+        multivalued: true
+        slot_uri: hcp:PlatformBudget.allowed_targets
+        annotations:
+          json_property: allowed_targets
+      max_concurrent_attempts:
+        description: Max Concurrent Attempts
+        range: integer
+        minimum_value: 0
+        slot_uri: hcp:PlatformBudget.max_concurrent_attempts
+        annotations:
+          json_property: max_concurrent_attempts
+      max_estimated_spend:
+        description: Max Estimated Spend
+        range: float
+        minimum_value: 0
+        slot_uri: hcp:PlatformBudget.max_estimated_spend
+        annotations:
+          json_property: max_estimated_spend
+      max_evaluations:
+        description: Max Evaluations
+        range: integer
+        minimum_value: 0
+        slot_uri: hcp:PlatformBudget.max_evaluations
+        annotations:
+          json_property: max_evaluations
+      max_runs:
+        description: Max Runs
+        range: integer
+        minimum_value: 0
+        slot_uri: hcp:PlatformBudget.max_runs
+        annotations:
+          json_property: max_runs
+    annotations:
+      json_schema_id: Budget
       platform_contract: 'true'
   PlatformEvent:
     description: Event

@@ -10,6 +10,8 @@ its results came from:
   reference.agent                       the person, the engine, and the AI agent where there is one
   analysis.agent_session, .tool_call    the agent session and the tool call that submitted the run
   analysis.tool                         each tool a journal names, as the server registers it
+  analysis.scenario, .scenario_override a swmm.simulation@2 run's revision and field overrides
+  analysis.study, .candidate            a study manifest (local or platform) and its evaluations
 
 An attempt is a folder holding attempt.json as the platform wrote it. Where the
 folder also holds the run summary (summary.json), the file is checked against
@@ -35,15 +37,22 @@ always give the same rows:
   wsys:agent/person/<subject>  wsys:agent/ai/<agent session id>
   wsys:session/<agent session id>            <session>/call/<tool call id>
   wsys:tool/<server>/<server version>/<tool name>
+  wsys:scenario/<sha256 of revision and overrides>   <scenario>/override/<n>
+  wsys:study/<study id>        <study>/candidate/<evaluation>
+
+A revision whose manifest has derived_from names its base revision (by its
+manifest hash, in the same scope) in was_derived_from, and the study and
+evaluation that chose it.
 
 Usage:
     python -m loaders.platform_to_rows --utility demo --system site-drainage \\
         --revision package/revision-manifest.json --attempt downloads/att_1 \\
-        --journal mcp/journal/jr_1.jsonl -o rows
+        --journal mcp/journal/jr_1.jsonl --study study/study-manifest.json -o rows
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -102,9 +111,14 @@ class PlatformLoader(Rows):
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         iri = self.revisions[digest] = f"wsys:revision/{self.scope}/{digest}"
         models = [f["sha256"] for f in manifest["files"] if f["role"] == "model"]
+        lineage = manifest.get("derived_from") or {}
+        study = lineage.get("study_id")
         self.once("Revision", {"iri": iri, "label": digest[:12], "revision_id": digest, "manifest_sha256": digest,
                                "input_sha256": models[0] if len(models) == 1 else None, "dc_created": manifest["created_at"],
-                               "revision_manifest": self.embed("PlatformRevisionManifest", manifest)})
+                               "revision_manifest": self.embed("PlatformRevisionManifest", manifest),
+                               "was_derived_from": [f"wsys:revision/{self.scope}/{lineage['revision_manifest_sha256']}"] if lineage else None,
+                               "derived_in_study": f"wsys:study/{part(study)}" if study else None,
+                               "chosen_evaluation": lineage.get("evaluation")})
         for f in manifest["files"]:
             self.once("InputArtifact", {"iri": f"{iri}/file/{part(f['path'])}", "of_revision": iri, "source_path": f["path"],
                                         "file_role": f["role"], "input_sha256": f["sha256"]})
@@ -143,8 +157,9 @@ class PlatformLoader(Rows):
         software = self.once("Agent", {"iri": f"wsys:agent/software/{name}/{part(version)}", "label": f"{name} {version}",
                                        "agent_kind": "SOFTWARE", "external_identity": f"{name}=={version}"})
 
+        scenario = self.add_scenario(revision, p, manifest.get("quality") or {})
         run = self.once("Run", {"iri": f"wsys:run/{part(p['run_id'])}", "label": p["run_id"], "run_id": p["run_id"], "of_revision": revision,
-                                "workflow": f"{p['workflow']}@{p['workflow_version']}", "was_generated_by": generated_by,
+                                "of_scenario": scenario, "workflow": f"{p['workflow']}@{p['workflow_version']}", "was_generated_by": generated_by,
                                 "was_attributed_to": asked_by, "generated_at": p["started_at"],
                                 "session_id": actor.get("agent_session_id"), "tool_call_id": actor.get("tool_call_id")})
         attempt = self.once("Attempt", {"iri": f"{run.replace('wsys:run/', 'wsys:attempt/')}/{p['attempt_number']}", "label": p["attempt_id"],
@@ -167,6 +182,52 @@ class PlatformLoader(Rows):
                                    "integrity_checksum": {"algorithm": SHA256, "digest": a["sha256"]}}]})
         self.attempts.append(attempt)
         return attempt
+
+    def add_scenario(self, revision: str, provenance: dict, quality: dict) -> str | None:
+        """The scenario a run with overrides executes, or None for a run of the revision as it is."""
+        requested = provenance["parameters"].get("overrides") or []
+        if not requested:
+            return None
+        applied = quality.get("overrides") or requested  # the runner adds base values and units
+        key = json.dumps([revision, [[o["path"], o["id"], o["value"]] for o in requested]], sort_keys=True)
+        iri = f"wsys:scenario/{hashlib.sha256(key.encode()).hexdigest()}"
+        if iri in self.seen:
+            return iri
+        self.once("Scenario", {"iri": iri, "label": f"{len(requested)} override(s)", "of_revision": revision})
+        for n, o in enumerate(applied, start=1):
+            base = o.get("base_value")
+            self.once("ScenarioOverride", {
+                "iri": f"{iri}/override/{n}", "label": f"{o['path']} on {o['id']}", "of_scenario": iri,
+                "catalog_path": o["path"], "override_element_id": o["id"], "override_value": float(o["value"]),
+                "base_value": None if base is None else float(base), "override_unit": o.get("unit")})
+        return iri
+
+    def add_study(self, path: Path) -> str:
+        """A study manifest, local or platform, as a Study and one Candidate per evaluation."""
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        definition, runtime = manifest["definition"], manifest["runtime"]
+        comparable = json.dumps({k: v for k, v in manifest.items() if k != "runtime"}, sort_keys=True)
+        study_id = runtime.get("study_id") or f"local_{hashlib.sha256(comparable.encode()).hexdigest()[:20]}"
+        iri = f"wsys:study/{part(study_id)}"
+        job = runtime.get("run_id") or study_id
+        self.once("Study", {"iri": iri, "label": study_id, "study_id": study_id,
+                            "of_revision": self.revisions.get(runtime.get("revision_manifest_sha256")),
+                            "workflow": f"{definition['workflow']}@{definition['workflow_version']}",
+                            "was_generated_by": f"wsys:job/{part(job)}",
+                            "study_manifest": self.embed("PlatformStudyManifest", manifest)})
+        directions = {o["name"]: o["direction"] for o in definition["objectives"]}
+        pareto = {p["evaluation"] for p in manifest["result"].get("pareto") or []}
+        for e in manifest["evaluations"]:
+            # decisions[key] lists the key's components in dimension order; JSON keeps no other.
+            values = {key: iter(v) for key, v in e["decisions"].items()}
+            flat = [(d["key"], d["label"], next(values[d["key"]])) for d in definition["dimensions"]]
+            self.once("Candidate", {
+                "iri": f"{iri}/candidate/{e['evaluation']}", "label": f"{study_id} #{e['evaluation']}", "of_study": iri,
+                "candidate_index": e["evaluation"], "was_generated_by": iri, "is_pareto": e["evaluation"] in pareto,
+                "decision_values": [{"dimension": key, "label": label, "value": float(v)} for key, label, v in flat],
+                "objective_values": [{"name": n, "direction": directions[n], "value": float(v)}
+                                     for n, v in e["objectives"].items()]})
+        return iri
 
     def merge(self, cls: str, row: dict) -> str:
         """Add a row, or fill the fields an earlier row with its IRI left empty."""
@@ -224,6 +285,7 @@ def main() -> None:
     ap.add_argument("--revision", type=Path, action="append", required=True, help="a revision manifest; repeat for each revision")
     ap.add_argument("--attempt", type=Path, action="append", default=[], help="a folder holding attempt.json; repeat for each attempt")
     ap.add_argument("--journal", type=Path, action="append", default=[], help="an openswmm.mcp tool-call journal; repeat for each")
+    ap.add_argument("--study", type=Path, action="append", default=[], help="a study-manifest.json, local or platform; repeat for each")
     ap.add_argument("-o", "--out", type=Path, default=Path("rows"))
     a = ap.parse_args()
     ld = PlatformLoader(a.utility, a.system)
@@ -233,6 +295,8 @@ def main() -> None:
         ld.add_attempt(folder)
     for path in a.journal:
         ld.add_journal(path)
+    for path in a.study:
+        ld.add_study(path)
     ld.write(a.out)
 
 

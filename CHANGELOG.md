@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased: scenarios and studies (ecosystem Phase 2)
+
+- `Scenario` and `ScenarioOverride` (a revision plus element field overrides by engine catalog path, as `swmm.simulation@2` runs it), `EventSet` and `ForcingEvent`, `Approval`; `Revision` gains `was_derived_from`, `derived_in_study` and `chosen_evaluation`; `Study` embeds its study manifest and `AgentSession` its platform view, both generated from the platform's new schemas.
+- **Breaking:** `Candidate.parameters` (JSON text) is replaced by `decision_values` and `objective_values` becomes a typed list. `python -m migrations.v0_3 OLD -o NEW` migrates rows; the semantic diff names exactly these two slots.
+- `platform_to_rows` loads derived revisions, scenario runs and study manifests (`--study`); three assertions: a scenario overrides only writable scalar element fields of the vendored catalog, a derived revision's base is known, an approval is decided by a person.
+- Re-vendor the platform schemas at `b3ba318`.
+
 ## 0.2.0 review branch
 
 - Generate a governed SQLite snapshot, scoped term registry, versioned Delta terminology records and native-to-ontology coverage inventory.

@@ -198,6 +198,7 @@ flowchart TB
   Mesh2D -- system --> WaterSystem
   ModelComponent -- composition --> Composition
   Revision -- of_composition --> Composition
+  Revision -- derived_in_study --> Study
   Run -- of_revision --> Revision
   Run -- of_study --> Study
   Study -- of_revision --> Revision
@@ -332,14 +333,21 @@ flowchart TB
   subgraph wsys_analysis["analysis"]
     AgentFinding["AgentFinding"]
     AgentSession["AgentSession"]
+    Approval["Approval"]
     Attempt["Attempt"]
     Candidate["Candidate"]
+    DecisionValue["DecisionValue"]
+    EventSet["EventSet"]
+    ForcingEvent["ForcingEvent"]
     IngestionActivity["IngestionActivity"]
     InputArtifact["InputArtifact"]
     InputRecord["InputRecord"]
+    ObjectiveValue["ObjectiveValue"]
     ResultArtifact["ResultArtifact"]
     Revision["Revision"]
     Run["Run"]
+    Scenario["Scenario"]
+    ScenarioOverride["ScenarioOverride"]
     Study["Study"]
     Tool["Tool"]
     ToolCall["ToolCall"]
@@ -411,6 +419,8 @@ flowchart TB
   AdaptedOutput -- adapts_output --> Output
   AgentFinding -- tool_calls --> ToolCall
   AgentFinding -- reviewed_by --> Agent
+  Approval -- of_run --> Run
+  Approval -- of_study --> Study
   Aquifer -- system --> WaterSystem
   Attempt -- of_run --> Run
   Attributed -- was_attributed_to --> Agent
@@ -434,6 +444,7 @@ flowchart TB
   Event -- system --> WaterSystem
   Event -- confirmed_by --> Agent
   EventLink -- event --> Event
+  EventSet -- events --> ForcingEvent
   EventStateChange -- event --> Event
   EventStateChange -- changed_by --> Agent
   ExchangeItem -- component --> ModelComponent
@@ -451,9 +462,13 @@ flowchart TB
   Observation -- datastream --> Datastream
   Prediction -- of_version --> MLModelVersion
   Revision -- of_composition --> Composition
+  Revision -- derived_in_study --> Study
   Run -- of_revision --> Revision
   Run -- of_study --> Study
+  Run -- of_scenario --> Scenario
   Run -- was_associated_with --> Agent
+  Scenario -- of_revision --> Revision
+  ScenarioOverride -- of_scenario --> Scenario
   Setpoint -- set_by --> Agent
   Setpoint -- approved_by --> Agent
   Study -- of_revision --> Revision

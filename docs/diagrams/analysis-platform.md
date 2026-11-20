@@ -13,6 +13,19 @@ classDiagram
     string model
     string tool_call_id
   }
+  class PlatformAgentSessionView {
+    string agent_session_id*
+    PlatformBudget budget*
+    datetime expires_at*
+  }
+  class PlatformApprovalView {
+    string approval_id*
+    datetime expires_at*
+    string job_id
+    string reasons*
+    string run_id
+    string study_id
+  }
   class PlatformArtifactEntry {
     string format*
     ArtifactKind kind*
@@ -28,6 +41,14 @@ classDiagram
     string run_manifest_sha256*
     string schema
     PlatformAttemptManifestStatus platform_status*
+  }
+  class PlatformBudget {
+    JobClass allowed_job_classes
+    string allowed_targets
+    integer max_concurrent_attempts
+    float max_estimated_spend
+    integer max_evaluations
+    integer max_runs
   }
   class PlatformDerivedFrom {
     string decisions
@@ -180,6 +201,37 @@ classDiagram
     string platform*
     string python*
   }
+  class PlatformStudyDefinition {
+    PlatformStudyDimension dimensions*
+    string env_config*
+    string model_inputs*
+    PlatformObjective objectives*
+    string optimization*
+    integer seed
+    string workflow*
+    string workflow_version*
+  }
+  class PlatformStudyDimension {
+    float high*
+    string key*
+    string platform_label*
+    float low*
+  }
+  class PlatformStudyEvaluation {
+    string decisions*
+    string error
+    integer evaluation*
+    boolean failed
+    string objectives*
+    integer steps
+  }
+  class PlatformStudyManifest {
+    PlatformStudyDefinition definition*
+    PlatformStudyEvaluation evaluations*
+    string result*
+    string runtime*
+    string schema
+  }
   class PlatformStudyView {
     string approval_id
     integer batches*
@@ -202,6 +254,7 @@ classDiagram
     string workflow*
     string workflow_version*
   }
+  PlatformAgentSessionView *-- "1" PlatformBudget : budget
   PlatformAttemptManifest *-- "*" PlatformArtifactEntry : artifacts
   PlatformAttemptManifest *-- "1" PlatformProvenance : provenance
   PlatformInputs *-- "*" PlatformInputFile : files
@@ -217,6 +270,10 @@ classDiagram
   PlatformProvenance *-- "1" PlatformRuntimeVersions : runtime
   PlatformRevisionManifest *-- "1" PlatformDerivedFrom : derived_from
   PlatformRevisionManifest *-- "*" PlatformManifestFile : files
+  PlatformStudyDefinition *-- "*" PlatformStudyDimension : dimensions
+  PlatformStudyDefinition *-- "*" PlatformObjective : objectives
+  PlatformStudyManifest *-- "1" PlatformStudyDefinition : definition
+  PlatformStudyManifest *-- "*" PlatformStudyEvaluation : evaluations
   PlatformStudyView *-- "*" PlatformObjective : objectives
 ```
 
@@ -225,8 +282,11 @@ classDiagram
 | Class | Parent | Description |
 | --- | --- | --- |
 | `PlatformActor` |  | Who asked for the work: the human principal and, optionally, an AI agent. |
+| `PlatformAgentSessionView` |  | An agent session as its creator sees it (the credential is returned only once). |
+| `PlatformApprovalView` |  | A request outside an agent session's budget, waiting for a person. |
 | `PlatformArtifactEntry` |  | ArtifactEntry |
 | `PlatformAttemptManifest` |  | AttemptManifest |
+| `PlatformBudget` |  | A delegated budget for one AI agent session. ``None`` means no limit. |
 | `PlatformDerivedFrom` |  | The revision a revision was made from, and the study evaluation that chose it. |
 | `PlatformError` |  | ErrorBody |
 | `PlatformEvent` |  | Event |
@@ -245,5 +305,9 @@ classDiagram
 | `PlatformRunSummary` |  | The engine's end-of-run report as data: the tables of the text report.  It names model elements, so it is an artifact in the target's storage and is subject to the target's egress policy; it is never sent in events. |
 | `PlatformRuntime` |  | Runtime |
 | `PlatformRuntimeVersions` |  | RuntimeVersions |
+| `PlatformStudyDefinition` |  | What a study evaluates and how it searches: the same wherever it runs. |
+| `PlatformStudyDimension` |  | One component of the decision vector, with the decision key it belongs to. |
+| `PlatformStudyEvaluation` |  | One evaluated candidate, as ``evaluations.jsonl`` records it. |
+| `PlatformStudyManifest` |  | A study's definition, every evaluation and its result, written by a local run and by a platform run alike. Two executions of one study differ only in ``runtime``. |
 | `PlatformStudyView` |  | StudyView |
 | `PlatformWorkload` |  | Workload |

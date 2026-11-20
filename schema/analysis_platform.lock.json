@@ -1,6 +1,8 @@
 {
-  "schemas_sha256": "f6e4a81b40521c04800eb50db9b902deae41fa53fdc38a9e4706a16ef7e0b6ef",
+  "schemas_sha256": "b2527b511035175e6729771de27ef1ebefd5d01f0a6f3b609b02bc7099c5dbbe",
   "contracts": [
+    "agent-session-view-1",
+    "approval-view-1",
     "attempt-manifest-1",
     "error-1",
     "event-1",
@@ -8,9 +10,10 @@
     "revision-manifest-1",
     "run-request-1",
     "run-summary-1",
+    "study-manifest-1",
     "study-view-1"
   ],
-  "classes": 23,
+  "classes": 30,
   "enums": 11,
-  "generated_at": "2026-11-20T12:46:07+00:00"
+  "generated_at": "2026-11-20T13:17:24+00:00"
 }

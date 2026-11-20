@@ -37,6 +37,9 @@ class SQLiteRules(Assertions):
         return ("SELECT f.iri AS finding_iri, f.trace_id, f.verifier_passed, j.value AS evidence_iri "
                 "FROM analysis__agent_finding f, json_each(f.evidence) j")
 
+    def derived_bases(self):
+        return "SELECT r.iri, j.value AS base_iri FROM analysis__revision r, json_each(r.was_derived_from) j"
+
 
 def column(d, slot):
     name = identifier(slot.name)

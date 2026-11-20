@@ -45,6 +45,21 @@ enums:
       WRITE: {description: Changes values in a model or a run}
       STRUCTURAL: {description: "Adds, removes or reshapes model elements"}
       FILE: {description: Reads or writes files}
+  ApprovalState:
+    description: Where a request outside an agent session's budget stands.
+    permissible_values:
+      PENDING: {description: Waiting for a person}
+      APPROVED: {description: A person approved it}
+      REJECTED: {description: A person rejected it}
+      EXPIRED: {description: Nobody decided before it expired}
+  EventAggregation:
+    description: How the scores of the events in an event set make one score.
+    permissible_values:
+      SUM: {}
+      MEAN: {}
+      MAX: {description: The worst event}
+      WEIGHTED_MEAN: {description: Weighted by each event's weight}
+      EXPECTED_ANNUAL: {description: "Integrated over return periods, per year"}
 
 slots:
   revision_id:
@@ -160,28 +175,90 @@ slots:
     range: Agent
   candidate_index:
     range: integer
-  parameters:
-    range: string
-    description: JSON of decision variables.
+    description: The candidate's evaluation number in its study, from 1.
+  decision_values:
+    range: DecisionValue
+    multivalued: true
+    inlined_as_list: true
+    description: The candidate's design, one entry per component of the decision vector.
   objective_values:
-    range: string
-    description: JSON of objective name to value.
+    range: ObjectiveValue
+    multivalued: true
+    inlined_as_list: true
+    description: The candidate's score on each objective.
   is_pareto:
     range: boolean
+  study_manifest:
+    range: PlatformStudyManifest
+    inlined: true
+    description: The study's definition, evaluations and result (platform study manifest).
+  session_view:
+    range: PlatformAgentSessionView
+    inlined: true
+    description: The session's expiry and delegated budget (platform agent session view).
+  approval_view:
+    range: PlatformApprovalView
+    inlined: true
+    description: The request and why it needs a person (platform approval view).
+  approval_id:
+    range: string
+    description: hydrocouple.platform approval id.
+  approval_state:
+    range: ApprovalState
+    description: Whether a person approved, rejected or has yet to decide.
+  derived_in_study:
+    range: Study
+    description: The study whose evaluation chose this revision's design.
+  chosen_evaluation:
+    range: integer
+    description: The evaluation of derived_in_study whose design this revision holds.
+  of_scenario:
+    range: Scenario
+    description: The scenario of its revision that a run executes.
+  catalog_path:
+    range: string
+    description: Engine catalog path of an element field, e.g. subcatchment.width.
+  override_element_id:
+    range: string
+    description: The model element's own id.
+  base_value:
+    range: float
+    description: The value the revision holds, before the override.
+  override_value:
+    range: float
+    description: The value the scenario writes (a boolean as 1 or 0).
+  override_unit:
+    range: string
+    description: The unit of the value, in the model's unit system, when it is known.
+  events:
+    range: ForcingEvent
+    multivalued: true
+    description: The events of an event set.
+  event_aggregation:
+    range: EventAggregation
+    description: How the events' scores combine.
+  return_period_years:
+    range: float
+    description: The event's average recurrence interval, in years.
+  event_weight:
+    range: float
+    description: The event's weight in a weighted aggregation.
 
 classes:
   Revision:
     is_a: Entity
     mixins: [Attributed, Dataset]
     description: An immutable model revision identified by its platform manifest or by a local input bundle and its checksum. Each SWMM element belongs to one revision.
-    slots: [revision_id, of_composition, revision_manifest, manifest_sha256, input_sha256, bundle_sha256, mapping_release]
+    slots: [revision_id, of_composition, revision_manifest, manifest_sha256, input_sha256, bundle_sha256, mapping_release, was_derived_from, derived_in_study, chosen_evaluation]
+    slot_usage:
+      was_derived_from: {description: "The revision this one was made from (its manifest's derived_from)."}
     exact_mappings: [prov:Entity]
 
   Run:
     is_a: DerivedEntity
     mixins: [Attributed]
     description: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).
-    slots: [run_id, of_revision, of_study, workflow, started_at, ended_at, was_associated_with, used, tool_call_id, session_id, run_request, job_spec]
+    slots: [run_id, of_revision, of_study, of_scenario, workflow, started_at, ended_at, was_associated_with, used, tool_call_id, session_id, run_request, job_spec]
     broad_mappings: [prov:Plan]
 
   Attempt:
@@ -194,13 +271,68 @@ classes:
   Study:
     is_a: DerivedEntity
     mixins: [Attributed, Activity]
-    description: "An ask/tell optimisation over an evaluator pool (platform study view): objectives, budget, state and the Pareto set."
-    slots: [study_id, of_revision, workflow, session_id, study_view]
+    description: "An ask/tell optimisation or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, from the platform, its view."
+    slots: [study_id, of_revision, workflow, session_id, study_view, study_manifest]
 
   Candidate:
     is_a: DerivedEntity
-    description: One evaluated design or policy in a study, with its decision variables and objective values.
-    slots: [of_study, candidate_index, parameters, objective_values, is_pareto, of_run]
+    description: One evaluated design or policy in a study, with its decision variables and objective values. was_generated_by is its study.
+    slots: [of_study, candidate_index, decision_values, objective_values, is_pareto, of_run]
+
+  DecisionValue:
+    description: One component of a candidate's decision vector.
+    attributes:
+      dimension: {range: string, required: true, description: "The design dimension's key, e.g. subcatchment.width."}
+      label: {range: string, description: "The component, e.g. field_design:S1."}
+      value: {range: float, required: true, description: The component's value in the field's units.}
+
+  ObjectiveValue:
+    description: A candidate's score on one objective.
+    attributes:
+      name: {range: string, required: true}
+      direction: {range: string, description: "minimize or maximize; absent on rows migrated from 0.2, which did not record it."}
+      value: {range: float, required: true, description: "The cost as the study minimised it: a maximized objective is negated."}
+
+  Scenario:
+    is_a: Entity
+    description: A variant of a revision - the revision plus element field overrides - as a swmm.simulation@2 run executes it. Its overrides are ScenarioOverride rows.
+    slots: [of_revision]
+    slot_usage:
+      of_revision: {required: true, description: The base revision the overrides apply to.}
+
+  ScenarioOverride:
+    is_a: Entity
+    description: One field value a scenario writes over its revision, by engine catalog path, before the model initializes.
+    slots: [of_scenario, catalog_path, override_element_id, override_value, base_value, override_unit]
+    slot_usage:
+      of_scenario: {required: true}
+      catalog_path: {required: true}
+      override_element_id: {required: true}
+      override_value: {required: true}
+
+  EventSet:
+    is_a: Entity
+    description: A set of forcing events (design storms, historical periods) a design or policy is scored over, and how their scores combine.
+    slots: [events, event_aggregation]
+    slot_usage:
+      events: {required: true}
+      event_aggregation: {required: true}
+
+  ForcingEvent:
+    is_a: Entity
+    description: One forcing event of an event set - a rainfall or inflow series over a period - with its return period and weight.
+    slots: [return_period_years, event_weight, started_at, ended_at, used]
+    slot_usage:
+      used: {description: The input artifacts (series files) that hold the event.}
+
+  Approval:
+    is_a: Entity
+    mixins: [Activity]
+    description: A request outside an agent session's budget and what a person decided (platform approval view). was_associated_with is the person who decided, never an AI agent.
+    slots: [approval_id, of_run, of_study, approval_state, approval_view]
+    slot_usage:
+      approval_id: {required: true}
+      approval_state: {required: true}
 
   AgentFinding:
     is_a: DerivedEntity
@@ -212,7 +344,7 @@ classes:
     is_a: Entity
     mixins: [Activity]
     description: One session of an AI agent - a client and a model that a person started. The agent that worked in it is was_associated_with, an Agent of kind AI_AGENT that acts on that person's behalf. The platform names the session in the actor of every run it submits.
-    slots: [session_id]
+    slots: [session_id, session_view]
     slot_usage:
       session_id: {required: true}
       was_associated_with: {required: true}

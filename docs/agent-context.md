@@ -103,6 +103,8 @@ Use registry.json bindings to resolve a term in its class and source scheme. Loo
 
 ### analysis
 
+- DecisionValue: One component of a candidate's decision vector.
+- ObjectiveValue: A candidate's score on one objective.
 - VerifiedClaim: One number a finding's statement cites, checked against the artifact it cites.
 - VerifierReport: The verifier's account of a finding - each cited number, where it was looked up and what was found there.
 - (under DerivedEntity)
@@ -110,14 +112,19 @@ Use registry.json bindings to resolve a term in its class and source scheme. Loo
   - Candidate  [analysis.candidate]: One evaluated design or policy in a study, with its decision variables and objective values.
   - ResultArtifact  [analysis.result_artifact]: An output produced by an execution attempt, identified by the digest of its bytes.
   - Run  [analysis.run]: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).
-  - Study  [analysis.study]: An ask/tell optimisation over an evaluator pool (platform study view): objectives, budget, state and the Pareto set.
+  - Study  [analysis.study]: An ask/tell optimisation or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, fr
 - (under Entity)
   - AgentSession  [analysis.agent_session]: One session of an AI agent - a client and a model that a person started.
+  - Approval  [analysis.approval]: A request outside an agent session's budget and what a person decided (platform approval view).
   - Attempt  [analysis.attempt]: One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest).
+  - EventSet  [analysis.event_set]: A set of forcing events (design storms, historical periods) a design or policy is scored over, and how their scores combine.
+  - ForcingEvent  [analysis.forcing_event]: One forcing event of an event set - a rainfall or inflow series over a period - with its return period and weight.
   - IngestionActivity  [analysis.ingestion_activity]: A particular import of a revision under a versioned mapping profile.
   - InputArtifact  [analysis.input_artifact]: A hashed primary input or an external dependency in a revision bundle.
   - InputRecord  [analysis.input_record]: An original INP record retained with its line number and ordered native tokens.
   - Revision  [analysis.revision]: An immutable model revision identified by its platform manifest or by a local input bundle and its checksum.
+  - Scenario  [analysis.scenario]: A variant of a revision - the revision plus element field overrides - as a swmm.simulation@2 run executes it.
+  - ScenarioOverride  [analysis.scenario_override]: One field value a scenario writes over its revision, by engine catalog path, before the model initializes.
   - Tool  [analysis.tool]: A tool an agent can call, as its server registers it.
   - ToolCall  [analysis.tool_call]: One call an agent made to a tool.
 
@@ -205,6 +212,9 @@ The validator enforces these; open violations are in `reference.ontology_violati
 - A finding is never reviewed by an AI agent, or by the agent it is attributed to.
 - A tool call belongs to a known agent session.
 - The agent of an agent session is an AI agent that acts on behalf of someone.
+- A scenario overrides only writable float, int or bool element fields of the engine catalog.
+- A revision derived from another names a known revision.
+- An approval is decided by a person, never by an AI agent.
 - An observation's unit is its property's default unit (after normalisation).
 - Each relation only connects the classes listed under Relations.
 

@@ -1,0 +1,313 @@
+{
+  "definition": {
+    "dimensions": [
+      {
+        "high": 4.0,
+        "key": "node_max_depth",
+        "label": "node_max_depth:T1",
+        "low": 2.0
+      },
+      {
+        "high": 4.0,
+        "key": "node_max_depth",
+        "label": "node_max_depth:T2",
+        "low": 2.0
+      },
+      {
+        "high": 3.0,
+        "key": "link_diameter",
+        "label": "link_diameter:OUT",
+        "low": 0.5
+      }
+    ],
+    "env_config": {
+      "control_interval_seconds": null,
+      "control_interval_steps": 1,
+      "design_factories": [
+        {
+          "kind": "node_max_depth",
+          "params": {
+            "high": 4.0,
+            "low": 2.0,
+            "node_ids": [
+              "T1",
+              "T2"
+            ]
+          }
+        },
+        {
+          "kind": "link_diameter",
+          "params": {
+            "high": 3.0,
+            "link_ids": [
+              "OUT"
+            ],
+            "low": 0.5
+          }
+        }
+      ],
+      "env_type": "cip",
+      "ideal_point": null,
+      "inp_path": "model/model.inp",
+      "market_config": null,
+      "max_episode_steps": null,
+      "n_points": null,
+      "observations": {
+        "cell_fields": [],
+        "fields": {},
+        "include_clock": false,
+        "link_capacities": [],
+        "link_depths": [],
+        "link_flows": [],
+        "link_pollutant_concentration": {},
+        "link_settings": [],
+        "link_velocities": [],
+        "link_volumes": [],
+        "node_depths": [
+          "T1",
+          "T2"
+        ],
+        "node_heads": [],
+        "node_inflows": [],
+        "node_lateral_inflows": [],
+        "node_overflows": [],
+        "node_pollutant_concentration": {},
+        "node_volumes": [],
+        "rainfall_gages": [],
+        "subcatch_groundwater": [],
+        "subcatch_runoff": [],
+        "vertex_depths_2d": []
+      },
+      "out_path": null,
+      "policy_bounds": null,
+      "policy_factory": null,
+      "reference_point": null,
+      "reward_terms": [
+        {
+          "kind": "flooding_volume",
+          "params": {}
+        },
+        {
+          "kind": "peak_outflow",
+          "params": {
+            "link_ids": [
+              "OUT"
+            ]
+          }
+        }
+      ],
+      "rpt_path": null,
+      "runtime_factories": [],
+      "schedule_bounds": null,
+      "structure_ids": null,
+      "tune_full": false,
+      "wrappers": []
+    },
+    "model_inputs": {
+      "model/model.inp": "65e2ebb1b252a422f144ce52d74dec9cf18d1582ff91bbf5ad7ecdf922649840"
+    },
+    "objectives": [
+      {
+        "direction": "minimize",
+        "name": "flooding_volume"
+      },
+      {
+        "direction": "minimize",
+        "name": "peak_outflow"
+      }
+    ],
+    "optimization": {
+      "algorithm": "alternatives",
+      "budget": 50,
+      "candidates": [
+        {
+          "link_diameter": [
+            1.0
+          ],
+          "node_max_depth": [
+            3.0,
+            3.0
+          ]
+        },
+        {
+          "link_diameter": [
+            2.5
+          ],
+          "node_max_depth": [
+            2.0,
+            4.0
+          ]
+        },
+        {
+          "link_diameter": [
+            0.5
+          ],
+          "node_max_depth": [
+            4.0,
+            2.0
+          ]
+        }
+      ],
+      "failure_penalty": 1000000000000.0,
+      "grid_levels": 5,
+      "max_steps_per_episode": 10000,
+      "on_failure": "penalty",
+      "population_size": 20,
+      "seed": 3
+    },
+    "seed": 3,
+    "workflow": "gym.evaluate",
+    "workflow_version": "1"
+  },
+  "evaluations": [
+    {
+      "decisions": {
+        "link_diameter": [
+          1.0
+        ],
+        "node_max_depth": [
+          3.0,
+          3.0
+        ]
+      },
+      "error": null,
+      "evaluation": 1,
+      "failed": false,
+      "objectives": {
+        "flooding_volume": 0.0,
+        "peak_outflow": 7.6522854885523195
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "link_diameter": [
+          2.5
+        ],
+        "node_max_depth": [
+          2.0,
+          4.0
+        ]
+      },
+      "error": null,
+      "evaluation": 2,
+      "failed": false,
+      "objectives": {
+        "flooding_volume": 990.4772261711636,
+        "peak_outflow": 12.027432357258798
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "link_diameter": [
+          0.5
+        ],
+        "node_max_depth": [
+          4.0,
+          2.0
+        ]
+      },
+      "error": null,
+      "evaluation": 3,
+      "failed": false,
+      "objectives": {
+        "flooding_volume": 13769.081330002318,
+        "peak_outflow": 2.2691264273397485
+      },
+      "steps": 1
+    }
+  ],
+  "result": {
+    "best": {
+      "decisions": {
+        "link_diameter": [
+          1.0
+        ],
+        "node_max_depth": [
+          3.0,
+          3.0
+        ]
+      },
+      "evaluation": 1,
+      "objectives": {
+        "flooding_volume": 0.0,
+        "peak_outflow": 7.6522854885523195
+      },
+      "steps": 1
+    },
+    "evaluations_count": 3,
+    "failed_count": 0,
+    "objective_names": [
+      "flooding_volume",
+      "peak_outflow"
+    ],
+    "optimization": {
+      "algorithm": "alternatives",
+      "budget": 50,
+      "candidates": 3,
+      "seed": 3
+    },
+    "pareto": [
+      {
+        "decisions": {
+          "link_diameter": [
+            1.0
+          ],
+          "node_max_depth": [
+            3.0,
+            3.0
+          ]
+        },
+        "evaluation": 1,
+        "objectives": {
+          "flooding_volume": 0.0,
+          "peak_outflow": 7.6522854885523195
+        },
+        "steps": 1
+      },
+      {
+        "decisions": {
+          "link_diameter": [
+            0.5
+          ],
+          "node_max_depth": [
+            4.0,
+            2.0
+          ]
+        },
+        "evaluation": 3,
+        "objectives": {
+          "flooding_volume": 13769.081330002318,
+          "peak_outflow": 2.2691264273397485
+        },
+        "steps": 1
+      }
+    ]
+  },
+  "runtime": {
+    "execution": {
+      "on_failure": "penalty",
+      "platform": {
+        "pool_size": 1,
+        "study_id": "std_76909d6d17b89f7b3aaa",
+        "target_id": "tgt_0cfd9d2da67a74eb2006",
+        "workers": 1
+      }
+    },
+    "executor": "platform",
+    "lineage_manifest_sha256": "050332928fcfb79ec5627396f4c25bd94a1c7666d68ad0aefb74135479afbf67",
+    "revision_id": "rev_970c72e1e4671b99421f",
+    "revision_manifest_sha256": "d6a4f25b15b2943cacecfa33b6ea584eaba0bd040ab0a49c9f766143991b72e1",
+    "run_id": "run_33e364d5f5ed077f5051",
+    "study_id": "std_76909d6d17b89f7b3aaa",
+    "target_id": "tgt_0cfd9d2da67a74eb2006",
+    "versions": {
+      "hydrocouple.platform": "0.1.0.dev0",
+      "openswmm": "6.0.0a4.dev2",
+      "openswmm.gymnasium": "0.1.0.dev0",
+      "python": "3.12.13"
+    }
+  },
+  "schema": "hydrocouple.platform/study-manifest/1"
+}
