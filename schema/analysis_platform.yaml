@@ -4,7 +4,7 @@ title: Water Systems Ontology — hydrocouple.platform contracts (generated)
 description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
   contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
   embeds these as manifests.
-version: platform-eb907767c5de
+version: platform-f6e4a81b4052
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -174,6 +174,13 @@ classes:
         required: true
         annotations:
           json_property: created_at
+      derived_from:
+        description: Lineage of a revision made from another; absent otherwise.
+        range: PlatformDerivedFrom
+        inlined: true
+        slot_uri: hcp:PlatformRevisionManifest.derived_from
+        annotations:
+          json_property: derived_from
       files:
         description: Files
         range: PlatformManifestFile
@@ -217,6 +224,46 @@ classes:
       json_schema_id: https://hydrocouple.org/schema/platform/revision-manifest-1.json
       platform_contract: 'true'
       schema_file: revision-manifest-1.json
+  PlatformDerivedFrom:
+    description: The revision a revision was made from, and the study evaluation that chose it.
+    attributes:
+      decisions:
+        description: The evaluation's design, by dimension key
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: decisions
+        slot_uri: hcp:PlatformDerivedFrom.decisions
+      evaluation:
+        description: Evaluation
+        range: integer
+        minimum_value: 1
+        slot_uri: hcp:PlatformDerivedFrom.evaluation
+        annotations:
+          json_property: evaluation
+      revision_id:
+        description: Revision Id
+        range: string
+        slot_uri: hcp:PlatformDerivedFrom.revision_id
+        required: true
+        annotations:
+          json_property: revision_id
+      revision_manifest_sha256:
+        description: Revision Manifest Sha256
+        range: string
+        slot_uri: hcp:PlatformDerivedFrom.revision_manifest_sha256
+        required: true
+        annotations:
+          json_property: revision_manifest_sha256
+      study_id:
+        description: Study Id
+        range: string
+        slot_uri: hcp:PlatformDerivedFrom.study_id
+        annotations:
+          json_property: study_id
+    annotations:
+      json_schema_id: DerivedFrom
+      platform_contract: 'true'
   PlatformManifestFile:
     description: ManifestFile
     attributes:

@@ -29,6 +29,13 @@ classDiagram
     string schema
     PlatformAttemptManifestStatus platform_status*
   }
+  class PlatformDerivedFrom {
+    string decisions
+    integer evaluation
+    string revision_id*
+    string revision_manifest_sha256*
+    string study_id
+  }
   class PlatformError {
     ErrorCode code*
     string details
@@ -134,6 +141,7 @@ classDiagram
     string components*
     string composition
     datetime created_at*
+    PlatformDerivedFrom derived_from
     PlatformManifestFile files*
     string findings
     string packaged_by*
@@ -207,6 +215,7 @@ classDiagram
   PlatformJobSpec *-- "1" PlatformWorkload : workload
   PlatformProvenance *-- "1" PlatformActor : actor
   PlatformProvenance *-- "1" PlatformRuntimeVersions : runtime
+  PlatformRevisionManifest *-- "1" PlatformDerivedFrom : derived_from
   PlatformRevisionManifest *-- "*" PlatformManifestFile : files
   PlatformStudyView *-- "*" PlatformObjective : objectives
 ```
@@ -218,6 +227,7 @@ classDiagram
 | `PlatformActor` |  | Who asked for the work: the human principal and, optionally, an AI agent. |
 | `PlatformArtifactEntry` |  | ArtifactEntry |
 | `PlatformAttemptManifest` |  | AttemptManifest |
+| `PlatformDerivedFrom` |  | The revision a revision was made from, and the study evaluation that chose it. |
 | `PlatformError` |  | ErrorBody |
 | `PlatformEvent` |  | Event |
 | `PlatformInputFile` |  | InputFile |

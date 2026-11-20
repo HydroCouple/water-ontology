@@ -1,5 +1,5 @@
 {
-  "schemas_sha256": "eb907767c5de97437bdfe06bd61523eb91a70973f988acbd8536799d1dff2e91",
+  "schemas_sha256": "f6e4a81b40521c04800eb50db9b902deae41fa53fdc38a9e4706a16ef7e0b6ef",
   "contracts": [
     "attempt-manifest-1",
     "error-1",
@@ -10,7 +10,7 @@
     "run-summary-1",
     "study-view-1"
   ],
-  "classes": 22,
+  "classes": 23,
   "enums": 11,
-  "generated_at": "2026-11-20T10:20:47+00:00"
+  "generated_at": "2026-11-20T12:46:07+00:00"
 }
