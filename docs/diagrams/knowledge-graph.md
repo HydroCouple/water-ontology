@@ -331,6 +331,8 @@ flowchart TB
     Output["Output"]
   end
   subgraph wsys_analysis["analysis"]
+    AcceptanceRule["AcceptanceRule"]
+    AcceptanceThreshold["AcceptanceThreshold"]
     AgentFinding["AgentFinding"]
     AgentSession["AgentSession"]
     Approval["Approval"]
@@ -342,7 +344,9 @@ flowchart TB
     IngestionActivity["IngestionActivity"]
     InputArtifact["InputArtifact"]
     InputRecord["InputRecord"]
+    MetricValue["MetricValue"]
     ObjectiveValue["ObjectiveValue"]
+    ParameterSet["ParameterSet"]
     ResultArtifact["ResultArtifact"]
     Revision["Revision"]
     Run["Run"]
@@ -395,6 +399,7 @@ flowchart TB
   Outfall -.-> Node
   Outlet -.-> Link
   Output -.-> ExchangeItem
+  ParameterSet -.-> DerivedEntity
   Prediction -.-> DerivedEntity
   Pump -.-> Link
   RainGage -.-> Asset
@@ -460,6 +465,8 @@ flowchart TB
   ModelComponent -- composition --> Composition
   Node -- system --> WaterSystem
   Observation -- datastream --> Datastream
+  ParameterSet -- of_study --> Study
+  ParameterSet -- members --> Candidate
   Prediction -- of_version --> MLModelVersion
   Revision -- of_composition --> Composition
   Revision -- derived_in_study --> Study
@@ -472,6 +479,7 @@ flowchart TB
   Setpoint -- set_by --> Agent
   Setpoint -- approved_by --> Agent
   Study -- of_revision --> Revision
+  Study -- scored_over --> EventSet
   Subcatchment -- system --> WaterSystem
   SwmmElement -- revision --> Revision
   SwmmLink -- from_node --> SwmmNode

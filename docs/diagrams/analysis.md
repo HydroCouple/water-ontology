@@ -4,6 +4,16 @@ Model revisions, runs, attempts, studies and agent findings. Each curated class 
 
 ```mermaid
 classDiagram
+  class AcceptanceRule {
+    AcceptanceThreshold thresholds
+    float best_fraction
+    string ranked_by
+  }
+  class AcceptanceThreshold {
+    string metric*
+    float at_least
+    float at_most
+  }
   class AgentFinding {
     string trace_id*
     FindingKind finding_kind*
@@ -46,6 +56,7 @@ classDiagram
     integer candidate_index
     DecisionValue decision_values
     ObjectiveValue objective_values
+    MetricValue metric_values
     boolean is_pareto
     Run of_run
   }
@@ -86,10 +97,19 @@ classDiagram
     string native_fields
     string disposition*
   }
+  class MetricValue {
+    string name*
+    float value
+  }
   class ObjectiveValue {
     string name*
     string direction
     float value*
+  }
+  class ParameterSet {
+    Study of_study*
+    Candidate members*
+    AcceptanceRule acceptance_rule*
   }
   class ResultArtifact {
     string artifact_sha256*
@@ -139,6 +159,10 @@ classDiagram
     string session_id
     PlatformStudyView study_view
     PlatformStudyManifest study_manifest
+    StudyKind study_kind
+    string search_algorithm
+    AcceptanceRule acceptance_rule
+    EventSet scored_over
   }
   class Tool {
     string tool_name*
@@ -170,6 +194,7 @@ classDiagram
     VerifiedClaim claims
     string uncited
   }
+  AcceptanceRule *-- "*" AcceptanceThreshold : thresholds
   DerivedEntity <|-- AgentFinding
   AgentFinding --> "*" ToolCall : tool_calls
   AgentFinding *-- "1" VerifierReport : verifier_report
@@ -187,6 +212,7 @@ classDiagram
   Candidate --> "1" Study : of_study
   Candidate *-- "*" DecisionValue : decision_values
   Candidate *-- "*" ObjectiveValue : objective_values
+  Candidate *-- "*" MetricValue : metric_values
   Candidate --> "1" Run : of_run
   Entity <|-- EventSet
   EventSet --> "*" ForcingEvent : events
@@ -196,6 +222,10 @@ classDiagram
   InputArtifact --> "1" Revision : of_revision
   Entity <|-- InputRecord
   InputRecord --> "1" Revision : of_revision
+  DerivedEntity <|-- ParameterSet
+  ParameterSet --> "1" Study : of_study
+  ParameterSet --> "*" Candidate : members
+  ParameterSet *-- "1" AcceptanceRule : acceptance_rule
   DerivedEntity <|-- ResultArtifact
   Entity <|-- Revision
   Revision --> "1" Composition : of_composition
@@ -216,6 +246,8 @@ classDiagram
   Study --> "1" Revision : of_revision
   Study *-- "1" PlatformStudyView : study_view
   Study *-- "1" PlatformStudyManifest : study_manifest
+  Study *-- "1" AcceptanceRule : acceptance_rule
+  Study --> "1" EventSet : scored_over
   Entity <|-- Tool
   Entity <|-- ToolCall
   ToolCall --> "1" AgentSession : in_session
@@ -227,24 +259,28 @@ classDiagram
 
 | Class | Parent | Description |
 | --- | --- | --- |
+| `AcceptanceRule` |  | Which evaluations of a study are behavioural - every threshold met, then the best fraction by one objective. |
+| `AcceptanceThreshold` |  | A bound on one metric of an evaluation. |
 | `AgentFinding` | DerivedEntity | What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict. Recommendations are proposals only. |
 | `AgentSession` | Entity | One session of an AI agent - a client and a model that a person started. The agent that worked in it is was_associated_with, an Agent of kind AI_AGENT that acts on that person's behalf. The platform names the session in the actor of every run it submits. |
 | `Approval` | Entity | A request outside an agent session's budget and what a person decided (platform approval view). was_associated_with is the person who decided, never an AI agent. |
 | `Attempt` | Entity | One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest). Simulation results ingested as Observations of result_kind SIMULATION point here through was_generated_by. |
-| `Candidate` | DerivedEntity | One evaluated design or policy in a study, with its decision variables and objective values. was_generated_by is its study. |
+| `Candidate` | DerivedEntity | One evaluated design or policy in a study, with its decision variables, objective values and metrics. was_generated_by is its study. |
 | `DecisionValue` |  | One component of a candidate's decision vector. |
 | `EventSet` | Entity | A set of forcing events (design storms, historical periods) a design or policy is scored over, and how their scores combine. |
 | `ForcingEvent` | Entity | One forcing event of an event set - a rainfall or inflow series over a period - with its return period and weight. |
 | `IngestionActivity` | Entity | A particular import of a revision under a versioned mapping profile. |
 | `InputArtifact` | Entity | A hashed primary input or an external dependency in a revision bundle. |
 | `InputRecord` | Entity | An original INP record retained with its line number and ordered native tokens. |
+| `MetricValue` |  | One value the evaluator reported for a candidate. |
 | `ObjectiveValue` |  | A candidate's score on one objective. |
+| `ParameterSet` | DerivedEntity | A calibration's behavioural set - the candidates of one study that its acceptance rule accepts. was_derived_from is the study. |
 | `ResultArtifact` | DerivedEntity | An output produced by an execution attempt, identified by the digest of its bytes. |
 | `Revision` | Entity | An immutable model revision identified by its platform manifest or by a local input bundle and its checksum. Each SWMM element belongs to one revision. |
 | `Run` | DerivedEntity | A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it). |
 | `Scenario` | Entity | A variant of a revision - the revision plus element field overrides - as a swmm.simulation@2 run executes it. Its overrides are ScenarioOverride rows. |
 | `ScenarioOverride` | Entity | One field value a scenario writes over its revision, by engine catalog path, before the model initializes. |
-| `Study` | DerivedEntity | An ask/tell optimisation or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, from the platform, its view. |
+| `Study` | DerivedEntity | An ask/tell optimisation, sampling design or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, from the platform, its view. |
 | `Tool` | Entity | A tool an agent can call, as its server registers it. |
 | `ToolCall` | Entity | One call an agent made to a tool. The arguments and the result are kept as checksums, not as content. |
 | `VerifiedClaim` |  | One number a finding's statement cites, checked against the artifact it cites. |

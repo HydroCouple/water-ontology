@@ -39,15 +39,23 @@ always give the same rows:
   wsys:tool/<server>/<server version>/<tool name>
   wsys:scenario/<sha256 of revision and overrides>   <scenario>/override/<n>
   wsys:study/<study id>        <study>/candidate/<evaluation>
+  <study>/event_set            <study>/event/<event name>
+  <study>/parameter_set/<sha256 of its acceptance rule, 16 hex digits>
 
 A revision whose manifest has derived_from names its base revision (by its
 manifest hash, in the same scope) in was_derived_from, and the study and
 evaluation that chose it.
 
+A study's kind and search algorithm, acceptance rule and event set come from
+its manifest's definition; each candidate carries its metrics. A parameter set
+is a behavioural set (openswmm_gymnasium.optimize.behavioural_set, as JSON)
+loaded with the manifest of its study.
+
 Usage:
     python -m loaders.platform_to_rows --utility demo --system site-drainage \\
         --revision package/revision-manifest.json --attempt downloads/att_1 \\
-        --journal mcp/journal/jr_1.jsonl --study study/study-manifest.json -o rows
+        --journal mcp/journal/jr_1.jsonl --study study/study-manifest.json \\
+        --parameter-set study/behavioural-set.json study/study-manifest.json -o rows
 """
 from __future__ import annotations
 
@@ -63,6 +71,20 @@ from loaders.rows import Rows
 from loaders.source_records import file_digest
 
 SOURCE = "hydrocouple.platform"
+
+#: A study's kind from its search algorithm; any other algorithm is a Platypus MOEA.
+STUDY_KINDS = {"lhs": "SAMPLING", "sobol": "SAMPLING", "random_search": "SAMPLING",
+               "grid_search": "SAMPLING", "alternatives": "ALTERNATIVES"}
+
+
+def acceptance(rule: dict | None) -> dict | None:
+    """An openswmm_gymnasium AcceptanceRule as an AcceptanceRule row value."""
+    if rule is None:
+        return None
+    row = {"thresholds": [{k: t[k] for k in ("metric", "at_least", "at_most") if t.get(k) is not None}
+                          for t in rule.get("thresholds") or []] or None,
+           "best_fraction": rule.get("best_fraction"), "ranked_by": rule.get("by")}
+    return {k: v for k, v in row.items() if v is not None}
 SHA256 = "http://spdx.org/rdf/terms#checksumAlgorithm_sha256"
 MEDIA_TYPES = {"json": "application/json", "swmm_rpt": "text/plain", "swmm_out": "application/octet-stream"}
 
@@ -203,18 +225,24 @@ class PlatformLoader(Rows):
         return iri
 
     def add_study(self, path: Path) -> str:
-        """A study manifest, local or platform, as a Study and one Candidate per evaluation."""
+        """A study manifest, local or platform, as a Study, one Candidate per evaluation and,
+        when its env config scores events, an EventSet of ForcingEvents."""
         manifest = json.loads(path.read_text(encoding="utf-8"))
         definition, runtime = manifest["definition"], manifest["runtime"]
         comparable = json.dumps({k: v for k, v in manifest.items() if k != "runtime"}, sort_keys=True)
         study_id = runtime.get("study_id") or f"local_{hashlib.sha256(comparable.encode()).hexdigest()[:20]}"
         iri = f"wsys:study/{part(study_id)}"
         job = runtime.get("run_id") or study_id
-        self.once("Study", {"iri": iri, "label": study_id, "study_id": study_id,
-                            "of_revision": self.revisions.get(runtime.get("revision_manifest_sha256")),
+        revision = self.revisions.get(runtime.get("revision_manifest_sha256"))
+        optimization = definition["optimization"]
+        algorithm = optimization["algorithm"]
+        self.once("Study", {"iri": iri, "label": study_id, "study_id": study_id, "of_revision": revision,
                             "workflow": f"{definition['workflow']}@{definition['workflow_version']}",
                             "was_generated_by": f"wsys:job/{part(job)}",
-                            "study_manifest": self.embed("PlatformStudyManifest", manifest)})
+                            "study_manifest": self.embed("PlatformStudyManifest", manifest),
+                            "study_kind": STUDY_KINDS.get(algorithm, "OPTIMIZATION"), "search_algorithm": algorithm,
+                            "acceptance_rule": acceptance(optimization.get("acceptance")),
+                            "scored_over": self.add_event_set(iri, definition["env_config"], revision)})
         directions = {o["name"]: o["direction"] for o in definition["objectives"]}
         pareto = {p["evaluation"] for p in manifest["result"].get("pareto") or []}
         for e in manifest["evaluations"]:
@@ -226,8 +254,40 @@ class PlatformLoader(Rows):
                 "candidate_index": e["evaluation"], "was_generated_by": iri, "is_pareto": e["evaluation"] in pareto,
                 "decision_values": [{"dimension": key, "label": label, "value": float(v)} for key, label, v in flat],
                 "objective_values": [{"name": n, "direction": directions[n], "value": float(v)}
-                                     for n, v in e["objectives"].items()]})
+                                     for n, v in e["objectives"].items()],
+                "metric_values": [{"name": n} if v is None else {"name": n, "value": float(v)}
+                                  for n, v in sorted((e.get("metrics") or {}).items())] or None})
         return iri
+
+    def add_event_set(self, study: str, env_config: dict, revision: str | None) -> str | None:
+        """The events a study's env config scores each candidate on, as an EventSet; None without events.
+        An event's rain series is its revision's input artifact when the revision is loaded."""
+        events = env_config.get("events") or []
+        if not events:
+            return None
+        model_dir = env_config["inp_path"].rpartition("/")[0]
+        iris = []
+        for e in events:
+            series = f"{model_dir}/{e['series']}" if model_dir else e["series"]
+            iris.append(self.once("ForcingEvent", {
+                "iri": f"{study}/event/{part(e['name'])}", "label": e["name"],
+                "return_period_years": e.get("return_period"), "event_weight": e.get("weight", 1.0),
+                "started_at": e["start"], "ended_at": e["end"],
+                "used": [f"{revision}/file/{part(series)}"] if revision else None}))
+        return self.once("EventSet", {"iri": f"{study}/event_set", "label": f"events of {study}", "events": iris,
+                                      "event_aggregation": env_config.get("event_aggregation", "mean").upper()})
+
+    def add_parameter_set(self, path: Path, study_manifest: Path) -> str:
+        """A behavioural set (openswmm_gymnasium.optimize.behavioural_set) of the study in study_manifest."""
+        accepted = json.loads(path.read_text(encoding="utf-8"))
+        study = self.add_study(study_manifest)
+        rule = json.dumps(accepted["rule"], sort_keys=True)
+        return self.once("ParameterSet", {
+            "iri": f"{study}/parameter_set/{hashlib.sha256(rule.encode()).hexdigest()[:16]}",
+            "label": f"behavioural set of {study}", "of_study": study, "was_derived_from": [study],
+            "was_generated_by": study,
+            "members": [f"{study}/candidate/{m['evaluation']}" for m in accepted["members"]],
+            "acceptance_rule": acceptance(accepted["rule"])})
 
     def merge(self, cls: str, row: dict) -> str:
         """Add a row, or fill the fields an earlier row with its IRI left empty."""
@@ -286,6 +346,8 @@ def main() -> None:
     ap.add_argument("--attempt", type=Path, action="append", default=[], help="a folder holding attempt.json; repeat for each attempt")
     ap.add_argument("--journal", type=Path, action="append", default=[], help="an openswmm.mcp tool-call journal; repeat for each")
     ap.add_argument("--study", type=Path, action="append", default=[], help="a study-manifest.json, local or platform; repeat for each")
+    ap.add_argument("--parameter-set", type=Path, nargs=2, action="append", default=[],
+                    metavar=("SET", "STUDY_MANIFEST"), help="a behavioural set and its study's manifest; repeat for each")
     ap.add_argument("-o", "--out", type=Path, default=Path("rows"))
     a = ap.parse_args()
     ld = PlatformLoader(a.utility, a.system)
@@ -297,6 +359,8 @@ def main() -> None:
         ld.add_journal(path)
     for path in a.study:
         ld.add_study(path)
+    for path, study in a.parameter_set:
+        ld.add_parameter_set(path, study)
     ld.write(a.out)
 
 

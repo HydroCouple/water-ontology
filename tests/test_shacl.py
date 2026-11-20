@@ -23,7 +23,8 @@ def run(shapes, name):
     return conforms, text
 
 
-@pytest.mark.parametrize("name", ["valid_network.ttl", "valid_agent_trace.ttl", "valid_scenarios.ttl"])
+@pytest.mark.parametrize("name", ["valid_network.ttl", "valid_agent_trace.ttl", "valid_scenarios.ttl",
+                                  "valid_experiments.ttl"])
 def test_valid_fixtures_conform(shapes, name):
     ok, text = run(shapes, name)
     assert ok, text
@@ -42,6 +43,9 @@ def test_valid_fixtures_conform(shapes, name):
     ("invalid_approval_without_state.ttl", "approval_state"),
     ("invalid_event_set_aggregation.ttl", "event_aggregation"),
     ("invalid_scenario_without_revision.ttl", "of_revision"),
+    ("invalid_parameter_set_without_study.ttl", "of_study"),
+    ("invalid_study_kind.ttl", "study_kind"),
+    ("invalid_threshold_without_metric.ttl", "metric"),
 ])
 def test_invalid_fixtures_fail_for_the_right_reason(shapes, name, expect):
     ok, text = run(shapes, name)

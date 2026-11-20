@@ -60,6 +60,12 @@ enums:
       MAX: {description: The worst event}
       WEIGHTED_MEAN: {description: Weighted by each event's weight}
       EXPECTED_ANNUAL: {description: "Integrated over return periods, per year"}
+  StudyKind:
+    description: How a study chooses the candidates it evaluates.
+    permissible_values:
+      SAMPLING: {description: "A design of experiments drawn before any candidate is scored: Latin hypercube, Sobol, random or grid"}
+      OPTIMIZATION: {description: "A search that chooses later candidates from earlier scores, e.g. NSGA-II"}
+      ALTERNATIVES: {description: Designs a person listed}
 
 slots:
   revision_id:
@@ -243,6 +249,28 @@ slots:
   event_weight:
     range: float
     description: The event's weight in a weighted aggregation.
+  study_kind:
+    range: StudyKind
+    description: How the study chose its candidates.
+  search_algorithm:
+    range: string
+    description: "The sampling design or search that drew the candidates, from the manifest's optimization: lhs, sobol, random_search, grid_search, alternatives, nsga2, ..."
+  acceptance_rule:
+    range: AcceptanceRule
+    inlined: true
+    description: Which evaluations are behavioural, as the study declares it or as a parameter set applied it.
+  scored_over:
+    range: EventSet
+    description: The events each candidate of the study is scored on.
+  metric_values:
+    range: MetricValue
+    multivalued: true
+    inlined_as_list: true
+    description: Every value the evaluator reported for the candidate, objective or not, as reported (a maximized objective is not negated).
+  members:
+    range: Candidate
+    multivalued: true
+    description: The candidates a parameter set accepts.
 
 classes:
   Revision:
@@ -271,13 +299,42 @@ classes:
   Study:
     is_a: DerivedEntity
     mixins: [Attributed, Activity]
-    description: "An ask/tell optimisation or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, from the platform, its view."
-    slots: [study_id, of_revision, workflow, session_id, study_view, study_manifest]
+    description: "An ask/tell optimisation, sampling design or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, from the platform, its view."
+    slots: [study_id, of_revision, workflow, session_id, study_view, study_manifest, study_kind, search_algorithm, acceptance_rule, scored_over]
 
   Candidate:
     is_a: DerivedEntity
-    description: One evaluated design or policy in a study, with its decision variables and objective values. was_generated_by is its study.
-    slots: [of_study, candidate_index, decision_values, objective_values, is_pareto, of_run]
+    description: One evaluated design or policy in a study, with its decision variables, objective values and metrics. was_generated_by is its study.
+    slots: [of_study, candidate_index, decision_values, objective_values, metric_values, is_pareto, of_run]
+
+  MetricValue:
+    description: One value the evaluator reported for a candidate.
+    attributes:
+      name: {range: string, required: true, description: "The reward term, or <term>@<event> for one event of an event set."}
+      value: {range: float, description: The value as the term reports it; absent when it was not finite.}
+
+  AcceptanceRule:
+    description: Which evaluations of a study are behavioural - every threshold met, then the best fraction by one objective.
+    attributes:
+      thresholds: {range: AcceptanceThreshold, multivalued: true, inlined_as_list: true, description: Bounds every member meets.}
+      best_fraction: {range: float, description: Keep only the best this fraction of the study's successful evaluations.}
+      ranked_by: {range: string, description: "The objective ranking best_fraction; the study's first objective when absent."}
+
+  AcceptanceThreshold:
+    description: A bound on one metric of an evaluation.
+    attributes:
+      metric: {range: string, required: true, description: "A metric name, e.g. kge_C11."}
+      at_least: {range: float, description: The lowest value accepted.}
+      at_most: {range: float, description: The highest value accepted.}
+
+  ParameterSet:
+    is_a: DerivedEntity
+    description: A calibration's behavioural set - the candidates of one study that its acceptance rule accepts. was_derived_from is the study.
+    slots: [of_study, members, acceptance_rule]
+    slot_usage:
+      of_study: {required: true, description: The study the members were evaluated in.}
+      members: {required: true}
+      acceptance_rule: {required: true}
 
   DecisionValue:
     description: One component of a candidate's decision vector.

@@ -103,16 +103,20 @@ Use registry.json bindings to resolve a term in its class and source scheme. Loo
 
 ### analysis
 
+- AcceptanceRule: Which evaluations of a study are behavioural - every threshold met, then the best fraction by one objective.
+- AcceptanceThreshold: A bound on one metric of an evaluation.
 - DecisionValue: One component of a candidate's decision vector.
+- MetricValue: One value the evaluator reported for a candidate.
 - ObjectiveValue: A candidate's score on one objective.
 - VerifiedClaim: One number a finding's statement cites, checked against the artifact it cites.
 - VerifierReport: The verifier's account of a finding - each cited number, where it was looked up and what was found there.
 - (under DerivedEntity)
   - AgentFinding  [analysis.agent_finding]: What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict.
-  - Candidate  [analysis.candidate]: One evaluated design or policy in a study, with its decision variables and objective values.
+  - Candidate  [analysis.candidate]: One evaluated design or policy in a study, with its decision variables, objective values and metrics.
+  - ParameterSet  [analysis.parameter_set]: A calibration's behavioural set - the candidates of one study that its acceptance rule accepts.
   - ResultArtifact  [analysis.result_artifact]: An output produced by an execution attempt, identified by the digest of its bytes.
   - Run  [analysis.run]: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).
-  - Study  [analysis.study]: An ask/tell optimisation or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, fr
+  - Study  [analysis.study]: An ask/tell optimisation, sampling design or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations
 - (under Entity)
   - AgentSession  [analysis.agent_session]: One session of an AI agent - a client and a model that a person started.
   - Approval  [analysis.approval]: A request outside an agent session's budget and what a person decided (platform approval view).
@@ -215,6 +219,8 @@ The validator enforces these; open violations are in `reference.ontology_violati
 - A scenario overrides only writable float, int or bool element fields of the engine catalog.
 - A revision derived from another names a known revision.
 - An approval is decided by a person, never by an AI agent.
+- A parameter set's members are candidates of its study.
+- An event set's events are forcing events.
 - An observation's unit is its property's default unit (after normalisation).
 - Each relation only connects the classes listed under Relations.
 

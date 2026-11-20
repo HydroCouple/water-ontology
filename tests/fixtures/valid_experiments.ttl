@@ -1,0 +1,20 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+
+# a sampling study scored over an event set, with its acceptance rule; a candidate with a
+# per-event metric; the parameter set the rule accepted
+ex:storm-short a wsys:ForcingEvent ; wsys:class_iri wsys:ForcingEvent ; wsys:event_weight "0.6"^^xsd:float .
+ex:events-2 a wsys:EventSet ; wsys:class_iri wsys:EventSet ; wsys:events ex:storm-short ;
+    wsys:event_aggregation "WEIGHTED_MEAN" .
+ex:study-2 a wsys:Study ; wsys:class_iri wsys:Study ; wsys:study_id "std_2" ; prov:wasGeneratedBy ex:run-pool ;
+    wsys:study_kind "SAMPLING" ; wsys:search_algorithm "lhs" ; wsys:scored_over ex:events-2 ;
+    wsys:acceptance_rule [ a wsys:AcceptanceRule ; wsys:best_fraction "0.1"^^xsd:float ;
+        wsys:thresholds [ a wsys:AcceptanceThreshold ; wsys:metric "kge_C11" ; wsys:at_least "0.5"^^xsd:float ] ] .
+ex:study-2-c1 a wsys:Candidate ; wsys:class_iri wsys:Candidate ; wsys:of_study ex:study-2 ; wsys:candidate_index 1 ;
+    prov:wasGeneratedBy ex:study-2 ;
+    wsys:metric_values [ a wsys:MetricValue ; wsys:name "kge_C11@short" ; wsys:value "0.8"^^xsd:float ] .
+ex:set-1 a wsys:ParameterSet ; wsys:class_iri wsys:ParameterSet ; wsys:of_study ex:study-2 ; wsys:members ex:study-2-c1 ;
+    prov:wasDerivedFrom ex:study-2 ; prov:wasGeneratedBy ex:study-2 ;
+    wsys:acceptance_rule [ a wsys:AcceptanceRule ; wsys:best_fraction "0.1"^^xsd:float ] .

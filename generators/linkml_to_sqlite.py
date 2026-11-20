@@ -40,6 +40,12 @@ class SQLiteRules(Assertions):
     def derived_bases(self):
         return "SELECT r.iri, j.value AS base_iri FROM analysis__revision r, json_each(r.was_derived_from) j"
 
+    def set_members(self):
+        return "SELECT p.iri, p.of_study, j.value AS member_iri FROM analysis__parameter_set p, json_each(p.members) j"
+
+    def set_events(self):
+        return "SELECT s.iri, j.value AS event_iri FROM analysis__event_set s, json_each(s.events) j"
+
 
 def column(d, slot):
     name = identifier(slot.name)

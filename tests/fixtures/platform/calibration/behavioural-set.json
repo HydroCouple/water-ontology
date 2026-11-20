@@ -1,0 +1,97 @@
+{
+  "rule": {
+    "thresholds": [
+      {
+        "metric": "nse_C11",
+        "at_least": 0.99
+      },
+      {
+        "metric": "rmse_C11",
+        "at_most": 0.2
+      }
+    ]
+  },
+  "evaluated": 12,
+  "members": [
+    {
+      "evaluation": 1,
+      "decisions": {
+        "subcatchment.width": [
+          2234.2983429845003
+        ]
+      },
+      "objectives": {
+        "nse_C11": -0.9999878295132747
+      },
+      "metrics": {
+        "kge_C11": 0.9984852439829991,
+        "nse_C11": 0.9999878295132747,
+        "rmse_C11": 0.19206913020010813
+      }
+    },
+    {
+      "evaluation": 2,
+      "decisions": {
+        "subcatchment.width": [
+          1930.4418491681695
+        ]
+      },
+      "objectives": {
+        "nse_C11": -0.9999957088785667
+      },
+      "metrics": {
+        "kge_C11": 0.9990629325107745,
+        "nse_C11": 0.9999957088785667,
+        "rmse_C11": 0.11404834790239039
+      }
+    },
+    {
+      "evaluation": 3,
+      "decisions": {
+        "subcatchment.width": [
+          1642.8365272758833
+        ]
+      },
+      "objectives": {
+        "nse_C11": -0.9999998466208699
+      },
+      "metrics": {
+        "kge_C11": 0.9998260025237977,
+        "nse_C11": 0.9999998466208699,
+        "rmse_C11": 0.021561885289051577
+      }
+    },
+    {
+      "evaluation": 5,
+      "decisions": {
+        "subcatchment.width": [
+          1847.2601114689007
+        ]
+      },
+      "objectives": {
+        "nse_C11": -0.9999973182114373
+      },
+      "metrics": {
+        "kge_C11": 0.9992548154114836,
+        "nse_C11": 0.9999973182114373,
+        "rmse_C11": 0.09016040694900124
+      }
+    },
+    {
+      "evaluation": 7,
+      "decisions": {
+        "subcatchment.width": [
+          1395.0806140302193
+        ]
+      },
+      "objectives": {
+        "nse_C11": -0.9999976565424423
+      },
+      "metrics": {
+        "kge_C11": 0.9992901788015015,
+        "nse_C11": 0.9999976565424423,
+        "rmse_C11": 0.08428147787684254
+      }
+    }
+  ]
+}

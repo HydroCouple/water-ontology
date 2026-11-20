@@ -94,6 +94,14 @@ class Assertions:
         """One row per base revision a revision names in was_derived_from."""
         return f"SELECT r.iri, explode(r.was_derived_from) AS base_iri FROM {self.t('analysis', 'revision')} r"
 
+    def set_members(self) -> str:
+        """One row per member a parameter set names, with the set's study."""
+        return f"SELECT p.iri, p.of_study, explode(p.members) AS member_iri FROM {self.t('analysis', 'parameter_set')} p"
+
+    def set_events(self) -> str:
+        """One row per event an event set names."""
+        return f"SELECT s.iri, explode(s.events) AS event_iri FROM {self.t('analysis', 'event_set')} s"
+
     def lineage_views(self) -> list[tuple[str, str, str]]:
         """(view, description, select): where a result artifact, and a finding's evidence, came from."""
         artifact = self.t("reference", "artifact_lineage")
@@ -273,6 +281,15 @@ WHERE b.iri IS NULL""")
 SELECT p.iri AS focus_iri, concat('approval was decided by ', p.was_associated_with) AS message
 FROM {self.t('analysis', 'approval')} p JOIN {agent} a ON a.iri = p.was_associated_with
 WHERE a.agent_kind = 'AI_AGENT'""")
+        # experiments
+        self.add("parameter_set_members_in_study", "ERROR", "A parameter set's members are candidates of its study.", f"""
+SELECT m.iri AS focus_iri, concat('member ', m.member_iri, ' is not a candidate of ', m.of_study) AS message
+FROM ({self.set_members()}) m LEFT JOIN {self.t('analysis', 'candidate')} c ON c.iri = m.member_iri AND c.of_study = m.of_study
+WHERE c.iri IS NULL""")
+        self.add("event_set_events_exist", "ERROR", "An event set's events are forcing events.", f"""
+SELECT e.iri AS focus_iri, concat('event ', e.event_iri, ' is not in analysis.forcing_event') AS message
+FROM ({self.set_events()}) e LEFT JOIN {self.t('analysis', 'forcing_event')} f ON f.iri = e.event_iri
+WHERE f.iri IS NULL""")
         # observations
         self.add("observation_unit_matches_property", "WARNING", "An observation's unit is its property's default unit (after normalisation).", f"""
 SELECT o.iri AS focus_iri, concat('unit ', o.unit, ' differs from default ', p.default_unit, ' for ', o.property_iri) AS message

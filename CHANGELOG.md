@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased: experiments (ecosystem Phase 3)
+
+- `Study` gains `study_kind` (`SAMPLING`, `OPTIMIZATION`, `ALTERNATIVES`), `search_algorithm`, `acceptance_rule` (an inlined `AcceptanceRule` of `AcceptanceThreshold`s and a best fraction) and `scored_over`, the `EventSet` its candidates are scored on; `Candidate` gains `metric_values`, every value the evaluator reported; `ParameterSet` is a calibration's behavioural set: the candidates of one study its acceptance rule accepts. Every change adds; no existing property changed, so there is no migration (the semantic diff is empty).
+- `platform_to_rows` fills these from a study manifest, an `EventSet` and its `ForcingEvent`s from the study's env config (each event's rain is an input artifact of the study's revision), and loads behavioural sets with `--parameter-set SET STUDY_MANIFEST`. Two assertions: a parameter set's members are candidates of its study, and an event set's events exist.
+- Re-vendor the platform schemas at `91f0683` (metrics per evaluation) and `9b700dc` (discrete dimensions).
+
 ## Unreleased: scenarios and studies (ecosystem Phase 2)
 
 - `Scenario` and `ScenarioOverride` (a revision plus element field overrides by engine catalog path, as `swmm.simulation@2` runs it), `EventSet` and `ForcingEvent`, `Approval`; `Revision` gains `was_derived_from`, `derived_in_study` and `chosen_evaluation`; `Study` embeds its study manifest and `AgentSession` its platform view, both generated from the platform's new schemas.

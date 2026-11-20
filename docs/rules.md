@@ -52,4 +52,6 @@
 | `scenario_override_writable` | ERROR | A scenario overrides only writable float, int or bool element fields of the engine catalog. |
 | `derived_revision_base_known` | ERROR | A revision derived from another names a known revision. |
 | `approval_decided_by_a_person` | ERROR | An approval is decided by a person, never by an AI agent. |
+| `parameter_set_members_in_study` | ERROR | A parameter set's members are candidates of its study. |
+| `event_set_events_exist` | ERROR | An event set's events are forcing events. |
 | `observation_unit_matches_property` | WARNING | An observation's unit is its property's default unit (after normalisation). |
