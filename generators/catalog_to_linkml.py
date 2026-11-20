@@ -15,6 +15,7 @@ module's annotations.
 Usage:
     python -m generators.catalog_to_linkml --catalog ../openswmm.engine/python/openswmm/engine/catalog.json
     python -m generators.catalog_to_linkml                      # uses the installed openswmm package
+    python -m generators.catalog_to_linkml --catalog NEW.json --compat   # may NEW.json replace the vendored one?
 """
 from __future__ import annotations
 
@@ -274,15 +275,48 @@ class CatalogToLinkML:
         }
 
 
+def catalog_paths(schema: dict) -> set[str]:
+    """Every catalog path and target the generated classes of a model schema are bound to."""
+    found: set[str] = set()
+
+    def walk(node) -> None:
+        if isinstance(node, dict):
+            annotations = node.get("annotations") or {}
+            found.update(str(annotations[k]) for k in ("catalog_path", "catalog_target") if k in annotations)
+            for value in node.values():
+                walk(value)
+
+    walk(schema["classes"])
+    return found
+
+
+def dropped_paths(committed: dict, generated: dict) -> list[str]:
+    """Catalog paths the committed model schema uses that a newly generated one no longer has.
+
+    Additions are fine: they need `make model` and nothing else. A dropped path removes or
+    renames a column, which needs a migration.
+    """
+    return sorted(catalog_paths(committed) - catalog_paths(generated))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--catalog", help="path to catalog.json; default: the installed openswmm package")
     ap.add_argument("--check", action="store_true", help="fail if schema/model.yaml is stale")
+    ap.add_argument("--compat", action="store_true",
+                    help="fail if the catalog cannot be generated from, or drops a path schema/model.yaml uses")
     a = ap.parse_args()
     cat = load_catalog(a.catalog)
     mappings = yaml.safe_load(MAPPINGS.read_text()) or {}
     gen = CatalogToLinkML(cat, mappings)
     schema = gen.build()
+    if a.compat:
+        dropped = dropped_paths(yaml.safe_load(OUT.read_text()), schema)
+        if dropped:
+            raise SystemExit("the catalog drops paths schema/model.yaml uses; regenerate with `make model` "
+                             "and add a migration: " + ", ".join(dropped))
+        print(f"catalog is compatible: every path schema/model.yaml uses is still there (r{cat['revision']})")
+        return
     text = yaml.safe_dump(schema, sort_keys=False, allow_unicode=True, width=120)
     shared = {k: schema[k] for k in ("prefixes", "default_prefix", "license", "version")}
     shared.update(id="https://w3id.org/wsys/swmm-codes", name="wsys-swmm-codes",

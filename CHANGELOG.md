@@ -5,6 +5,8 @@
 - Generate a governed SQLite snapshot, scoped term registry, versioned Delta terminology records and native-to-ontology coverage inventory.
 - Preserve SWMM source evidence, model water quality, checksummed results, occurrence identity, unit metadata and provenance across the import and simulation.
 - Share SWMM code schemes and aliases across projections. Migrate legacy identifiers and publish or roll back local releases with an audit trail.
+- Check a new engine catalog for compatibility: `python -m generators.catalog_to_linkml --catalog NEW.json --compat` fails when the catalog drops a path `schema/model.yaml` uses and passes on additions. The engine's contract job runs it.
+- Re-vendor the OpenSWMM catalog at engine `0bf55d4f`, where every method carries an `effect`.
 
 
 ## 0.1.0 (unreleased)

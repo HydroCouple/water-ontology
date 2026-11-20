@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from generators.catalog_to_linkml import CatalogToLinkML, MAPPINGS, OUT, LOCK, load_catalog
+from generators.catalog_to_linkml import CatalogToLinkML, MAPPINGS, OUT, LOCK, dropped_paths, load_catalog
 
 ROOT = Path(__file__).resolve().parent.parent
 CATALOG = os.environ.get("CATALOG", str(ROOT / "vendor/openswmm/catalog.json"))
@@ -28,6 +28,17 @@ def test_model_yaml_is_fresh(cat):
 def test_lock_matches_catalog_revision(cat):
     lock = json.loads(LOCK.read_text())
     assert lock["catalog_revision"] == cat["revision"]
+
+
+def test_a_catalog_that_drops_a_used_path_is_incompatible(cat):
+    """Additions pass; a removed property the model schema is bound to is named."""
+    committed = yaml.safe_load(OUT.read_text())
+    mappings = yaml.safe_load(MAPPINGS.read_text())
+    grown = dict(cat, members=cat["members"] + [dict(next(m for m in cat["members"] if m["path"] == "node.depth"),
+                                                      path="node.depth_added_later", name="depth_added_later")])
+    assert dropped_paths(committed, CatalogToLinkML(grown, mappings).build()) == []
+    shrunk = dict(cat, members=[m for m in cat["members"] if m["path"] != "node.depth"])
+    assert dropped_paths(committed, CatalogToLinkML(shrunk, mappings).build()) == ["node.depth"]
 
 
 def test_every_mapping_target_is_a_generated_class():
