@@ -1,0 +1,190 @@
+"""
+hydrocouple.platform manifests -> ontology rows (JSON Lines, one file per table).
+
+Reads what the platform publishes for a run and writes the rows that say where
+its results came from:
+
+  analysis.revision, .input_artifact    the packaged revision, from its revision manifest
+  analysis.run, .attempt                each attempt, from attempt.json and its provenance
+  analysis.result_artifact              every artifact the attempt lists, by checksum
+  reference.agent                       the person, the engine, and the AI agent where there is one
+  analysis.agent_session, .tool_call    the agent session and the tool call that submitted the run
+
+An attempt is a folder holding attempt.json as the platform wrote it. Where the
+folder also holds the run summary (summary.json), the file is checked against
+the checksum in the manifest and copied to artifacts/<sha256>.json, so a
+finding can cite a number in it. Nothing is read from the control plane, and
+no other artifact is copied.
+
+Identifiers are built from what the manifests state, so the same manifests
+always give the same rows:
+
+  wsys:revision/<utility>/<system>/<sha256 of the revision manifest>
+  wsys:run/<run id>            wsys:attempt/<run id>/<attempt number>
+  <attempt>/artifact/<path>    <revision>/file/<path>
+  wsys:agent/person/<subject>  wsys:agent/ai/<agent session id>
+  wsys:session/<agent session id>            <session>/call/<tool call id>
+
+Usage:
+    python -m loaders.platform_to_rows --utility demo --system site-drainage \\
+        --revision package/revision-manifest.json --attempt downloads/att_1 -o rows
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import shutil
+from pathlib import Path
+from urllib.parse import quote
+
+from generators.profile import annotation
+from loaders.rows import Rows
+from loaders.source_records import file_digest
+
+SOURCE = "hydrocouple.platform"
+SHA256 = "http://spdx.org/rdf/terms#checksumAlgorithm_sha256"
+MEDIA_TYPES = {"json": "application/json", "swmm_rpt": "text/plain", "swmm_out": "application/octet-stream"}
+
+
+def part(value: str) -> str:
+    return quote(str(value), safe="")
+
+
+class PlatformLoader(Rows):
+    def __init__(self, utility: str, system: str):
+        super().__init__()
+        self.scope = f"{part(utility)}/{part(system)}"
+        self.revisions: dict[str, str] = {}    # sha256 of a revision manifest -> its IRI
+        self.attempts: list[str] = []
+        self.copies: dict[str, Path] = {}      # file name under artifacts/ -> source
+        self.seen: set[str] = set()
+
+    def once(self, cls: str, row: dict) -> str:
+        """Add a row unless one with its IRI is there already; return the IRI."""
+        if row["iri"] not in self.seen:
+            self.seen.add(row["iri"])
+            self.add(cls, row | {"source_system": SOURCE})
+        return row["iri"]
+
+    def embed(self, cls: str, document: dict) -> dict:
+        """A platform JSON document as the generated Platform* class that mirrors its schema."""
+        slots = {annotation(s, "json_property"): s for s in self.sv.class_induced_slots(cls)}
+        out = {}
+        for key, value in document.items():
+            slot = slots.get(key)
+            if slot is None:
+                raise ValueError(f"{cls} has no property '{key}': the vendored platform schemas are older than this manifest")
+            if value is None:
+                continue
+            if slot.range in self.sv.all_classes():
+                value = [self.embed(slot.range, v) for v in value] if slot.multivalued else self.embed(slot.range, value)
+            elif slot.range in self.sv.all_enums():
+                value = str(value).upper().replace("-", "_").replace(" ", "_")
+            elif annotation(slot, "json_object") or annotation(slot, "json_schema"):
+                value = json.dumps(value, sort_keys=True)
+            out[slot.name] = value
+        return out
+
+    def add_revision(self, manifest_path: Path) -> str:
+        digest = file_digest(manifest_path)
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        iri = self.revisions[digest] = f"wsys:revision/{self.scope}/{digest}"
+        models = [f["sha256"] for f in manifest["files"] if f["role"] == "model"]
+        self.once("Revision", {"iri": iri, "label": digest[:12], "revision_id": digest, "manifest_sha256": digest,
+                               "input_sha256": models[0] if len(models) == 1 else None, "dc_created": manifest["created_at"],
+                               "revision_manifest": self.embed("PlatformRevisionManifest", manifest)})
+        for f in manifest["files"]:
+            self.once("InputArtifact", {"iri": f"{iri}/file/{part(f['path'])}", "of_revision": iri, "source_path": f["path"],
+                                        "file_role": f["role"], "input_sha256": f["sha256"]})
+        return iri
+
+    def add_attempt(self, folder: Path) -> str:
+        manifest_path = folder / "attempt.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        p, actor = manifest["provenance"], manifest["provenance"]["actor"]
+        revision = self.revisions.get(p["revision_manifest_sha256"])
+        if revision is None:
+            raise ValueError(f"{manifest_path}: ran revision manifest {p['revision_manifest_sha256']}; give that manifest with --revision")
+        # The platform's own id for the revision is only known from an attempt that ran it.
+        for row in self.rows[self.table("Revision")]:
+            if row["iri"] == revision:
+                row["revision_id"] = row["label"] = p["revision_id"]
+
+        person = self.once("Agent", {"iri": f"wsys:agent/person/{part(actor['human_subject'])}", "label": actor["human_subject"],
+                                     "agent_kind": "PERSON", "external_identity": actor["human_subject"]})
+        asked_by, generated_by = person, f"wsys:job/{part(p['job_id'])}"
+        if actor.get("agent_session_id"):
+            session_id, client = actor["agent_session_id"], actor.get("agent_client")
+            version = actor.get("agent_client_version")
+            asked_by = self.once("Agent", {"iri": f"wsys:agent/ai/{part(session_id)}", "label": client or session_id, "agent_kind": "AI_AGENT",
+                                           "external_identity": f"{client}@{version}" if client and version else client or session_id,
+                                           "acts_on_behalf_of": person})
+            session = self.once("AgentSession", {"iri": f"wsys:session/{part(session_id)}", "label": session_id, "session_id": session_id,
+                                                 "was_associated_with": asked_by, "client": client, "client_version": version,
+                                                 "model": actor.get("model")})
+            if actor.get("tool_call_id"):
+                generated_by = self.once("ToolCall", {"iri": f"{session}/call/{part(actor['tool_call_id'])}", "label": actor["tool_call_id"],
+                                                      "tool_call_id": actor["tool_call_id"], "in_session": session,
+                                                      "was_associated_with": asked_by})
+        engine = p["runtime"].get("engine")
+        name, version = ("openswmm", engine) if engine else (SOURCE, p["runtime"]["platform"])
+        software = self.once("Agent", {"iri": f"wsys:agent/software/{name}/{part(version)}", "label": f"{name} {version}",
+                                       "agent_kind": "SOFTWARE", "external_identity": f"{name}=={version}"})
+
+        run = self.once("Run", {"iri": f"wsys:run/{part(p['run_id'])}", "label": p["run_id"], "run_id": p["run_id"], "of_revision": revision,
+                                "workflow": f"{p['workflow']}@{p['workflow_version']}", "was_generated_by": generated_by,
+                                "was_attributed_to": asked_by, "generated_at": p["started_at"],
+                                "session_id": actor.get("agent_session_id"), "tool_call_id": actor.get("tool_call_id")})
+        attempt = self.once("Attempt", {"iri": f"{run.replace('wsys:run/', 'wsys:attempt/')}/{p['attempt_number']}", "label": p["attempt_id"],
+                                        "attempt_id": p["attempt_id"], "of_run": run, "manifest_sha256": file_digest(manifest_path),
+                                        "attempt_manifest": self.embed("PlatformAttemptManifest", manifest),
+                                        "was_associated_with": software, "used": [revision], "started_at": p["started_at"],
+                                        "ended_at": p["finished_at"], "generated_at": p["finished_at"],
+                                        "dc_conforms_to": [f"openswmm=={engine}"] if engine else None})
+        for a in manifest["artifacts"]:
+            where, source = a["path"], folder / a["path"]
+            if a["kind"] == "summary" and source.is_file():
+                if file_digest(source) != a["sha256"]:
+                    raise ValueError(f"{source} is not the file the attempt manifest lists (checksum differs)")
+                where = f"artifacts/{a['sha256']}.json"
+                self.copies[Path(where).name] = source
+            self.once("ResultArtifact", {
+                "iri": f"{attempt}/artifact/{part(a['path'])}", "label": a["path"], "artifact_sha256": a["sha256"],
+                "was_generated_by": attempt, "was_derived_from": [revision], "generated_at": p["finished_at"],
+                "distributions": [{"access_url": where, "byte_size": a["size"], "media_type": MEDIA_TYPES.get(a["format"]),
+                                   "integrity_checksum": {"algorithm": SHA256, "digest": a["sha256"]}}]})
+        self.attempts.append(attempt)
+        return attempt
+
+    def write(self, out: Path) -> None:
+        out = Path(out)
+        if out.exists() and any(out.glob("*.jsonl")):
+            raise FileExistsError(f"{out} already holds rows; write to a new folder")
+        (out / "artifacts").mkdir(parents=True, exist_ok=True)
+        for name, source in self.copies.items():
+            shutil.copyfile(source, out / "artifacts" / name)
+        summary = {"source": SOURCE, "system": f"wsys:system/{self.scope}", "revisions": sorted(self.revisions.values()),
+                   "attempts": self.attempts, "row_sha256": self.write_tables(out), "artifacts": sorted(self.copies),
+                   "rows": {t: len(r) for t, r in sorted(self.rows.items())}}
+        (out / "SUMMARY.json").write_text(json.dumps(summary, indent=2) + "\n")
+        print(json.dumps({"tables": len(self.rows), "rows": sum(summary["rows"].values()), "artifacts": len(self.copies)}))
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--utility", default="demo")
+    ap.add_argument("--system", default="system")
+    ap.add_argument("--revision", type=Path, action="append", required=True, help="a revision manifest; repeat for each revision")
+    ap.add_argument("--attempt", type=Path, action="append", default=[], help="a folder holding attempt.json; repeat for each attempt")
+    ap.add_argument("-o", "--out", type=Path, default=Path("rows"))
+    a = ap.parse_args()
+    ld = PlatformLoader(a.utility, a.system)
+    for path in a.revision:
+        ld.add_revision(path)
+    for folder in a.attempt:
+        ld.add_attempt(folder)
+    ld.write(a.out)
+
+
+if __name__ == "__main__":
+    main()

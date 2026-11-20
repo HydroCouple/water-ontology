@@ -12,10 +12,18 @@ classDiagram
     IRI subjects
     IRI evidence
     string tools_used
+    ToolCall tool_calls
     string assumptions
     boolean verifier_passed*
+    VerifierReport verifier_report
     ReviewState review_state
     Agent reviewed_by
+  }
+  class AgentSession {
+    string session_id*
+    string client
+    string client_version
+    string model
   }
   class Attempt {
     IRI was_generated_by
@@ -87,8 +95,41 @@ classDiagram
     string session_id
     PlatformStudyView study_view
   }
+  class Tool {
+    string tool_name*
+    string tool_version
+    boolean read_only
+  }
+  class ToolCall {
+    string tool_call_id*
+    AgentSession in_session*
+    Tool tool
+    ToolEffect effect
+    integer sequence
+    Sha256Hex arguments_sha256
+    Sha256Hex result_sha256
+  }
+  class VerifiedClaim {
+    IRI evidence*
+    string locator*
+    string stated*
+    string stated_unit
+    float found
+    string found_unit
+    boolean passed*
+    string reason
+  }
+  class VerifierReport {
+    string verifier*
+    datetime checked_at*
+    VerifiedClaim claims
+    string uncited
+  }
   DerivedEntity <|-- AgentFinding
+  AgentFinding --> "*" ToolCall : tool_calls
+  AgentFinding *-- "1" VerifierReport : verifier_report
   AgentFinding --> "1" Agent : reviewed_by
+  Entity <|-- AgentSession
   Entity <|-- Attempt
   Attempt --> "1" Run : of_run
   Attempt *-- "1" PlatformAttemptManifest : attempt_manifest
@@ -113,6 +154,11 @@ classDiagram
   DerivedEntity <|-- Study
   Study --> "1" Revision : of_revision
   Study *-- "1" PlatformStudyView : study_view
+  Entity <|-- Tool
+  Entity <|-- ToolCall
+  ToolCall --> "1" AgentSession : in_session
+  ToolCall --> "1" Tool : tool
+  VerifierReport *-- "*" VerifiedClaim : claims
 ```
 
 ## Classes
@@ -120,6 +166,7 @@ classDiagram
 | Class | Parent | Description |
 | --- | --- | --- |
 | `AgentFinding` | DerivedEntity | What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict. Recommendations are proposals only. |
+| `AgentSession` | Entity | One session of an AI agent - a client and a model that a person started. The agent that worked in it is was_associated_with, an Agent of kind AI_AGENT that acts on that person's behalf. The platform names the session in the actor of every run it submits. |
 | `Attempt` | Entity | One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest). Simulation results ingested as Observations of result_kind SIMULATION point here through was_generated_by. |
 | `Candidate` | DerivedEntity | One evaluated design or policy in a study, with its decision variables and objective values. |
 | `IngestionActivity` | Entity | A particular import of a revision under a versioned mapping profile. |
@@ -129,3 +176,7 @@ classDiagram
 | `Revision` | Entity | An immutable model revision identified by its platform manifest or by a local input bundle and its checksum. Each SWMM element belongs to one revision. |
 | `Run` | DerivedEntity | A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it). |
 | `Study` | DerivedEntity | An ask/tell optimisation over an evaluator pool (platform study view): objectives, budget, state and the Pareto set. |
+| `Tool` | Entity | A tool an agent can call, as its server registers it. |
+| `ToolCall` | Entity | One call an agent made to a tool. The arguments and the result are kept as checksums, not as content. |
+| `VerifiedClaim` |  | One number a finding's statement cites, checked against the artifact it cites. |
+| `VerifierReport` |  | The verifier's account of a finding - each cited number, where it was looked up and what was found there. |

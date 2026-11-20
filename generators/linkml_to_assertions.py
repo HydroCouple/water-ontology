@@ -72,6 +72,26 @@ class Assertions:
         return (f"CREATE TABLE IF NOT EXISTS {self.t('reference', 'ontology_violation')} (\n  rule_id STRING NOT NULL,\n  severity STRING NOT NULL,\n  focus_iri STRING,\n"
                 "  message STRING,\n  source_system STRING,\n  detected_at TIMESTAMP NOT NULL\n) COMMENT 'Open violations of ontology rules; agents must disclose when an entity they reason about appears here.';\n")
 
+    def cited(self) -> str:
+        """One row per piece of evidence a finding cites."""
+        return ("SELECT f.iri AS finding_iri, f.trace_id, f.verifier_passed, explode(f.evidence) AS evidence_iri "
+                f"FROM {self.t('analysis', 'agent_finding')} f")
+
+    def lineage_views(self) -> list[tuple[str, str, str]]:
+        """(view, description, select): where a result artifact, and a finding's evidence, came from."""
+        artifact = self.t("reference", "artifact_lineage")
+        return [
+            (artifact, "Every result artifact with the attempt that generated it, the run and who asked for it, and the revision it ran.", f"""
+SELECT x.iri AS artifact_iri, x.artifact_sha256, a.iri AS attempt_iri, a.attempt_id, a.manifest_sha256 AS attempt_manifest_sha256,
+       r.iri AS run_iri, r.run_id, r.workflow, r.was_attributed_to AS requested_by, r.session_id, r.tool_call_id,
+       v.iri AS revision_iri, v.revision_id, v.manifest_sha256 AS revision_manifest_sha256, v.input_sha256
+FROM {self.t('analysis', 'result_artifact')} x JOIN {self.t('analysis', 'attempt')} a ON a.iri = x.was_generated_by
+JOIN {self.t('analysis', 'run')} r ON r.iri = a.of_run JOIN {self.t('analysis', 'revision')} v ON v.iri = r.of_revision""".strip()),
+            (self.t("reference", "finding_lineage"), "Every piece of evidence a finding cites, with the lineage of the result artifact it is.", f"""
+SELECT e.finding_iri, e.trace_id, e.verifier_passed, e.evidence_iri, l.*
+FROM ({self.cited()}) e LEFT JOIN {artifact} l ON l.artifact_iri = e.evidence_iri""".strip()),
+        ]
+
     # -- rules -----------------------------------------------------------------
     def build_rules(self) -> None:
         edge, ent = self.t("topology", "edge_current"), self.t("reference", "entity")
@@ -204,6 +224,24 @@ WHERE (phenomenon_time IS NULL AND (interval_start IS NULL OR interval_end IS NU
 SELECT s.iri AS focus_iri, 'input record has no known revision' AS message
 FROM {self.t('analysis', 'input_record')} s LEFT JOIN {self.t('analysis', 'revision')} r ON r.iri=s.of_revision
 WHERE r.iri IS NULL""")
+        # agents
+        finding, agent = self.t("analysis", "agent_finding"), self.t("reference", "agent")
+        self.add("finding_evidence_exists", "ERROR", "Everything a finding cites as evidence is a known entity.", f"""
+SELECT e.finding_iri AS focus_iri, concat('evidence ', e.evidence_iri, ' is not a known entity') AS message
+FROM ({self.cited()}) e LEFT JOIN {ent} x ON x.iri = e.evidence_iri
+WHERE x.iri IS NULL""")
+        self.add("finding_reviewed_by_a_person", "ERROR", "A finding is never reviewed by an AI agent, or by the agent it is attributed to.", f"""
+SELECT f.iri AS focus_iri, concat('finding was reviewed by ', f.reviewed_by) AS message
+FROM {finding} f LEFT JOIN {agent} a ON a.iri = f.reviewed_by
+WHERE f.reviewed_by IS NOT NULL AND (a.agent_kind = 'AI_AGENT' OR f.reviewed_by = f.was_attributed_to)""")
+        self.add("tool_call_in_a_session", "ERROR", "A tool call belongs to a known agent session.", f"""
+SELECT c.iri AS focus_iri, concat('session ', c.in_session, ' is not in analysis.agent_session') AS message
+FROM {self.t('analysis', 'tool_call')} c LEFT JOIN {self.t('analysis', 'agent_session')} s ON s.iri = c.in_session
+WHERE s.iri IS NULL""")
+        self.add("agent_session_acts_for_someone", "ERROR", "The agent of an agent session is an AI agent that acts on behalf of someone.", f"""
+SELECT s.iri AS focus_iri, 'the session agent is unknown, is not an AI agent, or acts on behalf of no one' AS message
+FROM {self.t('analysis', 'agent_session')} s LEFT JOIN {agent} a ON a.iri = s.was_associated_with
+WHERE a.iri IS NULL OR a.agent_kind <> 'AI_AGENT' OR a.acts_on_behalf_of IS NULL""")
         # observations
         self.add("observation_unit_matches_property", "WARNING", "An observation's unit is its property's default unit (after normalisation).", f"""
 SELECT o.iri AS focus_iri, concat('unit ', o.unit, ' differs from default ', p.default_unit, ' for ', o.property_iri) AS message
@@ -214,7 +252,8 @@ WHERE p.default_unit IS NOT NULL AND o.unit <> p.default_unit""")
     def run(self, out: Path) -> None:
         self.build_rules()
         out.mkdir(parents=True, exist_ok=True)
-        (out / "00_support.sql").write_text(self.violation_table() + "\n" + self.entity_view() + "\n" + self.closure_table())
+        lineage = "".join(f"CREATE OR REPLACE VIEW {view} COMMENT {q(desc)} AS\n{sel};\n\n" for view, desc, sel in self.lineage_views())
+        (out / "00_support.sql").write_text(self.violation_table() + "\n" + self.entity_view() + "\n" + self.closure_table() + "\n" + lineage)
         views = []
         for i, (rid, sev, desc, sel) in enumerate(self.rules, start=10):
             v = self.t("reference", f"v_violation_{rid}")

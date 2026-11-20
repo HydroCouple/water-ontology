@@ -4,7 +4,7 @@ title: Water Systems Ontology — hydrocouple.platform contracts (generated)
 description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
   contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
   embeds these as manifests.
-version: platform-46e9e17185f9
+version: platform-eb907767c5de
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -1039,6 +1039,51 @@ classes:
     annotations:
       json_schema_id: RuntimeVersions
       platform_contract: 'true'
+  PlatformRunSummary:
+    description: 'The engine''s end-of-run report as data: the tables of the text report.
+
+
+      It names model elements, so it is an artifact in the target''s storage and is
+
+      subject to the target''s egress policy; it is never sent in events.'
+    attributes:
+      engine:
+        description: Engine
+        range: string
+        slot_uri: hcp:PlatformRunSummary.engine
+        annotations:
+          json_property: engine
+      flow_units:
+        description: Flow Units
+        range: string
+        slot_uri: hcp:PlatformRunSummary.flow_units
+        annotations:
+          json_property: flow_units
+      schema:
+        description: Schema
+        range: string
+        annotations:
+          const: hydrocouple.platform/run-summary/1
+          json_property: schema
+        slot_uri: hcp:PlatformRunSummary.schema
+      tables:
+        description: Tables
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: tables
+        slot_uri: hcp:PlatformRunSummary.tables
+        required: true
+      unit_system:
+        description: Unit System
+        range: string
+        slot_uri: hcp:PlatformRunSummary.unit_system
+        annotations:
+          json_property: unit_system
+    annotations:
+      json_schema_id: https://hydrocouple.org/schema/platform/run-summary-1.json
+      platform_contract: 'true'
+      schema_file: run-summary-1.json
   PlatformStudyView:
     description: StudyView
     attributes:

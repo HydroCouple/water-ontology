@@ -45,4 +45,8 @@
 | `swmm_input_bundle_evidence` | ERROR | A local SWMM bundle records a primary artifact matching its input checksum. |
 | `observation_time_evidence` | ERROR | An observation has an instant or an ordered time interval. |
 | `input_record_revision` | ERROR | An input record belongs to an existing revision. |
+| `finding_evidence_exists` | ERROR | Everything a finding cites as evidence is a known entity. |
+| `finding_reviewed_by_a_person` | ERROR | A finding is never reviewed by an AI agent, or by the agent it is attributed to. |
+| `tool_call_in_a_session` | ERROR | A tool call belongs to a known agent session. |
+| `agent_session_acts_for_someone` | ERROR | The agent of an agent session is an AI agent that acts on behalf of someone. |
 | `observation_unit_matches_property` | WARNING | An observation's unit is its property's default unit (after normalisation). |

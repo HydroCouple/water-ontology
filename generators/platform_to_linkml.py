@@ -32,6 +32,7 @@ CONTRACTS = {  # schema file stem -> generated class name
     "run-request-1": "PlatformRunRequest",
     "job-spec-1": "PlatformJobSpec",
     "attempt-manifest-1": "PlatformAttemptManifest",
+    "run-summary-1": "PlatformRunSummary",
     "study-view-1": "PlatformStudyView",
     "event-1": "PlatformEvent",
     "error-1": "PlatformError",

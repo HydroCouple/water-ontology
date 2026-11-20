@@ -7,6 +7,11 @@
 - Share SWMM code schemes and aliases across projections. Migrate legacy identifiers and publish or roll back local releases with an audit trail.
 - Check a new engine catalog for compatibility: `python -m generators.catalog_to_linkml --catalog NEW.json --compat` fails when the catalog drops a path `schema/model.yaml` uses and passes on additions. The engine's contract job runs it.
 - Re-vendor the OpenSWMM catalog at engine `0bf55d4f`, where every method carries an `effect`.
+- Agent trace vocabulary: `ToolCall`, `Tool` and `AgentSession`; `AgentFinding` gains `tool_calls` and a `verifier_report`; `trace_id` is no longer tied to MLflow. Every change adds; no existing property changed, so there is no migration.
+- `loaders/platform_to_rows.py` turns hydrocouple.platform revision and attempt manifests into rows with the person, AI agent, agent session and tool call they name. `reference.artifact_lineage` and `reference.finding_lineage` are generated for Databricks, DuckDB and the SQLite snapshot.
+- `loaders/findings.py` records an `AgentFinding` and verifies each number it cites against the run summary it cites, by checksum. Four new assertions cover finding evidence, review by a person, tool-call sessions and agent delegation.
+- `loaders/rows.py` holds the row writer both loaders share; `swmm_to_rows` output is unchanged.
+- Re-vendor the platform schemas at `b23c588`, which adds `run-summary-1.json` (`PlatformRunSummary`).
 
 
 ## 0.1.0 (unreleased)

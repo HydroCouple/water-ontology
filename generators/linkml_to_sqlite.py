@@ -32,6 +32,11 @@ class SQLiteRules(Assertions):
     def t(self, schema, table):
         return schema + "__" + table
 
+    def cited(self):
+        # Lists are JSON text here, so they are read with json_each.
+        return ("SELECT f.iri AS finding_iri, f.trace_id, f.verifier_passed, j.value AS evidence_iri "
+                "FROM analysis__agent_finding f, json_each(f.evidence) j")
+
 
 def column(d, slot):
     name = identifier(slot.name)
@@ -167,6 +172,8 @@ CREATE TABLE reference__rule(rule_id TEXT PRIMARY KEY,severity TEXT,description 
             f"SELECT {literal(rid)} AS rule_id, {literal(severity)} AS severity, focus_iri,message FROM {view}"
         )
     db.execute("CREATE VIEW reference__violations AS " + " UNION ALL ".join(views))
+    for view, _, select in rules.lineage_views():
+        db.execute(f"CREATE VIEW {identifier(view)} AS " + sqlglot.transpile(select, read="databricks", write="sqlite")[0])
     db.execute("""CREATE VIEW analysis__result_lineage AS
         SELECT o.iri AS observation_iri,o.entity_iri,o.property_iri,o.value,o.unit,o.source_record,
                o.interval_start,o.interval_end,o.native_unit,o.conversion_factor,a.iri AS attempt_iri,

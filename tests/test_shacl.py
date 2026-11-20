@@ -23,8 +23,9 @@ def run(shapes, name):
     return conforms, text
 
 
-def test_valid_network_conforms(shapes):
-    ok, text = run(shapes, "valid_network.ttl")
+@pytest.mark.parametrize("name", ["valid_network.ttl", "valid_agent_trace.ttl"])
+def test_valid_fixtures_conform(shapes, name):
+    ok, text = run(shapes, name)
     assert ok, text
 
 
@@ -33,6 +34,10 @@ def test_valid_network_conforms(shapes):
     ("invalid_enum_value.ttl", "lifecycle_status"),
     ("invalid_unknown_property.ttl", "from_node"),
     ("invalid_event_missing_detected_at.ttl", "detected_at"),
+    ("invalid_tool_call_without_session.ttl", "in_session"),
+    ("invalid_tool_call_effect.ttl", "effect"),
+    ("invalid_agent_session_without_agent.ttl", "wasAssociatedWith"),
+    ("invalid_tool_without_name.ttl", "tool_name"),
 ])
 def test_invalid_fixtures_fail_for_the_right_reason(shapes, name, expect):
     ok, text = run(shapes, name)

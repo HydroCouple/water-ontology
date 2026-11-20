@@ -38,6 +38,13 @@ enums:
       ACCEPTED: {}
       REJECTED: {}
       CORRECTED: {}
+  ToolEffect:
+    description: What a tool call may change. The values are the method effects of the engine catalog.
+    permissible_values:
+      READ: {description: Changes nothing}
+      WRITE: {description: Changes values in a model or a run}
+      STRUCTURAL: {description: "Adds, removes or reshapes model elements"}
+      FILE: {description: Reads or writes files}
 
 slots:
   revision_id:
@@ -69,7 +76,7 @@ slots:
     description: Approved platform workflow and version, e.g. swmm.simulation@1 or gym.evaluate@1.
   tool_call_id:
     range: string
-    description: The agent tool-call (MLflow span) that submitted the run; links the finding to its trace.
+    description: Id of the agent tool call, as the client that made it names it. On a run it is the call that submitted the run.
   session_id:
     range: string
   manifest_sha256:
@@ -93,7 +100,7 @@ slots:
   trace_id:
     range: string
     required: true
-    description: MLflow trace id of the agent run that produced the finding.
+    description: Id of the trace that holds the agent's ordered tool calls - the MCP journal id, or an MLflow trace id where MLflow records the agent.
   finding_kind:
     range: FindingKind
     required: true
@@ -121,6 +128,32 @@ slots:
   verifier_passed:
     range: boolean
     required: true
+  tool_calls:
+    range: ToolCall
+    multivalued: true
+    description: The tool calls behind the finding, in the order they were made.
+  verifier_report:
+    range: VerifierReport
+    inlined: true
+    description: What the verifier checked and found for each number the statement cites.
+  in_session:
+    range: AgentSession
+    description: The agent session a tool call belongs to.
+  tool:
+    range: Tool
+    description: The registered tool that was called.
+  effect:
+    range: ToolEffect
+    description: What the call was allowed to change.
+  sequence:
+    range: integer
+    description: Position of the call in its session, from 1.
+  arguments_sha256:
+    range: Sha256Hex
+    description: SHA-256 of the call's arguments as canonical JSON.
+  result_sha256:
+    range: Sha256Hex
+    description: SHA-256 of the call's result as canonical JSON.
   review_state:
     range: ReviewState
   reviewed_by:
@@ -173,7 +206,59 @@ classes:
     is_a: DerivedEntity
     mixins: [Attributed]
     description: What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict. Recommendations are proposals only.
-    slots: [trace_id, finding_kind, question, statement, subjects, evidence, tools_used, assumptions, verifier_passed, review_state, reviewed_by]
+    slots: [trace_id, finding_kind, question, statement, subjects, evidence, tools_used, tool_calls, assumptions, verifier_passed, verifier_report, review_state, reviewed_by]
+
+  AgentSession:
+    is_a: Entity
+    mixins: [Activity]
+    description: One session of an AI agent - a client and a model that a person started. The agent that worked in it is was_associated_with, an Agent of kind AI_AGENT that acts on that person's behalf. The platform names the session in the actor of every run it submits.
+    slots: [session_id]
+    slot_usage:
+      session_id: {required: true}
+      was_associated_with: {required: true}
+    attributes:
+      client: {range: string, description: "The agent client, for example openswmm.mcp."}
+      client_version: {range: string}
+      model: {range: string, description: The language model the client reported.}
+    exact_mappings: [prov:Activity]
+
+  Tool:
+    is_a: Entity
+    description: A tool an agent can call, as its server registers it.
+    attributes:
+      tool_name: {range: string, required: true}
+      tool_version: {range: string, description: Version of the server that registers the tool.}
+      read_only: {range: boolean, description: True when the server declares that the tool changes nothing.}
+
+  ToolCall:
+    is_a: Entity
+    mixins: [Activity]
+    description: One call an agent made to a tool. The arguments and the result are kept as checksums, not as content.
+    slots: [tool_call_id, in_session, tool, effect, sequence, arguments_sha256, result_sha256]
+    slot_usage:
+      tool_call_id: {required: true}
+      in_session: {required: true}
+    exact_mappings: [prov:Activity]
+
+  VerifierReport:
+    description: The verifier's account of a finding - each cited number, where it was looked up and what was found there.
+    attributes:
+      verifier: {range: string, required: true, description: Name and version of the verifier.}
+      checked_at: {range: datetime, required: true}
+      claims: {range: VerifiedClaim, multivalued: true, inlined_as_list: true}
+      uncited: {range: string, multivalued: true, description: Numbers the statement writes that no claim covers. They were not checked.}
+
+  VerifiedClaim:
+    description: One number a finding's statement cites, checked against the artifact it cites.
+    attributes:
+      evidence: {range: IRI, required: true, description: The result artifact the number is cited from.}
+      locator: {range: string, required: true, description: "Where the number is in the artifact: table/row/column of a run summary."}
+      stated: {range: string, required: true, description: The number as the statement writes it.}
+      stated_unit: {range: string}
+      found: {range: float, description: The value in the artifact; absent when the locator resolves to nothing.}
+      found_unit: {range: string}
+      passed: {range: boolean, required: true}
+      reason: {range: string, description: Why the claim failed.}
 
   IngestionActivity:
     description: A particular import of a revision under a versioned mapping profile.

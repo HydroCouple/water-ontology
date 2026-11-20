@@ -331,6 +331,7 @@ flowchart TB
   end
   subgraph wsys_analysis["analysis"]
     AgentFinding["AgentFinding"]
+    AgentSession["AgentSession"]
     Attempt["Attempt"]
     Candidate["Candidate"]
     IngestionActivity["IngestionActivity"]
@@ -340,6 +341,10 @@ flowchart TB
     Revision["Revision"]
     Run["Run"]
     Study["Study"]
+    Tool["Tool"]
+    ToolCall["ToolCall"]
+    VerifiedClaim["VerifiedClaim"]
+    VerifierReport["VerifierReport"]
   end
   subgraph wsys_model["SWMM model (generated)"]
     SwmmElement(["SwmmElement"])
@@ -404,6 +409,7 @@ flowchart TB
   Zone -.-> SpatialEntity
   Activity -- was_associated_with --> Agent
   AdaptedOutput -- adapts_output --> Output
+  AgentFinding -- tool_calls --> ToolCall
   AgentFinding -- reviewed_by --> Agent
   Aquifer -- system --> WaterSystem
   Attempt -- of_run --> Run
@@ -458,6 +464,8 @@ flowchart TB
   SwmmSubcatchment -- gage --> SwmmGage
   SwmmSubcatchment -- outlet --> SwmmElement
   Terminal -- on_device --> Asset
+  ToolCall -- in_session --> AgentSession
+  ToolCall -- tool --> Tool
   WorkOrder -- assigned_to --> Agent
   WorkOrder -- proposed_by --> Agent
   WorkOrder -- approved_by_agent --> Agent

@@ -153,6 +153,13 @@ classDiagram
     string workflow*
     string workflow_version*
   }
+  class PlatformRunSummary {
+    string engine
+    string flow_units
+    string schema
+    string tables*
+    string unit_system
+  }
   class PlatformRuntime {
     string architecture
     string image
@@ -225,6 +232,7 @@ classDiagram
 | `PlatformResources` |  | Resources |
 | `PlatformRevisionManifest` |  | RevisionManifest |
 | `PlatformRunRequest` |  | RunRequest |
+| `PlatformRunSummary` |  | The engine's end-of-run report as data: the tables of the text report.  It names model elements, so it is an artifact in the target's storage and is subject to the target's egress policy; it is never sent in events. |
 | `PlatformRuntime` |  | Runtime |
 | `PlatformRuntimeVersions` |  | RuntimeVersions |
 | `PlatformStudyView` |  | StudyView |
