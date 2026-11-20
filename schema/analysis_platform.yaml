@@ -4,7 +4,7 @@ title: Water Systems Ontology — hydrocouple.platform contracts (generated)
 description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
   contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
   embeds these as manifests.
-version: platform-b2527b511035
+version: platform-41a0c8a86d32
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -1521,6 +1521,14 @@ classes:
         slot_uri: hcp:PlatformStudyEvaluation.failed
         annotations:
           json_property: failed
+      metrics:
+        description: Every value the evaluator reports for a candidate, objective or not, as reported (not negated for a maximized
+          objective); null when it was not finite
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: metrics
+        slot_uri: hcp:PlatformStudyEvaluation.metrics
       objectives:
         description: Objectives
         range: string

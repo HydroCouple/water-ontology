@@ -222,6 +222,7 @@ classDiagram
     string error
     integer evaluation*
     boolean failed
+    string metrics
     string objectives*
     integer steps
   }
