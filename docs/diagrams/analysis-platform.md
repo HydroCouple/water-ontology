@@ -212,6 +212,7 @@ classDiagram
     string workflow_version*
   }
   class PlatformStudyDimension {
+    float choices
     float high*
     string key*
     string platform_label*

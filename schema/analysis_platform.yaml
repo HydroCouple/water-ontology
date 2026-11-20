@@ -4,7 +4,7 @@ title: Water Systems Ontology — hydrocouple.platform contracts (generated)
 description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
   contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
   embeds these as manifests.
-version: platform-41a0c8a86d32
+version: platform-577419e2940e
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -1459,6 +1459,14 @@ classes:
   PlatformStudyDimension:
     description: One component of the decision vector, with the decision key it belongs to.
     attributes:
+      choices:
+        description: 'For a discrete component, the values it chooses from: the component lies in [0, len(choices)] and its
+          integer part (at most the last index) picks the value an evaluation records'
+        range: float
+        multivalued: true
+        slot_uri: hcp:PlatformStudyDimension.choices
+        annotations:
+          json_property: choices
       high:
         description: High
         range: float

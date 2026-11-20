@@ -1,5 +1,5 @@
 {
-  "schemas_sha256": "41a0c8a86d3232b924b4d9b221bc7a2557d9c726ce0f691e38c8101b4114e9b2",
+  "schemas_sha256": "577419e2940ed918491ae47831d7f4a5abf4285d24a33355ececb865d0c0f511",
   "contracts": [
     "agent-session-view-1",
     "approval-view-1",
@@ -15,5 +15,5 @@
   ],
   "classes": 30,
   "enums": 11,
-  "generated_at": "2026-11-20T16:12:50+00:00"
+  "generated_at": "2026-11-20T16:22:55+00:00"
 }
