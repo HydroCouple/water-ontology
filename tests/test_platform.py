@@ -221,10 +221,10 @@ def test_a_journal_gives_each_call_its_tool_effect_and_position():
     assert counts["analysis.agent_session"] == 1 and counts["reference.agent"] == 3
 
 
-def test_a_journal_line_without_a_platform_session_is_refused():
+def test_a_journal_line_without_a_session_is_refused():
     path = OUT / "local_journal.jsonl"
     path.parent.mkdir(parents=True, exist_ok=True)
     line = json.loads((FIX / "journal.jsonl").read_text().splitlines()[0])
     path.write_text(json.dumps({k: v for k, v in line.items() if k != "agent_session_id"}) + "\n")
-    with pytest.raises(ValueError, match="names no platform agent session"):
+    with pytest.raises(ValueError, match="names no agent session"):
         PlatformLoader("demo", "site-drainage").add_journal(path)

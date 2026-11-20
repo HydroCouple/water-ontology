@@ -18,10 +18,13 @@ finding can cite a number in it. Nothing is read from the control plane, and
 no other artifact is copied.
 
 A journal is the openswmm.mcp tool-call journal (one JSON line per call). Each
-call made under a platform agent session becomes a ToolCall row with its tool,
-effect, position and checksums; the call that submitted a run is the same row
-the attempt names. A journal line with no platform agent session is refused:
-local sessions are loaded with their own manifests in Phase 2.
+call becomes a ToolCall row with its tool, effect, position and checksums, in
+the agent session the line names: the platform's, or for a local session the
+journal itself, acting for the operating-system login. The call that submitted
+or started a run is the same row its attempt names; an attempt of a local run
+(written by openswmm.mcp under <session>/local/) loads like a platform one. A
+line with no agent session, from a journal written before local sessions were
+named, is refused.
 
 Identifiers are built from what the manifests state, so the same manifests
 always give the same rows:
@@ -182,8 +185,8 @@ class PlatformLoader(Rows):
             c = json.loads(text)
             session_id = c.get("agent_session_id")
             if not session_id:
-                raise ValueError(f"{path}:{number}: the call names no platform agent session; "
-                                 "journals of local sessions are loaded in Phase 2")
+                raise ValueError(f"{path}:{number}: the call names no agent session; a journal "
+                                 "written before local sessions were named cannot be loaded")
             person = self.once("Agent", {"iri": f"wsys:agent/person/{part(c['acting_for'])}", "label": c["acting_for"],
                                          "agent_kind": "PERSON", "external_identity": c["acting_for"]})
             ai = self.once("Agent", {"iri": f"wsys:agent/ai/{part(session_id)}", "label": c["server"], "agent_kind": "AI_AGENT",
