@@ -281,6 +281,15 @@ WHERE b.iri IS NULL""")
 SELECT p.iri AS focus_iri, concat('approval was decided by ', p.was_associated_with) AS message
 FROM {self.t('analysis', 'approval')} p JOIN {agent} a ON a.iri = p.was_associated_with
 WHERE a.agent_kind = 'AI_AGENT'""")
+        # compositions
+        self.add("connection_within_its_composition", "ERROR", "A connection joins an output and an input of components of its own composition.", f"""
+SELECT k.composition AS focus_iri, concat('connection ', k.provider, ' -> ', k.consumer, ' leaves its composition') AS message
+FROM {self.t('coupling', 'component_connection')} k
+LEFT JOIN {self.t('coupling', 'output')} o ON o.iri = k.provider
+LEFT JOIN {self.t('coupling', 'model_component')} a ON a.iri = o.component
+LEFT JOIN {self.t('coupling', 'input')} i ON i.iri = k.consumer
+LEFT JOIN {self.t('coupling', 'model_component')} b ON b.iri = i.component
+WHERE a.composition IS DISTINCT FROM k.composition OR b.composition IS DISTINCT FROM k.composition""")
         # digital twin cycles, forecasts and setpoints
         setpoint, attempt = self.t("observation", "setpoint"), self.t("analysis", "attempt")
         self.add("setpoint_decided_by_a_person", "ERROR", "A setpoint is approved or rejected by a person, never by an AI agent; an approved one names that person in approved_by.", f"""

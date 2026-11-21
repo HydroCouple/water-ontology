@@ -220,6 +220,7 @@ The validator enforces these; open violations are in `reference.ontology_violati
 - A scenario overrides only writable float, int or bool element fields of the engine catalog.
 - A revision derived from another names a known revision.
 - An approval is decided by a person, never by an AI agent.
+- A connection joins an output and an input of components of its own composition.
 - A setpoint is approved or rejected by a person, never by an AI agent; an approved one names that person in approved_by.
 - Only an approved setpoint takes effect, and it names the attempt that applied it.
 - An attempt that resumed names a result artifact of another attempt.

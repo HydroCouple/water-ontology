@@ -1,0 +1,4 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+
+ex:surface-out a wsys:Output ; wsys:class_iri wsys:Output ; wsys:item_id "openswmm.node-surface-water.v1" .

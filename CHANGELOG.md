@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased: compositions (ecosystem Phase 5)
+
+- `platform_to_rows` loads an authored composition with its revision (component instances in the revision manifest, the composition file beside it, checked against it): a `Composition`, a `ModelComponent` per instance with its role and model as arguments, the `Output` and `Input` each connection joins, the `ComponentConnection` and a `COUPLED_TO` edge between the components; the `Revision` names it in `of_composition`, and an attempt of a composition run `used` its components.
+- An exchange item's `value_kind` and `data_geometry` are optional: OpenSWMM's split phase ports declare neither. Relaxing a requirement adds, so there is no migration.
+- One assertion: a connection joins an output and an input of components of its own composition.
+- Re-vendor the platform schemas at `e016891` (component instances, `provenance.components`, composition hosts).
+
 ## Unreleased: the digital twin loop (ecosystem Phase 4)
 
 - `Schedule` (a digital twin's cycles on one revision: state, pace, cycle length, the platform schedule view embedded); a `Run` names its `in_schedule`, `cycle_number` and `cycle_end`; an `Attempt` names the saved state it `resumed_from` (a result artifact of the attempt before it).

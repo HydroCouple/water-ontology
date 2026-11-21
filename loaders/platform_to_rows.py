@@ -12,6 +12,8 @@ its results came from:
   analysis.tool                         each tool a journal names, as the server registers it
   analysis.scenario, .scenario_override a swmm.simulation@2 run's revision and field overrides
   analysis.study, .candidate            a study manifest (local or platform) and its evaluations
+  coupling.*                            an authored composition: its components, the exchange items
+                                        its connections join, the connections (COUPLED_TO edges)
   analysis.schedule                     a digital twin's schedule; its runs name it and their cycle
   observation.observation (FORECAST)    a twin cycle's forecast (forecast.json beside attempt.json)
   observation.setpoint                  the setpoints proposed for a schedule and who decided them
@@ -44,6 +46,7 @@ always give the same rows:
   wsys:scenario/<sha256 of revision and overrides>   <scenario>/override/<n>
   wsys:study/<study id>        <study>/candidate/<evaluation>
   wsys:schedule/<schedule id>  wsys:setpoint/<proposal id>
+  <revision>/composition       <composition>/component/<id>     <component>/output/<item>
   <attempt>/forecast/<path>/<element>/<n>    wsys:datastream/<utility>/<system>/<column>
   <study>/event_set            <study>/event/<event name>
   <study>/parameter_set/<sha256 of its acceptance rule, 16 hex digits>
@@ -116,6 +119,7 @@ PROPERTIES = {"node.depth": ("depth", "DEPTH", "node"), "link.flow": ("flow", "F
               "gage.rainfall": ("rainfall_intensity", "RAINFALL_INTENSITY", "gage")}
 SENSOR_KINDS = {"DEPTH": "LEVEL_SENSOR", "FLOW": "FLOW_METER", "RAINFALL_INTENSITY": "RAIN_GAGE"}
 SETTING = "wsys:prop/setting"
+OPENSWMM_ENGINE = "org.hydrocouple.openswmm.engine"
 
 
 def part(value: str) -> str:
@@ -147,6 +151,7 @@ class PlatformLoader(Rows):
         self.copies: dict[str, Path] = {}      # file name under artifacts/ -> source
         self.seen: set[str] = set()
         self.attempt_iris: dict[str, str] = {}  # platform attempt id -> its IRI
+        self.components: dict[str, dict[str, str]] = {}  # revision IRI -> component id -> IRI
         self.run_attempts: dict[str, str] = {}  # run id -> the IRI of its loaded attempt
 
     def once(self, cls: str, row: dict) -> str:
@@ -191,6 +196,43 @@ class PlatformLoader(Rows):
         for f in manifest["files"]:
             self.once("InputArtifact", {"iri": f"{iri}/file/{part(f['path'])}", "of_revision": iri, "source_path": f["path"],
                                         "file_role": f["role"], "input_sha256": f["sha256"]})
+        if manifest.get("component_instances"):
+            composition = self.add_composition(iri, manifest, manifest_path.parent / manifest.get("composition", "composition.json"))
+            next(r for r in self.rows[self.table("Revision")] if r["iri"] == iri)["of_composition"] = composition
+        return iri
+
+    def add_composition(self, revision: str, manifest: dict, path: Path) -> str:
+        """An authored composition (component instances in the revision manifest; its file beside
+        the manifest, checked against it) as a Composition, a ModelComponent per instance, the
+        Output and Input each connection joins, the ComponentConnection and a COUPLED_TO edge."""
+        entry = next((f for f in manifest["files"] if f["path"] == manifest.get("composition", "composition.json")), None)
+        if entry is None or not path.is_file() or file_digest(path) != entry["sha256"]:
+            raise ValueError(f"{path}: not the composition the revision manifest lists (missing or checksum differs)")
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        iri = f"{revision}/composition"
+        components = self.components[revision] = {}
+        for inst in manifest["component_instances"]:
+            components[inst["id"]] = self.once("ModelComponent", {
+                "iri": f"{iri}/component/{part(inst['id'])}", "label": inst["id"], "composition": iri,
+                "component_kind": "SWMM" if inst["component_info_id"] == OPENSWMM_ENGINE else "EXTERNAL",
+                "info_id": inst["component_info_id"],
+                "arguments": [{"argument_name": "role", "argument_value": inst["role"], "argument_type": "string", "is_file": False},
+                              {"argument_name": "model", "argument_value": inst["model"], "argument_type": "file", "is_file": True}]})
+        self.once("Composition", {"iri": iri, "label": (doc.get("metadata") or {}).get("caption") or revision.rsplit("/", 1)[-1][:12],
+                                  "components": list(components.values()), "composition_file": entry["path"]})
+        for c in doc.get("connections") or []:
+            source, target = c["from"], c["to"]
+            if source["component"] not in components or target["component"] not in components:
+                raise ValueError(f"{path}: a connection joins a component the manifest does not list")
+            provider = self.once("Output", {"iri": f"{components[source['component']]}/output/{part(source['output'])}",
+                                            "label": source["output"], "component": components[source["component"]],
+                                            "item_id": source["output"]})
+            consumer = self.once("Input", {"iri": f"{components[target['component']]}/input/{part(target['input'])}",
+                                           "label": target["input"], "component": components[target["component"]],
+                                           "item_id": target["input"]})
+            self.rows[self.table("ComponentConnection")].append({"composition": iri, "provider": provider, "consumer": consumer})
+            self.rows["topology.edge"].append({"from_iri": components[source["component"]], "to_iri": components[target["component"]],
+                                               "relation": "COUPLED_TO", "valid_from": manifest["created_at"], "source_system": SOURCE})
         return iri
 
     def add_attempt(self, folder: Path) -> str:
@@ -237,10 +279,12 @@ class PlatformLoader(Rows):
         if resumed and resumed["attempt_id"] not in self.attempt_iris:
             raise ValueError(f"{manifest_path}: resumed from attempt {resumed['attempt_id']} of run {resumed['run_id']}; "
                              "load that attempt first")
+        ran = [self.components.get(revision, {})[c["id"]] for c in p.get("components") or []
+               if c["id"] in self.components.get(revision, {})]
         attempt = self.once("Attempt", {"iri": f"{run.replace('wsys:run/', 'wsys:attempt/')}/{p['attempt_number']}", "label": p["attempt_id"],
                                         "attempt_id": p["attempt_id"], "of_run": run, "manifest_sha256": file_digest(manifest_path),
                                         "attempt_manifest": self.embed("PlatformAttemptManifest", manifest),
-                                        "was_associated_with": software, "used": [revision], "started_at": p["started_at"],
+                                        "was_associated_with": software, "used": [revision, *ran], "started_at": p["started_at"],
                                         "ended_at": p["finished_at"], "generated_at": p["finished_at"],
                                         "dc_conforms_to": [f"openswmm=={engine}"] if engine else None,
                                         "resumed_from": f"{self.attempt_iris[resumed['attempt_id']]}/artifact/{part(resumed['path'])}"

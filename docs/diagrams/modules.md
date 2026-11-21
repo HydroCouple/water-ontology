@@ -7,7 +7,7 @@ flowchart LR
   wsys["wsys<br/><small>0 classes</small>"]
   wsys_ml["ml<br/><small>7 classes</small>"]
   wsys_analysis["analysis<br/><small>27 classes</small>"]
-  wsys_analysis_platform["platform contracts (generated)<br/><small>35 classes</small>"]:::gen
+  wsys_analysis_platform["platform contracts (generated)<br/><small>37 classes</small>"]:::gen
   wsys_coupling["coupling<br/><small>8 classes</small>"]
   wsys_provenance["provenance<br/><small>6 classes</small>"]
   wsys_core["core<br/><small>5 classes</small>"]

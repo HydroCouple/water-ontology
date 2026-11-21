@@ -30,10 +30,10 @@ classDiagram
     <<abstract>>
     ModelComponent component*
     string item_id*
-    ValueKind value_kind*
+    ValueKind value_kind
     IRI quantity
     IRI item_unit
-    DataItemGeometry data_geometry*
+    DataItemGeometry data_geometry
     string dimensions
     datetime time_span_start
     datetime time_span_end

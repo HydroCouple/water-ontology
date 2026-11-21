@@ -1,0 +1,14 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+
+# a surface component providing a phase port no ValueKind describes, consumed by a network
+ex:composition-1 a wsys:Composition ; wsys:class_iri wsys:Composition ;
+    wsys:components ex:surface , ex:network ; wsys:composition_file "composition.json" .
+ex:surface a wsys:ModelComponent ; wsys:class_iri wsys:ModelComponent ; wsys:component_kind "SWMM" ;
+    wsys:composition ex:composition-1 .
+ex:network a wsys:ModelComponent ; wsys:class_iri wsys:ModelComponent ; wsys:component_kind "SWMM" ;
+    wsys:composition ex:composition-1 .
+ex:surface-out a wsys:Output ; wsys:class_iri wsys:Output ; wsys:component ex:surface ;
+    wsys:item_id "openswmm.node-surface-water.v1" .
+ex:network-in a wsys:Input ; wsys:class_iri wsys:Input ; wsys:component ex:network ;
+    wsys:item_id "openswmm.node-surface-water.v1" .
