@@ -4,7 +4,7 @@ title: Water Systems Ontology — hydrocouple.platform contracts (generated)
 description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
   contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
   embeds these as manifests.
-version: platform-55f450eaad4f
+version: platform-d8c0d36923d0
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -186,6 +186,16 @@ classes:
   PlatformRevisionManifest:
     description: RevisionManifest
     attributes:
+      component_instances:
+        description: The components of an authored composition, with the role and model each runs; absent for a generated
+          single model.
+        range: PlatformComponentInstance
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: hcp:PlatformRevisionManifest.component_instances
+        annotations:
+          json_property: component_instances
       components:
         description: component_info_id of every component
         range: string
@@ -257,6 +267,40 @@ classes:
       json_schema_id: https://hydrocouple.org/schema/platform/revision-manifest-1.json
       platform_contract: 'true'
       schema_file: revision-manifest-1.json
+  PlatformComponentInstance:
+    description: One component of a composition of more than the generated single model.
+    attributes:
+      component_info_id:
+        description: Component Info Id
+        range: string
+        slot_uri: hcp:PlatformComponentInstance.component_info_id
+        required: true
+        annotations:
+          json_property: component_info_id
+      id:
+        description: The component's id in the composition
+        range: string
+        slot_uri: hcp:PlatformComponentInstance.id
+        required: true
+        annotations:
+          json_property: id
+      model:
+        description: The model file it runs, a path in the package
+        range: string
+        slot_uri: hcp:PlatformComponentInstance.model
+        required: true
+        annotations:
+          json_property: model
+      role:
+        description: Its configuration's role (complete_model, split_network, ...)
+        range: string
+        slot_uri: hcp:PlatformComponentInstance.role
+        required: true
+        annotations:
+          json_property: role
+    annotations:
+      json_schema_id: ComponentInstance
+      platform_contract: 'true'
   PlatformDerivedFrom:
     description: The revision a revision was made from, and the study evaluation that chose it.
     attributes:
@@ -880,6 +924,12 @@ classes:
         slot_uri: hcp:PlatformRuntime.architecture
         annotations:
           json_property: architecture
+      host:
+        description: The composition host the workflow needs on the target
+        range: string
+        slot_uri: hcp:PlatformRuntime.host
+        annotations:
+          json_property: host
       image:
         description: Image
         range: string
@@ -1049,6 +1099,15 @@ classes:
         required: true
         annotations:
           json_property: attempt_number
+      components:
+        description: The components a composition run ran; absent for a run of one model
+        range: PlatformComponentRecord
+        inlined: true
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: hcp:PlatformProvenance.components
+        annotations:
+          json_property: components
       composition_sha256:
         description: Composition Sha256
         range: string
@@ -1166,6 +1225,47 @@ classes:
           json_property: workflow_version
     annotations:
       json_schema_id: Provenance
+      platform_contract: 'true'
+  PlatformComponentRecord:
+    description: A component a composition run ran, and how it ended.
+    attributes:
+      component_info_id:
+        description: Component Info Id
+        range: string
+        slot_uri: hcp:PlatformComponentRecord.component_info_id
+        required: true
+        annotations:
+          json_property: component_info_id
+      final_status:
+        description: The host's final status for it (Finished, Failed, ...)
+        range: string
+        slot_uri: hcp:PlatformComponentRecord.final_status
+        required: true
+        annotations:
+          json_property: final_status
+      id:
+        description: Id
+        range: string
+        slot_uri: hcp:PlatformComponentRecord.id
+        required: true
+        annotations:
+          json_property: id
+      qualification:
+        description: 'The engine''s word for the role: qualified or experimental'
+        range: string
+        slot_uri: hcp:PlatformComponentRecord.qualification
+        required: true
+        annotations:
+          json_property: qualification
+      role:
+        description: Role
+        range: string
+        slot_uri: hcp:PlatformComponentRecord.role
+        required: true
+        annotations:
+          json_property: role
+    annotations:
+      json_schema_id: ComponentRecord
       platform_contract: 'true'
   PlatformResumedFrom:
     description: 'The saved state an attempt resumed from: an artifact of an earlier run''s attempt.'

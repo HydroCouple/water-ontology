@@ -60,6 +60,19 @@ classDiagram
     integer max_evaluations
     integer max_runs
   }
+  class PlatformComponentInstance {
+    string component_info_id*
+    string id*
+    string model*
+    string role*
+  }
+  class PlatformComponentRecord {
+    string component_info_id*
+    string final_status*
+    string id*
+    string qualification*
+    string role*
+  }
   class PlatformDerivedFrom {
     string decisions
     integer evaluation
@@ -163,6 +176,7 @@ classDiagram
     PlatformActor actor*
     string attempt_id*
     integer attempt_number*
+    PlatformComponentRecord components
     string composition_sha256*
     datetime finished_at*
     string inputs*
@@ -173,8 +187,7 @@ classDiagram
     string revision_id*
     string revision_manifest_sha256*
     string run_id*
-    PlatformRuntimeVersions runtime*
-    ... 5 more
+    ... 6 more
   }
   class PlatformResources {
     float cpu
@@ -193,6 +206,7 @@ classDiagram
     string sha256*
   }
   class PlatformRevisionManifest {
+    PlatformComponentInstance component_instances
     string components*
     string composition
     datetime created_at*
@@ -226,6 +240,7 @@ classDiagram
   }
   class PlatformRuntime {
     string architecture
+    string host
     string image
     integer threads
   }
@@ -331,8 +346,10 @@ classDiagram
   PlatformJobSpec *-- "1" PlatformRuntime : runtime
   PlatformJobSpec *-- "1" PlatformWorkload : workload
   PlatformProvenance *-- "1" PlatformActor : actor
+  PlatformProvenance *-- "*" PlatformComponentRecord : components
   PlatformProvenance *-- "1" PlatformResumedFrom : resumed_from
   PlatformProvenance *-- "1" PlatformRuntimeVersions : runtime
+  PlatformRevisionManifest *-- "*" PlatformComponentInstance : component_instances
   PlatformRevisionManifest *-- "1" PlatformDerivedFrom : derived_from
   PlatformRevisionManifest *-- "*" PlatformManifestFile : files
   PlatformScheduleView *-- "*" PlatformScheduleCycleView : history
@@ -354,6 +371,8 @@ classDiagram
 | `PlatformArtifactInput` |  | A file another run published, staged as an input: a twin cycle's previous state. |
 | `PlatformAttemptManifest` |  | AttemptManifest |
 | `PlatformBudget` |  | A delegated budget for one AI agent session. ``None`` means no limit. |
+| `PlatformComponentInstance` |  | One component of a composition of more than the generated single model. |
+| `PlatformComponentRecord` |  | A component a composition run ran, and how it ended. |
 | `PlatformDerivedFrom` |  | The revision a revision was made from, and the study evaluation that chose it. |
 | `PlatformError` |  | ErrorBody |
 | `PlatformEvent` |  | Event |
