@@ -53,14 +53,22 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: documentation, path: dist/ }
 
+  # Publish the themed Sphinx site (the HydroCouple manuals' look and Documentation menu) that
+  # docs-preview built. Pages must use "GitHub Actions" as its source.
   docs:
     needs: [build, docs-preview]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions: { contents: write }
+    permissions: { pages: write, id-token: write }
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency: { group: pages, cancel-in-progress: false }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
-      - run: pip install -e ".[docs]"
-      - run: mkdocs gh-deploy --force
+      - uses: actions/download-artifact@v5
+        with: { name: documentation, path: dist }
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with: { path: dist/sphinx }
+      - id: deploy
+        uses: actions/deploy-pages@v5
