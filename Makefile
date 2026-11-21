@@ -63,6 +63,10 @@ update-vendor:
 diagrams:
 	python -m generators.linkml_to_diagrams $(ROOT) -o docs/diagrams
 
+.PHONY: docs-site docs-serve
+docs-site:
+	python -m sphinx -W --keep-going -b dirhtml docs $(DIST)/sphinx
+
 docs-serve:
 	mkdocs serve
 

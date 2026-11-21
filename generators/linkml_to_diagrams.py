@@ -88,7 +88,7 @@ class Diagrams:
                 tgt = next((s for s in self.schemas.values() if s.name == imp or s.name == f"wsys-{imp}" or s.name == f"wsys-{imp.replace('_', '-')}"), None)
                 if tgt and tgt.name != sc.name:
                     lines.append(f"  {mid(sc.name)} --> {mid(tgt.name)}")
-        lines += ["  classDef gen fill:#eef,stroke:#88a,stroke-dasharray: 4 3;", "```", ""]
+        lines += ["  classDef gen stroke-dasharray: 4 3;", "```", ""]
         return "\n".join(lines)
 
     # ------------------------------------------------------------- overview KG

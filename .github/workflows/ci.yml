@@ -41,8 +41,20 @@ jobs:
       - run: python -m loaders.swmm_to_rows examples/site_drainage/model.inp --utility ci --system drainage --run -o dist/live-rows
       - run: python -m generators.linkml_to_sqlite dist/live-rows dist/live.sqlite
 
+  docs-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e ".[docs]"
+      - run: mkdocs build --strict --site-dir dist/material
+      - run: make docs-site
+      - uses: actions/upload-artifact@v4
+        with: { name: documentation, path: dist/ }
+
   docs:
-    needs: build
+    needs: [build, docs-preview]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions: { contents: write }

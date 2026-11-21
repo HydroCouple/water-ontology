@@ -71,7 +71,7 @@ flowchart TB
   ml --> tools
 ```
 
-Full write-up, the knowledge-graph views and per-module class diagrams: **[docs](docs/index.md)** (published with mkdocs on GitHub Pages). Figures under `docs/diagrams/` are generated from the schema by `make diagrams`; CI fails if they are stale.
+Full write-up, the knowledge-graph views and per-module class diagrams: **[docs](docs/index.md)** (published with mkdocs on GitHub Pages). Install `.[docs]` and run `make docs-serve` for the Material site. Run `make docs-site` for the companion Sphinx manual, built from the same Markdown articles. Figures under `docs/diagrams/` are generated from the schema by `make diagrams`; CI fails if they are stale.
 
 ## Modules
 

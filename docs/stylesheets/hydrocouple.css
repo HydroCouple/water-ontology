@@ -1,0 +1,21 @@
+/* HydroCouple colors on the native Material navigation and content. */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #00518c;
+  --md-primary-bg-color: #ffffff;
+  --md-default-bg-color: #fafcfd;
+  --md-default-fg-color: #0a1c2e;
+  --md-default-fg-color--light: #35516b;
+  --md-typeset-color: #0a1c2e;
+  --md-typeset-a-color: #00518c;
+  --md-accent-fg-color: #0064a9;
+}
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #1a3043;
+  --md-primary-bg-color: #eef5fb;
+  --md-default-bg-color: #101e2c;
+  --md-default-fg-color: #eef5fb;
+  --md-default-fg-color--light: #b6cadb;
+  --md-typeset-color: #eef5fb;
+  --md-typeset-a-color: #8ecfff;
+  --md-accent-fg-color: #8ecfff;
+}

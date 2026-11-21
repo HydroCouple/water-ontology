@@ -3,7 +3,18 @@ repo_url: https://github.com/HydroCouple/water-ontology
 docs_dir: docs
 theme:
   name: material
+  palette:
+    - scheme: default
+      toggle: { icon: material/weather-night, name: Switch to dark mode }
+    - scheme: slate
+      toggle: { icon: material/weather-sunny, name: Switch to light mode }
   features: [navigation.sections, content.code.copy, toc.integrate]
+extra_css:
+  - stylesheets/hydrocouple.css
+exclude_docs: |
+  /conf.py
+  /*.rst
+  /_static/**
 markdown_extensions:
   - tables
   - toc: { permalink: true }
@@ -34,3 +45,4 @@ nav:
       - platform contracts (generated): diagrams/analysis-platform.md
       - SWMM model (generated): diagrams/model.md
       - ml: diagrams/ml.md
+  - Trace a result: lineage.md

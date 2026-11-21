@@ -52,5 +52,5 @@ flowchart LR
   wsys_event --> wsys_core
   wsys_event --> wsys_provenance
   wsys_event --> wsys_topology
-  classDef gen fill:#eef,stroke:#88a,stroke-dasharray: 4 3;
+  classDef gen stroke-dasharray: 4 3;
 ```
