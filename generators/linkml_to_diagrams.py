@@ -1,5 +1,7 @@
 """
-LinkML -> Mermaid diagrams (docs/diagrams/*.md), generated so figures never go stale.
+LinkML -> Mermaid diagrams (``docs/diagrams/*.md``), generated from the schema.
+
+Generated files::
 
   modules.md          module dependency map (from imports)
   knowledge-graph.md  the curated classes grouped by module, with inheritance,

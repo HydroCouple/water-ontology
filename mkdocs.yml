@@ -15,6 +15,7 @@ exclude_docs: |
   /conf.py
   /*.rst
   /_static/**
+  /_hydrocouple/**
 markdown_extensions:
   - tables
   - toc: { permalink: true }

@@ -2,7 +2,7 @@
 hydrocouple.platform manifests -> ontology rows (JSON Lines, one file per table).
 
 Reads what the platform publishes for a run and writes the rows that say where
-its results came from:
+its results came from::
 
   analysis.revision, .input_artifact    the packaged revision, from its revision manifest
   analysis.run, .attempt                each attempt, from attempt.json and its provenance

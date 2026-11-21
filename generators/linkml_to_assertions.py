@@ -1,5 +1,5 @@
 """
-LinkML + edge_domains.yaml -> SQL assertions for Databricks (dist/assertions/*.sql).
+LinkML + edge_domains.yaml -> SQL assertions for Databricks (``dist/assertions/*.sql``).
 
 SHACL checks one node at a time. The rules below need joins across rows
 (an edge and the classes of both its ends, a conduit and its edges, an event

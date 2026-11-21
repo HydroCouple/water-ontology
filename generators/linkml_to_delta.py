@@ -2,7 +2,7 @@
 LinkML -> Databricks Delta / Unity Catalog.
 
 Reads the ontology (a LinkML module and everything it imports) and emits SQL
-that materialises it in Unity Catalog:
+that materializes it in Unity Catalog::
 
   1. reference tables for every enum            -> <catalog>.reference.<enum_snake>
   2. the class hierarchy table                  -> <catalog>.reference.asset_class
