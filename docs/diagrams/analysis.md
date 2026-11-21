@@ -159,7 +159,7 @@ classDiagram
     string schedule_id*
     Revision of_revision
     string workflow
-    ScheduleState schedule_state
+    TwinScheduleState schedule_state
     SchedulePace schedule_pace
     float cycle_minutes
     PlatformScheduleView schedule_view

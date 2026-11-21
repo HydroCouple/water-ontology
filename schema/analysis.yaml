@@ -66,7 +66,7 @@ enums:
       SAMPLING: {description: "A design of experiments drawn before any candidate is scored: Latin hypercube, Sobol, random or grid"}
       OPTIMIZATION: {description: "A search that chooses later candidates from earlier scores, e.g. NSGA-II"}
       ALTERNATIVES: {description: Designs a person listed}
-  ScheduleState:
+  TwinScheduleState:
     description: Where a digital twin's schedule of cycles stands.
     permissible_values:
       ACTIVE: {description: Submitting its cycles}
@@ -290,7 +290,7 @@ slots:
     inlined: true
     description: The schedule's cadence, state and cycle history (platform schedule view).
   schedule_state:
-    range: ScheduleState
+    range: TwinScheduleState
   schedule_pace:
     range: SchedulePace
   cycle_minutes:
