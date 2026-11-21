@@ -8,7 +8,7 @@ catalog -- element kinds, their subtype views and component views, their
 properties and the enums they use -- into the ``wsys:model`` vocabulary, so
 the ontology, the engine and the agent tool descriptions stay in lockstep.
 
-Services (forcing, climate, options, ...) and methods are *behaviour*; they
+Services (forcing, climate, options, ...) and methods are *behavior*; they
 belong to the tool registry, not the ontology, and are only listed in the
 module's annotations.
 

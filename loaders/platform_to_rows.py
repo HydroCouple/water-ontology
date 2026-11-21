@@ -57,11 +57,11 @@ evaluation that chose it.
 
 A study's kind and search algorithm, acceptance rule and event set come from
 its manifest's definition; each candidate carries its metrics. A parameter set
-is a behavioural set (openswmm_gymnasium.optimize.behavioural_set, as JSON)
+is a behavioral set (openswmm_gymnasium.optimize.behavioural_set, as JSON)
 loaded with the manifest of its study.
 
 An attempt that resumed from an earlier one's saved state names that artifact in resumed_from;
-the earlier attempt must be loaded first. A forecast's values and telemetry are normalised to SI
+the earlier attempt must be loaded first. A forecast's values and telemetry are normalized to SI
 (unit, native unit and factor kept), at the model's UTC wall clock written with Z, so a forecast
 and a measurement of the same element, property and time share entity_iri, property_iri and
 phenomenon_time. Telemetry is described by a JSON file naming its CSV (beside it) and, per
@@ -515,7 +515,7 @@ class PlatformLoader(Rows):
                                       "event_aggregation": env_config.get("event_aggregation", "mean").upper()})
 
     def add_parameter_set(self, path: Path, study_manifest: Path) -> str:
-        """A behavioural set (openswmm_gymnasium.optimize.behavioural_set) of the study in study_manifest."""
+        """A behavioral set (openswmm_gymnasium.optimize.behavioural_set) of the study in study_manifest."""
         accepted = json.loads(path.read_text(encoding="utf-8"))
         study = self.add_study(study_manifest)
         rule = json.dumps(accepted["rule"], sort_keys=True)
@@ -584,7 +584,7 @@ def main() -> None:
     ap.add_argument("--journal", type=Path, action="append", default=[], help="an openswmm.mcp tool-call journal; repeat for each")
     ap.add_argument("--study", type=Path, action="append", default=[], help="a study-manifest.json, local or platform; repeat for each")
     ap.add_argument("--parameter-set", type=Path, nargs=2, action="append", default=[],
-                    metavar=("SET", "STUDY_MANIFEST"), help="a behavioural set and its study's manifest; repeat for each")
+                    metavar=("SET", "STUDY_MANIFEST"), help="a behavioral set and its study's manifest; repeat for each")
     ap.add_argument("--schedule", type=Path, nargs=2, action="append", default=[], metavar=("VIEW", "PROPOSALS"),
                     help="a schedule view and its proposals listing; repeat for each")
     ap.add_argument("--telemetry", type=Path, action="append", default=[], help="a telemetry description; repeat for each")

@@ -2,7 +2,7 @@
 
 Two real study manifests. calibration/ is a local Latin hypercube over a subcatchment width of
 openswmm.gymnasium's site drainage example, scored against observations a reference run wrote,
-with its acceptance rule and the behavioural set openswmm_gymnasium.optimize.behavioural_set
+with its acceptance rule and the behavioral set openswmm_gymnasium.optimize.behavioural_set
 returned (hydrocouple.platform test_artifacts/_phase3/ontology_fixture/make_calibration_fixture.py).
 events/ is hydrocouple.platform's event study on the twin-tank model: three storms per candidate on
 the platform, their rain uploaded as sidecars of the revision whose manifest is beside it. Files are
