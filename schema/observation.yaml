@@ -77,6 +77,15 @@ enums:
       STATE: {description: Discrete state such as pump on/off or gate position}
       COUNT: {}
 
+  SetpointState:
+    description: Where a proposed setpoint stands. Only a person decides one, and only an approved one is applied.
+    permissible_values:
+      PROPOSED: {description: Waiting for a person}
+      APPROVED: {description: A person approved it; the next cycle applies it}
+      REJECTED: {description: A person rejected it}
+      SUPERSEDED: {description: Nobody decided it before a later forecast proposed again}
+      APPLIED: {description: "Approved, and applied by a run from its effective time"}
+
   ResultKind:
     permissible_values:
       MEASUREMENT: {}
@@ -189,6 +198,25 @@ slots:
     description: Operator, control rule or agent proposal id that set the setpoint.
   approved_by:
     range: Agent
+  decided_by:
+    range: Agent
+    description: The person who approved or rejected a proposed setpoint.
+  decided_at:
+    range: datetime
+  setpoint_state:
+    range: SetpointState
+  proposal_id:
+    range: string
+    description: hydrocouple.platform setpoint proposal id.
+  for_schedule:
+    range: IRI
+    description: The schedule (analysis.Schedule) whose model the setpoint is proposed for.
+  applied_in:
+    range: IRI
+    description: The attempt (analysis.Attempt) that applied the setpoint.
+  applied_at:
+    range: datetime
+    description: The model time (UTC wall clock) the setpoint took effect.
 
 classes:
   Sensor:
@@ -221,7 +249,9 @@ classes:
     is_a: DerivedEntity
     mixins: [Attributed]
     description: A target value for a controllable property (pump speed, gate opening, tank level band) effective over a period. Agents only propose setpoints; set_by and approved_by record who made them real.
-    slots: [target_entity, target_property, value, unit, effective_from, effective_to, set_by, approved_by]
+    slots: [target_entity, target_property, value, unit, effective_from, effective_to, set_by, approved_by, decided_by, decided_at, setpoint_state, proposal_id, for_schedule, applied_in, applied_at]
+    slot_usage:
+      was_generated_by: {description: "The forecast attempt whose policy proposed it, or the tool call or session of the agent or person who did"}
 
   Constituent:
     is_a: Entity

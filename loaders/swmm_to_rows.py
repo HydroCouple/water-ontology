@@ -36,11 +36,9 @@ from filelock import FileLock
 from collections import defaultdict
 from pathlib import Path
 
-from linkml_runtime.utils.schemaview import SchemaView
-
 from generators.profile import source_profile, normalize_code, geometry_values
+from loaders.rows import Rows
 from loaders.source_records import read_records, input_bundle, file_digest
-from generators.linkml_to_delta import DeltaGenerator, snake
 
 HERE = Path(__file__).resolve().parent.parent
 W = "https://w3id.org/wsys/"
@@ -60,15 +58,13 @@ def annotations(slot) -> dict:
     return {str(k): str(v.get("value") if isinstance(v, dict) else getattr(v, "value", v)) for k, v in items}
 
 
-class Loader:
+class Loader(Rows):
     def __init__(self, inp: Path, utility: str, system: str, extension=None):
         from openswmm import engine  # imported here so the rest of the repo works without the engine
+        super().__init__()
         self.engine = engine
         self.inp = inp
         self.utility, self.system_id = utility, system
-        self.d = DeltaGenerator(str(HERE / "schema" / "wsys.yaml"), "water_core")
-        self.sv: SchemaView = self.d.sv
-        self.rows: dict[str, list[dict]] = defaultdict(list)
         self.unread: dict[str, int] = defaultdict(int)
         self.notes: list[str] = []
         self.series = []
@@ -104,19 +100,12 @@ class Loader:
         self.now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
 
     # -- naming ----------------------------------------------------------------
-    def table(self, cls: str) -> str:
-        return f"{self.d.module_of(cls)}.{snake(cls)}"
-
-    def class_iri(self, cls: str) -> str:
-        return self.sv.get_uri(self.sv.get_class(cls), expand=True)
-
     def add(self, cls: str, row: dict) -> None:
         if cls not in ("Agent", "IngestionActivity"):
             row.setdefault("ingestion_activity", self.import_iri)
         if row.get("geometry") and self.crs:
             row["geometry_crs"] = self.crs
-        row.setdefault("class_iri", self.class_iri(cls))
-        self.rows[self.table(cls)].append({k: v for k, v in row.items() if v is not None})
+        super().add(cls, row)
 
     def model_iri(self, kind: str, eid: str) -> str:
         eid = self.identifiers.get((kind, eid.casefold()), eid)
@@ -533,13 +522,7 @@ class Loader:
         out.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=out.parent) as td:
             stage = Path(td)
-            digests = {}
-            for table, rows in sorted(self.rows.items()):
-                target = stage / f"{table}.jsonl"
-                with target.open("w", encoding="utf-8") as stream:
-                    for row in rows:
-                        stream.write(json.dumps(row, sort_keys=True, allow_nan=False) + "\n")
-                digests[target.name] = file_digest(target)
+            digests = self.write_tables(stage)
             artifacts = dict(self.output_artifacts)
             for role, name, digest in self.files:
                 source = self.inp if role == "primary" else self.inp.parent / name

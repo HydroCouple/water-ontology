@@ -1,0 +1,6 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+
+ex:study-2 a wsys:Study ; wsys:class_iri wsys:Study ; wsys:study_id "std_2" ; prov:wasGeneratedBy ex:run-pool ;
+    wsys:study_kind "BAYESIAN" .

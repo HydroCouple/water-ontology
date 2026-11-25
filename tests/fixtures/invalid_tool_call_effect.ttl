@@ -1,0 +1,7 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://w3id.org/wsys/session/> .
+@prefix ag:   <https://w3id.org/wsys/agent/> .
+
+ex:s1-c1 a wsys:ToolCall ; wsys:class_iri wsys:ToolCall ; wsys:tool_call_id "c1" ; wsys:in_session ex:s1 ; wsys:effect "DELETE" .

@@ -18,7 +18,7 @@ dependencies = [
 sqlite = ["sqlglot>=25"]
 engine = ["openswmm>=6.0.0a4.dev1"]   # PyPI build for now; loaders switch to the catalog API when a catalog-aware wheel is published
 dev = ["pytest>=8.0", "sqlglot>=25", "duckdb>=1.0"]
-docs = ["mkdocs-material>=9.5", "pymdown-extensions>=10"]
+docs = ["sphinx-autoapi>=3.8,<4", "mkdocs-material>=9.5", "pymdown-extensions>=10", "sphinx>=7.4", "myst-parser>=3", "pydata-sphinx-theme>=0.15"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

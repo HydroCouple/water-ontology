@@ -1,0 +1,9 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+
+ex:set-1 a wsys:ParameterSet ; wsys:class_iri wsys:ParameterSet ; wsys:members ex:study-2-c1 ;
+    prov:wasGeneratedBy ex:study-2 ;
+    wsys:acceptance_rule [ a wsys:AcceptanceRule ; wsys:best_fraction "0.1"^^xsd:float ] .
+ex:study-2-c1 a wsys:Candidate ; wsys:class_iri wsys:Candidate ; prov:wasGeneratedBy ex:study-2 .

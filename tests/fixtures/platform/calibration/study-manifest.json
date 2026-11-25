@@ -1,0 +1,439 @@
+{
+  "definition": {
+    "dimensions": [
+      {
+        "choices": null,
+        "high": 3000.0,
+        "key": "subcatchment.width",
+        "label": "field_design:S1",
+        "low": 300.0
+      }
+    ],
+    "env_config": {
+      "control_interval_seconds": null,
+      "control_interval_steps": 1,
+      "design_factories": [
+        {
+          "kind": "field_design",
+          "params": {
+            "high": 3000.0,
+            "ids": [
+              "S1"
+            ],
+            "low": 300.0,
+            "path": "subcatchment.width"
+          }
+        }
+      ],
+      "env_type": "cip",
+      "event_aggregation": "mean",
+      "events": [],
+      "ideal_point": null,
+      "inp_path": "model/model.inp",
+      "market_config": null,
+      "max_episode_steps": null,
+      "n_points": null,
+      "objectives": [
+        "nse_C11"
+      ],
+      "observations": {
+        "cell_fields": [],
+        "fields": {},
+        "include_clock": false,
+        "link_capacities": [],
+        "link_depths": [],
+        "link_flows": [],
+        "link_pollutant_concentration": {},
+        "link_settings": [],
+        "link_velocities": [],
+        "link_volumes": [],
+        "node_depths": [
+          "J1"
+        ],
+        "node_heads": [],
+        "node_inflows": [],
+        "node_lateral_inflows": [],
+        "node_overflows": [],
+        "node_pollutant_concentration": {},
+        "node_volumes": [],
+        "rainfall_gages": [],
+        "subcatch_groundwater": [],
+        "subcatch_runoff": [],
+        "vertex_depths_2d": []
+      },
+      "out_path": null,
+      "policy_bounds": null,
+      "policy_factory": null,
+      "reference_point": null,
+      "reward_terms": [
+        {
+          "kind": "fit_to_observed",
+          "params": {
+            "element_id": "C11",
+            "metric": "nse",
+            "observed": "data/observed.csv",
+            "path": "link.flow"
+          }
+        },
+        {
+          "kind": "fit_to_observed",
+          "params": {
+            "element_id": "C11",
+            "metric": "kge",
+            "observed": "data/observed.csv",
+            "path": "link.flow"
+          }
+        },
+        {
+          "kind": "fit_to_observed",
+          "params": {
+            "element_id": "C11",
+            "metric": "rmse",
+            "observed": "data/observed.csv",
+            "path": "link.flow"
+          }
+        }
+      ],
+      "rpt_path": null,
+      "runtime_factories": [],
+      "schedule_bounds": null,
+      "structure_ids": null,
+      "tune_full": false,
+      "wrappers": []
+    },
+    "model_inputs": {
+      "model/data/observed.csv": "509b5bddcff860ba57726b1fa8686763646a76c8e9b8fe6ed862c8c83b8998e6",
+      "model/model.inp": "df14b13664fc7952aa0021e67897ec0b938392c3cf66b32be9bbc907655f835f"
+    },
+    "objectives": [
+      {
+        "direction": "maximize",
+        "name": "nse_C11"
+      }
+    ],
+    "optimization": {
+      "acceptance": {
+        "best_fraction": null,
+        "by": null,
+        "thresholds": [
+          {
+            "at_least": 0.99,
+            "at_most": null,
+            "metric": "nse_C11"
+          },
+          {
+            "at_least": null,
+            "at_most": 0.2,
+            "metric": "rmse_C11"
+          }
+        ]
+      },
+      "algorithm": "lhs",
+      "budget": 12,
+      "candidates": null,
+      "failure_penalty": 1000000000000.0,
+      "grid_levels": 5,
+      "max_steps_per_episode": 10000,
+      "on_failure": "fail",
+      "population_size": 20,
+      "seed": 5
+    },
+    "seed": 5,
+    "workflow": "gym.evaluate",
+    "workflow_version": "1"
+  },
+  "evaluations": [
+    {
+      "decisions": {
+        "subcatchment.width": [
+          2234.2983429845003
+        ]
+      },
+      "error": null,
+      "evaluation": 1,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9984852439829991,
+        "nse_C11": 0.9999878295132747,
+        "rmse_C11": 0.19206913020010813
+      },
+      "objectives": {
+        "nse_C11": -0.9999878295132747
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          1930.4418491681695
+        ]
+      },
+      "error": null,
+      "evaluation": 2,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9990629325107745,
+        "nse_C11": 0.9999957088785667,
+        "rmse_C11": 0.11404834790239039
+      },
+      "objectives": {
+        "nse_C11": -0.9999957088785667
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          1642.8365272758833
+        ]
+      },
+      "error": null,
+      "evaluation": 3,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9998260025237977,
+        "nse_C11": 0.9999998466208699,
+        "rmse_C11": 0.021561885289051577
+      },
+      "objectives": {
+        "nse_C11": -0.9999998466208699
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          970.3309461527134
+        ]
+      },
+      "error": null,
+      "evaluation": 4,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9967959067330109,
+        "nse_C11": 0.9999584749874169,
+        "rmse_C11": 0.35477947156321665
+      },
+      "objectives": {
+        "nse_C11": -0.9999584749874169
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          1847.2601114689007
+        ]
+      },
+      "error": null,
+      "evaluation": 5,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9992548154114836,
+        "nse_C11": 0.9999973182114373,
+        "rmse_C11": 0.09016040694900124
+      },
+      "objectives": {
+        "nse_C11": -0.9999973182114373
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          2422.8765396955023
+        ]
+      },
+      "error": null,
+      "evaluation": 6,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9982063015445292,
+        "nse_C11": 0.9999820788927155,
+        "rmse_C11": 0.23306980672031294
+      },
+      "objectives": {
+        "nse_C11": -0.9999820788927155
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          1395.0806140302193
+        ]
+      },
+      "error": null,
+      "evaluation": 7,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9992901788015015,
+        "nse_C11": 0.9999976565424423,
+        "rmse_C11": 0.08428147787684254
+      },
+      "objectives": {
+        "nse_C11": -0.9999976565424423
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          2706.630529678378
+        ]
+      },
+      "error": null,
+      "evaluation": 8,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9978630931177038,
+        "nse_C11": 0.9999731666561923,
+        "rmse_C11": 0.28519440010512703
+      },
+      "objectives": {
+        "nse_C11": -0.9999731666561923
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          414.16573065391003
+        ]
+      },
+      "error": null,
+      "evaluation": 9,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9874190464877338,
+        "nse_C11": 0.9995108048788393,
+        "rmse_C11": 1.2177121930607226
+      },
+      "objectives": {
+        "nse_C11": -0.9995108048788393
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          1171.627891227024
+        ]
+      },
+      "error": null,
+      "evaluation": 10,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9981908000100518,
+        "nse_C11": 0.9999857775596336,
+        "rmse_C11": 0.2076302643468792
+      },
+      "objectives": {
+        "nse_C11": -0.9999857775596336
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          2909.4270254882854
+        ]
+      },
+      "error": null,
+      "evaluation": 11,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9976458279891256,
+        "nse_C11": 0.9999670314122929,
+        "rmse_C11": 0.3161213062793439
+      },
+      "objectives": {
+        "nse_C11": -0.9999670314122929
+      },
+      "steps": 1
+    },
+    {
+      "decisions": {
+        "subcatchment.width": [
+          554.6569755083683
+        ]
+      },
+      "error": null,
+      "evaluation": 12,
+      "failed": false,
+      "metrics": {
+        "kge_C11": 0.9912466555530928,
+        "nse_C11": 0.9997413252035184,
+        "rmse_C11": 0.8854838693967132
+      },
+      "objectives": {
+        "nse_C11": -0.9997413252035184
+      },
+      "steps": 1
+    }
+  ],
+  "result": {
+    "best": {
+      "decisions": {
+        "subcatchment.width": [
+          1642.8365272758833
+        ]
+      },
+      "evaluation": 3,
+      "metrics": {
+        "kge_C11": 0.9998260025237977,
+        "nse_C11": 0.9999998466208699,
+        "rmse_C11": 0.021561885289051577
+      },
+      "objectives": {
+        "nse_C11": -0.9999998466208699
+      },
+      "steps": 1
+    },
+    "evaluations_count": 12,
+    "failed_count": 0,
+    "objective_names": [
+      "nse_C11"
+    ],
+    "optimization": {
+      "algorithm": "lhs",
+      "budget": 12,
+      "seed": 5
+    },
+    "pareto": [
+      {
+        "decisions": {
+          "subcatchment.width": [
+            1642.8365272758833
+          ]
+        },
+        "evaluation": 3,
+        "metrics": {
+          "kge_C11": 0.9998260025237977,
+          "nse_C11": 0.9999998466208699,
+          "rmse_C11": 0.021561885289051577
+        },
+        "objectives": {
+          "nse_C11": -0.9999998466208699
+        },
+        "steps": 1
+      }
+    ]
+  },
+  "runtime": {
+    "execution": {
+      "on_failure": "fail",
+      "workers": 0
+    },
+    "executor": "local",
+    "package": "package",
+    "revision_manifest_sha256": "e72a5fa8e20598f02ba1ceb18250121afcaf39df8d1c33212a470b95802890e0",
+    "versions": {
+      "hydrocouple.platform": "0.1.0.dev0",
+      "openswmm": "6.0.0a4.dev2",
+      "openswmm.gymnasium": "0.1.0.dev1",
+      "python": "3.12.13"
+    }
+  },
+  "schema": "hydrocouple.platform/study-manifest/1"
+}

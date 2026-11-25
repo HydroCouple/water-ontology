@@ -31,7 +31,7 @@ asset_groups:                      # UN Asset Group (and Type where it matters) 
     Pump:                          Pump
     "Pump Station":                Structure
     "Wet Well":                    StorageUnit
-    "Control Valve":               Orifice       # modelled as an orifice/outlet in SWMM; UN keeps it a device
+    "Control Valve":               Orifice       # modeled as an orifice/outlet in SWMM; UN keeps it a device
     Weir:                          Weir
     "Gravity Main":                Conduit
     "Force Main":                  Conduit

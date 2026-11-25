@@ -1,0 +1,1 @@
+{"agent_kind": "SOFTWARE", "class_iri": "https://w3id.org/wsys/Agent", "external_identity": "water-ontology/loaders/swmm_to_rows.py", "iri": "wsys:agent/software/swmm-to-rows", "label": "loaders.swmm_to_rows"}

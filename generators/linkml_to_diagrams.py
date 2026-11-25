@@ -1,5 +1,7 @@
 """
-LinkML -> Mermaid diagrams (docs/diagrams/*.md), generated so figures never go stale.
+LinkML -> Mermaid diagrams (``docs/diagrams/*.md``), generated from the schema.
+
+Generated files::
 
   modules.md          module dependency map (from imports)
   knowledge-graph.md  the curated classes grouped by module, with inheritance,
@@ -88,7 +90,7 @@ class Diagrams:
                 tgt = next((s for s in self.schemas.values() if s.name == imp or s.name == f"wsys-{imp}" or s.name == f"wsys-{imp.replace('_', '-')}"), None)
                 if tgt and tgt.name != sc.name:
                     lines.append(f"  {mid(sc.name)} --> {mid(tgt.name)}")
-        lines += ["  classDef gen fill:#eef,stroke:#88a,stroke-dasharray: 4 3;", "```", ""]
+        lines += ["  classDef gen stroke-dasharray: 4 3;", "```", ""]
         return "\n".join(lines)
 
     # ------------------------------------------------------------- overview KG

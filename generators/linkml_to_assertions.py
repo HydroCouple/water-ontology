@@ -1,5 +1,5 @@
 """
-LinkML + edge_domains.yaml -> SQL assertions for Databricks (dist/assertions/*.sql).
+LinkML + edge_domains.yaml -> SQL assertions for Databricks (``dist/assertions/*.sql``).
 
 SHACL checks one node at a time. The rules below need joins across rows
 (an edge and the classes of both its ends, a conduit and its edges, an event
@@ -20,6 +20,7 @@ from generators.linkml_to_delta import DeltaGenerator, q, snake
 
 HERE = Path(__file__).resolve().parent.parent
 DOMAINS = HERE / "schema" / "mappings" / "edge_domains.yaml"
+ENGINE_CATALOG = HERE / "vendor" / "openswmm" / "catalog.json"
 
 
 class Assertions:
@@ -43,6 +44,18 @@ class Assertions:
 
     def t(self, schema: str, table: str) -> str:
         return f"{self.cat}.{schema}.{table}"
+
+    @staticmethod
+    def overridable_fields() -> list[str]:
+        """Engine catalog paths a scenario may override: writable float, int or bool element
+        fields of the vendored catalog, as swmm.simulation@2's runner accepts them."""
+        import json
+
+        catalog = json.loads(ENGINE_CATALOG.read_text(encoding="utf-8"))
+        kinds = {name for name, entry in catalog["targets"].items() if "collection" in entry}
+        return sorted(m["path"] for m in catalog["members"]
+                      if m["form"] == "property" and m.get("access") == "rw"
+                      and m.get("type") in ("float", "int", "bool") and m["path"].split(".")[0] in kinds)
 
     def add(self, rule_id: str, severity: str, description: str, select: str) -> None:
         self.rules.append((rule_id, severity, description, select.strip()))
@@ -71,6 +84,38 @@ class Assertions:
     def violation_table(self) -> str:
         return (f"CREATE TABLE IF NOT EXISTS {self.t('reference', 'ontology_violation')} (\n  rule_id STRING NOT NULL,\n  severity STRING NOT NULL,\n  focus_iri STRING,\n"
                 "  message STRING,\n  source_system STRING,\n  detected_at TIMESTAMP NOT NULL\n) COMMENT 'Open violations of ontology rules; agents must disclose when an entity they reason about appears here.';\n")
+
+    def cited(self) -> str:
+        """One row per piece of evidence a finding cites."""
+        return ("SELECT f.iri AS finding_iri, f.trace_id, f.verifier_passed, explode(f.evidence) AS evidence_iri "
+                f"FROM {self.t('analysis', 'agent_finding')} f")
+
+    def derived_bases(self) -> str:
+        """One row per base revision a revision names in was_derived_from."""
+        return f"SELECT r.iri, explode(r.was_derived_from) AS base_iri FROM {self.t('analysis', 'revision')} r"
+
+    def set_members(self) -> str:
+        """One row per member a parameter set names, with the set's study."""
+        return f"SELECT p.iri, p.of_study, explode(p.members) AS member_iri FROM {self.t('analysis', 'parameter_set')} p"
+
+    def set_events(self) -> str:
+        """One row per event an event set names."""
+        return f"SELECT s.iri, explode(s.events) AS event_iri FROM {self.t('analysis', 'event_set')} s"
+
+    def lineage_views(self) -> list[tuple[str, str, str]]:
+        """(view, description, select): where a result artifact, and a finding's evidence, came from."""
+        artifact = self.t("reference", "artifact_lineage")
+        return [
+            (artifact, "Every result artifact with the attempt that generated it, the run and who asked for it, and the revision it ran.", f"""
+SELECT x.iri AS artifact_iri, x.artifact_sha256, a.iri AS attempt_iri, a.attempt_id, a.manifest_sha256 AS attempt_manifest_sha256,
+       r.iri AS run_iri, r.run_id, r.workflow, r.was_attributed_to AS requested_by, r.session_id, r.tool_call_id,
+       v.iri AS revision_iri, v.revision_id, v.manifest_sha256 AS revision_manifest_sha256, v.input_sha256
+FROM {self.t('analysis', 'result_artifact')} x JOIN {self.t('analysis', 'attempt')} a ON a.iri = x.was_generated_by
+JOIN {self.t('analysis', 'run')} r ON r.iri = a.of_run JOIN {self.t('analysis', 'revision')} v ON v.iri = r.of_revision""".strip()),
+            (self.t("reference", "finding_lineage"), "Every piece of evidence a finding cites, with the lineage of the result artifact it is.", f"""
+SELECT e.finding_iri, e.trace_id, e.verifier_passed, e.evidence_iri, l.*
+FROM ({self.cited()}) e LEFT JOIN {artifact} l ON l.artifact_iri = e.evidence_iri""".strip()),
+        ]
 
     # -- rules -----------------------------------------------------------------
     def build_rules(self) -> None:
@@ -204,6 +249,77 @@ WHERE (phenomenon_time IS NULL AND (interval_start IS NULL OR interval_end IS NU
 SELECT s.iri AS focus_iri, 'input record has no known revision' AS message
 FROM {self.t('analysis', 'input_record')} s LEFT JOIN {self.t('analysis', 'revision')} r ON r.iri=s.of_revision
 WHERE r.iri IS NULL""")
+        # agents
+        finding, agent = self.t("analysis", "agent_finding"), self.t("reference", "agent")
+        self.add("finding_evidence_exists", "ERROR", "Everything a finding cites as evidence is a known entity.", f"""
+SELECT e.finding_iri AS focus_iri, concat('evidence ', e.evidence_iri, ' is not a known entity') AS message
+FROM ({self.cited()}) e LEFT JOIN {ent} x ON x.iri = e.evidence_iri
+WHERE x.iri IS NULL""")
+        self.add("finding_reviewed_by_a_person", "ERROR", "A finding is never reviewed by an AI agent, or by the agent it is attributed to.", f"""
+SELECT f.iri AS focus_iri, concat('finding was reviewed by ', f.reviewed_by) AS message
+FROM {finding} f LEFT JOIN {agent} a ON a.iri = f.reviewed_by
+WHERE f.reviewed_by IS NOT NULL AND (a.agent_kind = 'AI_AGENT' OR f.reviewed_by = f.was_attributed_to)""")
+        self.add("tool_call_in_a_session", "ERROR", "A tool call belongs to a known agent session.", f"""
+SELECT c.iri AS focus_iri, concat('session ', c.in_session, ' is not in analysis.agent_session') AS message
+FROM {self.t('analysis', 'tool_call')} c LEFT JOIN {self.t('analysis', 'agent_session')} s ON s.iri = c.in_session
+WHERE s.iri IS NULL""")
+        self.add("agent_session_acts_for_someone", "ERROR", "The agent of an agent session is an AI agent that acts on behalf of someone.", f"""
+SELECT s.iri AS focus_iri, 'the session agent is unknown, is not an AI agent, or acts on behalf of no one' AS message
+FROM {self.t('analysis', 'agent_session')} s LEFT JOIN {agent} a ON a.iri = s.was_associated_with
+WHERE a.iri IS NULL OR a.agent_kind <> 'AI_AGENT' OR a.acts_on_behalf_of IS NULL""")
+        # scenarios, derived revisions and approvals
+        revision = self.t("analysis", "revision")
+        self.add("scenario_override_writable", "ERROR", "A scenario overrides only writable float, int or bool element fields of the engine catalog.", f"""
+SELECT o.iri AS focus_iri, concat('catalog path ', o.catalog_path, ' is not a writable scalar element field') AS message
+FROM {self.t('analysis', 'scenario_override')} o
+WHERE o.catalog_path NOT IN ({', '.join(q(f) for f in self.overridable_fields())})""")
+        self.add("derived_revision_base_known", "ERROR", "A revision derived from another names a known revision.", f"""
+SELECT d.iri AS focus_iri, concat('base revision ', d.base_iri, ' is not in analysis.revision') AS message
+FROM ({self.derived_bases()}) d LEFT JOIN {revision} b ON b.iri = d.base_iri
+WHERE b.iri IS NULL""")
+        self.add("approval_decided_by_a_person", "ERROR", "An approval is decided by a person, never by an AI agent.", f"""
+SELECT p.iri AS focus_iri, concat('approval was decided by ', p.was_associated_with) AS message
+FROM {self.t('analysis', 'approval')} p JOIN {agent} a ON a.iri = p.was_associated_with
+WHERE a.agent_kind = 'AI_AGENT'""")
+        # compositions
+        self.add("connection_within_its_composition", "ERROR", "A connection joins an output and an input of components of its own composition.", f"""
+SELECT k.composition AS focus_iri, concat('connection ', k.provider, ' -> ', k.consumer, ' leaves its composition') AS message
+FROM {self.t('coupling', 'component_connection')} k
+LEFT JOIN {self.t('coupling', 'output')} o ON o.iri = k.provider
+LEFT JOIN {self.t('coupling', 'model_component')} a ON a.iri = o.component
+LEFT JOIN {self.t('coupling', 'input')} i ON i.iri = k.consumer
+LEFT JOIN {self.t('coupling', 'model_component')} b ON b.iri = i.component
+WHERE a.composition IS DISTINCT FROM k.composition OR b.composition IS DISTINCT FROM k.composition""")
+        # digital twin cycles, forecasts and setpoints
+        setpoint, attempt = self.t("observation", "setpoint"), self.t("analysis", "attempt")
+        self.add("setpoint_decided_by_a_person", "ERROR", "A setpoint is approved or rejected by a person, never by an AI agent; an approved one names that person in approved_by.", f"""
+SELECT s.iri AS focus_iri, concat('setpoint ', s.setpoint_state, ' without a person deciding it') AS message
+FROM {setpoint} s LEFT JOIN {agent} d ON d.iri = s.decided_by LEFT JOIN {agent} a ON a.iri = s.approved_by
+WHERE (s.setpoint_state IN ('APPROVED', 'REJECTED', 'APPLIED') AND (d.iri IS NULL OR d.agent_kind <> 'PERSON'))
+   OR (s.setpoint_state IN ('APPROVED', 'APPLIED') AND (a.iri IS NULL OR a.agent_kind <> 'PERSON'))
+   OR (s.approved_by IS NOT NULL AND (a.iri IS NULL OR a.agent_kind <> 'PERSON'))""")
+        self.add("setpoint_applied_after_approval", "ERROR", "Only an approved setpoint takes effect, and it names the attempt that applied it.", f"""
+SELECT s.iri AS focus_iri, 'setpoint applied without being approved, or without the attempt that applied it' AS message
+FROM {setpoint} s LEFT JOIN {attempt} t ON t.iri = s.applied_in
+WHERE (s.applied_in IS NOT NULL OR s.applied_at IS NOT NULL OR s.setpoint_state = 'APPLIED')
+  AND (s.setpoint_state <> 'APPLIED' OR t.iri IS NULL OR s.applied_at IS NULL)""")
+        self.add("attempt_resumed_from_a_saved_state", "ERROR", "An attempt that resumed names a result artifact of another attempt.", f"""
+SELECT t.iri AS focus_iri, concat('resumed from ', t.resumed_from, ', not a result artifact of another attempt') AS message
+FROM {attempt} t LEFT JOIN {self.t('analysis', 'result_artifact')} x ON x.iri = t.resumed_from
+WHERE t.resumed_from IS NOT NULL AND (x.iri IS NULL OR x.was_generated_by = t.iri)""")
+        self.add("forecast_issued_with_a_horizon", "ERROR", "A forecast records when it was issued and its lead time.", f"""
+SELECT o.iri AS focus_iri, 'forecast without issued_at or horizon' AS message
+FROM {self.t('observation', 'observation')} o
+WHERE o.result_kind = 'FORECAST' AND (o.issued_at IS NULL OR o.horizon IS NULL)""")
+        # experiments
+        self.add("parameter_set_members_in_study", "ERROR", "A parameter set's members are candidates of its study.", f"""
+SELECT m.iri AS focus_iri, concat('member ', m.member_iri, ' is not a candidate of ', m.of_study) AS message
+FROM ({self.set_members()}) m LEFT JOIN {self.t('analysis', 'candidate')} c ON c.iri = m.member_iri AND c.of_study = m.of_study
+WHERE c.iri IS NULL""")
+        self.add("event_set_events_exist", "ERROR", "An event set's events are forcing events.", f"""
+SELECT e.iri AS focus_iri, concat('event ', e.event_iri, ' is not in analysis.forcing_event') AS message
+FROM ({self.set_events()}) e LEFT JOIN {self.t('analysis', 'forcing_event')} f ON f.iri = e.event_iri
+WHERE f.iri IS NULL""")
         # observations
         self.add("observation_unit_matches_property", "WARNING", "An observation's unit is its property's default unit (after normalisation).", f"""
 SELECT o.iri AS focus_iri, concat('unit ', o.unit, ' differs from default ', p.default_unit, ' for ', o.property_iri) AS message
@@ -214,7 +330,8 @@ WHERE p.default_unit IS NOT NULL AND o.unit <> p.default_unit""")
     def run(self, out: Path) -> None:
         self.build_rules()
         out.mkdir(parents=True, exist_ok=True)
-        (out / "00_support.sql").write_text(self.violation_table() + "\n" + self.entity_view() + "\n" + self.closure_table())
+        lineage = "".join(f"CREATE OR REPLACE VIEW {view} COMMENT {q(desc)} AS\n{sel};\n\n" for view, desc, sel in self.lineage_views())
+        (out / "00_support.sql").write_text(self.violation_table() + "\n" + self.entity_view() + "\n" + self.closure_table() + "\n" + lineage)
         views = []
         for i, (rid, sev, desc, sel) in enumerate(self.rules, start=10):
             v = self.t("reference", f"v_violation_{rid}")

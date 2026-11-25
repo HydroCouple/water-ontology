@@ -1,0 +1,471 @@
+{
+  "definition": {
+    "dimensions": [
+      {
+        "choices": null,
+        "high": 4.0,
+        "key": "node_max_depth",
+        "label": "node_max_depth:T1",
+        "low": 2.0
+      },
+      {
+        "choices": null,
+        "high": 4.0,
+        "key": "node_max_depth",
+        "label": "node_max_depth:T2",
+        "low": 2.0
+      },
+      {
+        "choices": null,
+        "high": 3.0,
+        "key": "link_diameter",
+        "label": "link_diameter:OUT",
+        "low": 0.5
+      }
+    ],
+    "env_config": {
+      "control_interval_seconds": null,
+      "control_interval_steps": 1,
+      "design_factories": [
+        {
+          "kind": "node_max_depth",
+          "params": {
+            "high": 4.0,
+            "low": 2.0,
+            "node_ids": [
+              "T1",
+              "T2"
+            ]
+          }
+        },
+        {
+          "kind": "link_diameter",
+          "params": {
+            "high": 3.0,
+            "link_ids": [
+              "OUT"
+            ],
+            "low": 0.5
+          }
+        }
+      ],
+      "env_type": "cip",
+      "event_aggregation": "weighted_mean",
+      "events": [
+        {
+          "column": null,
+          "end": "2024-01-02T03:00:00",
+          "gage": "RG",
+          "name": "short",
+          "rain_format": "INTENSITY",
+          "return_period": null,
+          "series": "rain/short.csv",
+          "start": "2024-01-02T00:00:00",
+          "weight": 0.6
+        },
+        {
+          "column": null,
+          "end": "2024-01-03T05:00:00",
+          "gage": "RG",
+          "name": "long",
+          "rain_format": "INTENSITY",
+          "return_period": null,
+          "series": "rain/long.csv",
+          "start": "2024-01-03T00:00:00",
+          "weight": 0.3
+        },
+        {
+          "column": null,
+          "end": "2024-01-04T09:00:00",
+          "gage": "RG",
+          "name": "burst",
+          "rain_format": "INTENSITY",
+          "return_period": null,
+          "series": "rain/burst.csv",
+          "start": "2024-01-04T06:00:00",
+          "weight": 0.1
+        }
+      ],
+      "ideal_point": null,
+      "inp_path": "model/model.inp",
+      "market_config": null,
+      "max_episode_steps": null,
+      "n_points": null,
+      "objectives": null,
+      "observations": {
+        "cell_fields": [],
+        "fields": {},
+        "include_clock": false,
+        "link_capacities": [],
+        "link_depths": [],
+        "link_flows": [],
+        "link_pollutant_concentration": {},
+        "link_settings": [],
+        "link_velocities": [],
+        "link_volumes": [],
+        "node_depths": [
+          "T1",
+          "T2"
+        ],
+        "node_heads": [],
+        "node_inflows": [],
+        "node_lateral_inflows": [],
+        "node_overflows": [],
+        "node_pollutant_concentration": {},
+        "node_volumes": [],
+        "rainfall_gages": [],
+        "subcatch_groundwater": [],
+        "subcatch_runoff": [],
+        "vertex_depths_2d": []
+      },
+      "out_path": null,
+      "policy_bounds": null,
+      "policy_factory": null,
+      "reference_point": null,
+      "reward_terms": [
+        {
+          "kind": "flooding_volume",
+          "params": {}
+        },
+        {
+          "kind": "peak_outflow",
+          "params": {
+            "link_ids": [
+              "OUT"
+            ]
+          }
+        }
+      ],
+      "rpt_path": null,
+      "runtime_factories": [],
+      "schedule_bounds": null,
+      "structure_ids": null,
+      "tune_full": false,
+      "wrappers": []
+    },
+    "model_inputs": {
+      "model/model.inp": "65e2ebb1b252a422f144ce52d74dec9cf18d1582ff91bbf5ad7ecdf922649840",
+      "model/rain/burst.csv": "9384b40238870382db526c6ac07b5301851b4e38856eb5f6786118e28ae8983b",
+      "model/rain/long.csv": "c3015c78dba82f39fe2b4e7f5c921ddc5cf30ea3490a3c6f3d43677c4efb9b55",
+      "model/rain/short.csv": "30594496a4cf7c0f78ba8a427163ac6f5254745a4c6641e931b4f5e7e6298ff6"
+    },
+    "objectives": [
+      {
+        "direction": "minimize",
+        "name": "flooding_volume"
+      },
+      {
+        "direction": "minimize",
+        "name": "peak_outflow"
+      }
+    ],
+    "optimization": {
+      "acceptance": null,
+      "algorithm": "random_search",
+      "budget": 4,
+      "candidates": null,
+      "failure_penalty": 1000000000000.0,
+      "grid_levels": 5,
+      "max_steps_per_episode": 10000,
+      "on_failure": "penalty",
+      "population_size": 20,
+      "seed": 4
+    },
+    "seed": 4,
+    "workflow": "gym.evaluate",
+    "workflow_version": "1"
+  },
+  "evaluations": [
+    {
+      "decisions": {
+        "link_diameter": [
+          2.9406092642692605
+        ],
+        "node_max_depth": [
+          3.8861122111447353,
+          3.022655105628723
+        ]
+      },
+      "error": null,
+      "evaluation": 1,
+      "failed": false,
+      "metrics": {
+        "flooding_volume": 2464.258086610319,
+        "flooding_volume@burst": 24642.580866103184,
+        "flooding_volume@long": 0.0,
+        "flooding_volume@short": 0.0,
+        "peak_outflow": 20.64891827963284,
+        "peak_outflow@burst": 26.403192131770528,
+        "peak_outflow@long": 17.358190286516873,
+        "peak_outflow@short": 21.335236634167874
+      },
+      "objectives": {
+        "flooding_volume": 2464.258086610319,
+        "peak_outflow": 20.64891827963284
+      },
+      "steps": 3
+    },
+    {
+      "decisions": {
+        "link_diameter": [
+          1.4412164609431815
+        ],
+        "node_max_depth": [
+          2.161672047791204,
+          3.2147116639900593
+        ]
+      },
+      "error": null,
+      "evaluation": 2,
+      "failed": false,
+      "metrics": {
+        "flooding_volume": 16824.591465579204,
+        "flooding_volume@burst": 54802.726430054914,
+        "flooding_volume@long": 5659.5835964083935,
+        "flooding_volume@short": 16077.406239418655,
+        "peak_outflow": 10.966745630007214,
+        "peak_outflow@burst": 11.138127089564787,
+        "peak_outflow@long": 11.139874127150303,
+        "peak_outflow@short": 10.85161780484274
+      },
+      "objectives": {
+        "flooding_volume": 16824.591465579204,
+        "peak_outflow": 10.966745630007214
+      },
+      "steps": 3
+    },
+    {
+      "decisions": {
+        "link_diameter": [
+          2.679088185469141
+        ],
+        "node_max_depth": [
+          3.6038024139716143,
+          2.349055632288057
+        ]
+      },
+      "error": null,
+      "evaluation": 3,
+      "failed": false,
+      "metrics": {
+        "flooding_volume": 2912.8656968233013,
+        "flooding_volume@burst": 29128.656968233005,
+        "flooding_volume@long": 0.0,
+        "flooding_volume@short": 0.0,
+        "peak_outflow": 20.08947144544441,
+        "peak_outflow@burst": 24.339381921346646,
+        "peak_outflow@long": 17.059193626913334,
+        "peak_outflow@short": 20.896291942059573
+      },
+      "objectives": {
+        "flooding_volume": 2912.8656968233013,
+        "peak_outflow": 20.08947144544441
+      },
+      "steps": 3
+    },
+    {
+      "decisions": {
+        "link_diameter": [
+          1.6928838095980157
+        ],
+        "node_max_depth": [
+          3.0878828015269963,
+          3.804430159431977
+        ]
+      },
+      "error": null,
+      "evaluation": 4,
+      "failed": false,
+      "metrics": {
+        "flooding_volume": 4747.077336089434,
+        "flooding_volume@burst": 38142.96934551746,
+        "flooding_volume@long": 0.0,
+        "flooding_volume@short": 1554.6340025628112,
+        "peak_outflow": 15.731408127421867,
+        "peak_outflow@burst": 17.21248111810671,
+        "peak_outflow@long": 14.09002536532333,
+        "peak_outflow@short": 16.30525401002366
+      },
+      "objectives": {
+        "flooding_volume": 4747.077336089434,
+        "peak_outflow": 15.731408127421867
+      },
+      "steps": 3
+    }
+  ],
+  "result": {
+    "best": {
+      "decisions": {
+        "link_diameter": [
+          2.9406092642692605
+        ],
+        "node_max_depth": [
+          3.8861122111447353,
+          3.022655105628723
+        ]
+      },
+      "evaluation": 1,
+      "metrics": {
+        "flooding_volume": 2464.258086610319,
+        "flooding_volume@burst": 24642.580866103184,
+        "flooding_volume@long": 0.0,
+        "flooding_volume@short": 0.0,
+        "peak_outflow": 20.64891827963284,
+        "peak_outflow@burst": 26.403192131770528,
+        "peak_outflow@long": 17.358190286516873,
+        "peak_outflow@short": 21.335236634167874
+      },
+      "objectives": {
+        "flooding_volume": 2464.258086610319,
+        "peak_outflow": 20.64891827963284
+      },
+      "steps": 3
+    },
+    "evaluations_count": 4,
+    "failed_count": 0,
+    "objective_names": [
+      "flooding_volume",
+      "peak_outflow"
+    ],
+    "optimization": {
+      "algorithm": "random_search",
+      "budget": 4,
+      "seed": 4
+    },
+    "pareto": [
+      {
+        "decisions": {
+          "link_diameter": [
+            2.9406092642692605
+          ],
+          "node_max_depth": [
+            3.8861122111447353,
+            3.022655105628723
+          ]
+        },
+        "evaluation": 1,
+        "metrics": {
+          "flooding_volume": 2464.258086610319,
+          "flooding_volume@burst": 24642.580866103184,
+          "flooding_volume@long": 0.0,
+          "flooding_volume@short": 0.0,
+          "peak_outflow": 20.64891827963284,
+          "peak_outflow@burst": 26.403192131770528,
+          "peak_outflow@long": 17.358190286516873,
+          "peak_outflow@short": 21.335236634167874
+        },
+        "objectives": {
+          "flooding_volume": 2464.258086610319,
+          "peak_outflow": 20.64891827963284
+        },
+        "steps": 3
+      },
+      {
+        "decisions": {
+          "link_diameter": [
+            1.4412164609431815
+          ],
+          "node_max_depth": [
+            2.161672047791204,
+            3.2147116639900593
+          ]
+        },
+        "evaluation": 2,
+        "metrics": {
+          "flooding_volume": 16824.591465579204,
+          "flooding_volume@burst": 54802.726430054914,
+          "flooding_volume@long": 5659.5835964083935,
+          "flooding_volume@short": 16077.406239418655,
+          "peak_outflow": 10.966745630007214,
+          "peak_outflow@burst": 11.138127089564787,
+          "peak_outflow@long": 11.139874127150303,
+          "peak_outflow@short": 10.85161780484274
+        },
+        "objectives": {
+          "flooding_volume": 16824.591465579204,
+          "peak_outflow": 10.966745630007214
+        },
+        "steps": 3
+      },
+      {
+        "decisions": {
+          "link_diameter": [
+            2.679088185469141
+          ],
+          "node_max_depth": [
+            3.6038024139716143,
+            2.349055632288057
+          ]
+        },
+        "evaluation": 3,
+        "metrics": {
+          "flooding_volume": 2912.8656968233013,
+          "flooding_volume@burst": 29128.656968233005,
+          "flooding_volume@long": 0.0,
+          "flooding_volume@short": 0.0,
+          "peak_outflow": 20.08947144544441,
+          "peak_outflow@burst": 24.339381921346646,
+          "peak_outflow@long": 17.059193626913334,
+          "peak_outflow@short": 20.896291942059573
+        },
+        "objectives": {
+          "flooding_volume": 2912.8656968233013,
+          "peak_outflow": 20.08947144544441
+        },
+        "steps": 3
+      },
+      {
+        "decisions": {
+          "link_diameter": [
+            1.6928838095980157
+          ],
+          "node_max_depth": [
+            3.0878828015269963,
+            3.804430159431977
+          ]
+        },
+        "evaluation": 4,
+        "metrics": {
+          "flooding_volume": 4747.077336089434,
+          "flooding_volume@burst": 38142.96934551746,
+          "flooding_volume@long": 0.0,
+          "flooding_volume@short": 1554.6340025628112,
+          "peak_outflow": 15.731408127421867,
+          "peak_outflow@burst": 17.21248111810671,
+          "peak_outflow@long": 14.09002536532333,
+          "peak_outflow@short": 16.30525401002366
+        },
+        "objectives": {
+          "flooding_volume": 4747.077336089434,
+          "peak_outflow": 15.731408127421867
+        },
+        "steps": 3
+      }
+    ]
+  },
+  "runtime": {
+    "execution": {
+      "on_failure": "penalty",
+      "platform": {
+        "pool_size": 1,
+        "study_id": "std_4d5c289512b41e1f0e19",
+        "target_id": "tgt_8794db3e922eb31e5571",
+        "workers": 1
+      }
+    },
+    "executor": "platform",
+    "lineage_manifest_sha256": "4322da52621f128cec6c4964b27055b973bcce510cf11a5e1e63ff5a2ec9f1cf",
+    "revision_id": "rev_45396c809b9833c8b583",
+    "revision_manifest_sha256": "70b2f819e3c0f2d6b994a2c834a3dfdf4bb570d7473662b488b29d51dc721601",
+    "run_id": "run_11ea0fcb2e820d0e7e83",
+    "study_id": "std_4d5c289512b41e1f0e19",
+    "target_id": "tgt_8794db3e922eb31e5571",
+    "versions": {
+      "hydrocouple.platform": "0.1.0.dev0",
+      "openswmm": "6.0.0a4.dev2",
+      "openswmm.gymnasium": "0.1.0.dev1",
+      "python": "3.12.13"
+    }
+  },
+  "schema": "hydrocouple.platform/study-manifest/1"
+}

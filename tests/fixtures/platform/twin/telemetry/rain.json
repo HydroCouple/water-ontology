@@ -1,0 +1,12 @@
+{
+  "file": "rain.csv",
+  "source": "replayed telemetry (the revision's rain series)",
+  "streams": [
+    {
+      "column": "RG",
+      "path": "gage.rainfall",
+      "id": "RG",
+      "unit": "in/hr"
+    }
+  ]
+}

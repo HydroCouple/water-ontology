@@ -118,7 +118,7 @@ slots:
     description: IExchangeItem id within its component.
   value_kind:
     range: ValueKind
-    required: true
+    description: Absent when the component declares none (OpenSWMM's split phase ports carry JSON transactions).
   quantity:
     range: IRI
     description: ObservedProperty IRI the item carries (flow, depth, concentration ...).
@@ -127,7 +127,7 @@ slots:
     description: QUDT unit IRI.
   data_geometry:
     range: DataItemGeometry
-    required: true
+    description: Absent when the component declares none.
   dimensions:
     range: string
     multivalued: true

@@ -1,0 +1,21 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+@prefix ag:   <https://w3id.org/wsys/agent/> .
+
+# a revision derived from another by a study, a scenario of it with one override, an event set
+# of one design storm, and an approval a person decided
+ex:rev-base a wsys:Revision ; wsys:class_iri wsys:Revision ; wsys:revision_id "rev_base" .
+ex:study-1 a wsys:Study ; wsys:class_iri wsys:Study ; wsys:study_id "std_1" ; prov:wasGeneratedBy ex:run-pool .
+ex:rev-chosen a wsys:Revision ; wsys:class_iri wsys:Revision ; wsys:revision_id "rev_chosen" ;
+    prov:wasDerivedFrom ex:rev-base ; wsys:derived_in_study ex:study-1 ; wsys:chosen_evaluation 3 .
+ex:scenario-1 a wsys:Scenario ; wsys:class_iri wsys:Scenario ; wsys:of_revision ex:rev-base .
+ex:scenario-1-o1 a wsys:ScenarioOverride ; wsys:class_iri wsys:ScenarioOverride ; wsys:of_scenario ex:scenario-1 ;
+    wsys:catalog_path "subcatchment.width" ; wsys:override_element_id "S1" ; wsys:override_value "300.0"^^xsd:float ;
+    wsys:base_value "1587.0"^^xsd:float ; wsys:override_unit "ft" .
+ex:storm-10yr a wsys:ForcingEvent ; wsys:class_iri wsys:ForcingEvent ; wsys:return_period_years "10.0"^^xsd:float ; wsys:event_weight "1.0"^^xsd:float .
+ex:events-1 a wsys:EventSet ; wsys:class_iri wsys:EventSet ; wsys:events ex:storm-10yr ; wsys:event_aggregation "MAX" .
+ag:alice a wsys:Agent ; wsys:class_iri wsys:Agent ; wsys:agent_kind "PERSON" .
+ex:approval-1 a wsys:Approval ; wsys:class_iri wsys:Approval ; wsys:approval_id "apr_1" ; wsys:approval_state "APPROVED" ;
+    prov:wasAssociatedWith ag:alice .

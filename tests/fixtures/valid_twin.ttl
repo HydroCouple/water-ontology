@@ -1,0 +1,29 @@
+@prefix wsys: <https://w3id.org/wsys/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://w3id.org/wsys/example/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+# a schedule's second cycle, resumed from the first cycle's saved state; its forecast of a tank's
+# depth; a setpoint its policy proposed, a person approved and the third cycle applied
+ex:person a wsys:Agent ; wsys:class_iri wsys:Agent ; wsys:agent_kind "PERSON" .
+ex:schedule-1 a wsys:Schedule ; wsys:class_iri wsys:Schedule ; wsys:schedule_id "sch_1" ;
+    wsys:schedule_state "COMPLETED" ; wsys:schedule_pace "REPLAY" ; wsys:cycle_minutes "40.0"^^xsd:float .
+ex:run-2 a wsys:Run ; wsys:class_iri wsys:Run ; wsys:run_id "run_2" ; prov:wasGeneratedBy ex:job-2 ;
+    wsys:in_schedule ex:schedule-1 ; wsys:cycle_number 1 ; wsys:cycle_end "2024-01-01T01:20:00Z"^^xsd:dateTime .
+ex:state-1 a wsys:ResultArtifact ; wsys:class_iri wsys:ResultArtifact ; prov:wasGeneratedBy ex:attempt-1 ;
+    wsys:artifact_sha256 "0000000000000000000000000000000000000000000000000000000000000001" .
+ex:attempt-2 a wsys:Attempt ; wsys:class_iri wsys:Attempt ; wsys:attempt_id "att_2" ; wsys:of_run ex:run-2 ;
+    wsys:resumed_from ex:state-1 .
+ex:forecast-1 a wsys:Observation ; wsys:class_iri wsys:Observation ; prov:wasGeneratedBy ex:attempt-2 ;
+    sosa:hasFeatureOfInterest ex:tank-1 ; sosa:observedProperty ex:depth ; wsys:value "1.2"^^xsd:float ; wsys:unit unit:M ;
+    wsys:quality_flag "GOOD" ; wsys:result_kind "FORECAST" ;
+    wsys:phenomenon_time "2024-01-01T01:30:00Z"^^xsd:dateTime ;
+    wsys:issued_at "2024-01-01T01:20:00Z"^^xsd:dateTime ; wsys:horizon "PT600S" .
+ex:setpoint-1 a wsys:Setpoint ; wsys:class_iri wsys:Setpoint ; prov:wasGeneratedBy ex:attempt-2 ;
+    wsys:target_entity ex:orifice-1 ; wsys:target_property ex:setting ; wsys:value "0.4"^^xsd:float ;
+    wsys:unit unit:UNITLESS ; wsys:effective_from "2024-01-01T01:20:00Z"^^xsd:dateTime ;
+    wsys:proposal_id "spp_1" ; wsys:for_schedule ex:schedule-1 ; wsys:setpoint_state "APPLIED" ;
+    wsys:decided_by ex:person ; wsys:approved_by ex:person ; wsys:applied_in ex:attempt-3 ;
+    wsys:applied_at "2024-01-01T01:20:00Z"^^xsd:dateTime .

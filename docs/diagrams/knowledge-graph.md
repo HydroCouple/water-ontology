@@ -198,6 +198,7 @@ flowchart TB
   Mesh2D -- system --> WaterSystem
   ModelComponent -- composition --> Composition
   Revision -- of_composition --> Composition
+  Revision -- derived_in_study --> Study
   Run -- of_revision --> Revision
   Run -- of_study --> Study
   Study -- of_revision --> Revision
@@ -330,16 +331,33 @@ flowchart TB
     Output["Output"]
   end
   subgraph wsys_analysis["analysis"]
+    AcceptanceRule["AcceptanceRule"]
+    AcceptanceThreshold["AcceptanceThreshold"]
     AgentFinding["AgentFinding"]
+    AgentSession["AgentSession"]
+    Approval["Approval"]
     Attempt["Attempt"]
     Candidate["Candidate"]
+    DecisionValue["DecisionValue"]
+    EventSet["EventSet"]
+    ForcingEvent["ForcingEvent"]
     IngestionActivity["IngestionActivity"]
     InputArtifact["InputArtifact"]
     InputRecord["InputRecord"]
+    MetricValue["MetricValue"]
+    ObjectiveValue["ObjectiveValue"]
+    ParameterSet["ParameterSet"]
     ResultArtifact["ResultArtifact"]
     Revision["Revision"]
     Run["Run"]
+    Scenario["Scenario"]
+    ScenarioOverride["ScenarioOverride"]
+    Schedule["Schedule"]
     Study["Study"]
+    Tool["Tool"]
+    ToolCall["ToolCall"]
+    VerifiedClaim["VerifiedClaim"]
+    VerifierReport["VerifierReport"]
   end
   subgraph wsys_model["SWMM model (generated)"]
     SwmmElement(["SwmmElement"])
@@ -382,6 +400,7 @@ flowchart TB
   Outfall -.-> Node
   Outlet -.-> Link
   Output -.-> ExchangeItem
+  ParameterSet -.-> DerivedEntity
   Prediction -.-> DerivedEntity
   Pump -.-> Link
   RainGage -.-> Asset
@@ -404,9 +423,13 @@ flowchart TB
   Zone -.-> SpatialEntity
   Activity -- was_associated_with --> Agent
   AdaptedOutput -- adapts_output --> Output
+  AgentFinding -- tool_calls --> ToolCall
   AgentFinding -- reviewed_by --> Agent
+  Approval -- of_run --> Run
+  Approval -- of_study --> Study
   Aquifer -- system --> WaterSystem
   Attempt -- of_run --> Run
+  Attempt -- resumed_from --> ResultArtifact
   Attributed -- was_attributed_to --> Agent
   Attributed -- dc_creator --> Agent
   Candidate -- of_study --> Study
@@ -428,6 +451,7 @@ flowchart TB
   Event -- system --> WaterSystem
   Event -- confirmed_by --> Agent
   EventLink -- event --> Event
+  EventSet -- events --> ForcingEvent
   EventStateChange -- event --> Event
   EventStateChange -- changed_by --> Agent
   ExchangeItem -- component --> ModelComponent
@@ -443,14 +467,24 @@ flowchart TB
   ModelComponent -- composition --> Composition
   Node -- system --> WaterSystem
   Observation -- datastream --> Datastream
+  ParameterSet -- of_study --> Study
+  ParameterSet -- members --> Candidate
   Prediction -- of_version --> MLModelVersion
   Revision -- of_composition --> Composition
+  Revision -- derived_in_study --> Study
   Run -- of_revision --> Revision
   Run -- of_study --> Study
+  Run -- of_scenario --> Scenario
   Run -- was_associated_with --> Agent
+  Run -- in_schedule --> Schedule
+  Scenario -- of_revision --> Revision
+  ScenarioOverride -- of_scenario --> Scenario
+  Schedule -- of_revision --> Revision
   Setpoint -- set_by --> Agent
   Setpoint -- approved_by --> Agent
+  Setpoint -- decided_by --> Agent
   Study -- of_revision --> Revision
+  Study -- scored_over --> EventSet
   Subcatchment -- system --> WaterSystem
   SwmmElement -- revision --> Revision
   SwmmLink -- from_node --> SwmmNode
@@ -458,6 +492,8 @@ flowchart TB
   SwmmSubcatchment -- gage --> SwmmGage
   SwmmSubcatchment -- outlet --> SwmmElement
   Terminal -- on_device --> Asset
+  ToolCall -- in_session --> AgentSession
+  ToolCall -- tool --> Tool
   WorkOrder -- assigned_to --> Agent
   WorkOrder -- proposed_by --> Agent
   WorkOrder -- approved_by_agent --> Agent

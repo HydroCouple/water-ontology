@@ -23,8 +23,11 @@ def run(shapes, name):
     return conforms, text
 
 
-def test_valid_network_conforms(shapes):
-    ok, text = run(shapes, "valid_network.ttl")
+@pytest.mark.parametrize("name", ["valid_network.ttl", "valid_agent_trace.ttl", "valid_scenarios.ttl",
+                                  "valid_experiments.ttl", "valid_twin.ttl",
+                                  "valid_composition.ttl"])
+def test_valid_fixtures_conform(shapes, name):
+    ok, text = run(shapes, name)
     assert ok, text
 
 
@@ -33,6 +36,21 @@ def test_valid_network_conforms(shapes):
     ("invalid_enum_value.ttl", "lifecycle_status"),
     ("invalid_unknown_property.ttl", "from_node"),
     ("invalid_event_missing_detected_at.ttl", "detected_at"),
+    ("invalid_tool_call_without_session.ttl", "in_session"),
+    ("invalid_tool_call_effect.ttl", "effect"),
+    ("invalid_agent_session_without_agent.ttl", "wasAssociatedWith"),
+    ("invalid_tool_without_name.ttl", "tool_name"),
+    ("invalid_override_without_path.ttl", "catalog_path"),
+    ("invalid_approval_without_state.ttl", "approval_state"),
+    ("invalid_event_set_aggregation.ttl", "event_aggregation"),
+    ("invalid_scenario_without_revision.ttl", "of_revision"),
+    ("invalid_parameter_set_without_study.ttl", "of_study"),
+    ("invalid_study_kind.ttl", "study_kind"),
+    ("invalid_threshold_without_metric.ttl", "metric"),
+    ("invalid_schedule_state.ttl", "schedule_state"),
+    ("invalid_schedule_without_id.ttl", "schedule_id"),
+    ("invalid_setpoint_state.ttl", "setpoint_state"),
+    ("invalid_output_without_component.ttl", "component"),
 ])
 def test_invalid_fixtures_fail_for_the_right_reason(shapes, name, expect):
     ok, text = run(shapes, name)

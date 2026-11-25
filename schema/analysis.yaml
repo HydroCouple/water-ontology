@@ -38,6 +38,45 @@ enums:
       ACCEPTED: {}
       REJECTED: {}
       CORRECTED: {}
+  ToolEffect:
+    description: What a tool call may change. The values are the method effects of the engine catalog.
+    permissible_values:
+      READ: {description: Changes nothing}
+      WRITE: {description: Changes values in a model or a run}
+      STRUCTURAL: {description: "Adds, removes or reshapes model elements"}
+      FILE: {description: Reads or writes files}
+  ApprovalState:
+    description: Where a request outside an agent session's budget stands.
+    permissible_values:
+      PENDING: {description: Waiting for a person}
+      APPROVED: {description: A person approved it}
+      REJECTED: {description: A person rejected it}
+      EXPIRED: {description: Nobody decided before it expired}
+  EventAggregation:
+    description: How the scores of the events in an event set make one score.
+    permissible_values:
+      SUM: {}
+      MEAN: {}
+      MAX: {description: The worst event}
+      WEIGHTED_MEAN: {description: Weighted by each event's weight}
+      EXPECTED_ANNUAL: {description: "Integrated over return periods, per year"}
+  StudyKind:
+    description: How a study chooses the candidates it evaluates.
+    permissible_values:
+      SAMPLING: {description: "A design of experiments drawn before any candidate is scored: Latin hypercube, Sobol, random or grid"}
+      OPTIMIZATION: {description: "A search that chooses later candidates from earlier scores, e.g. NSGA-II"}
+      ALTERNATIVES: {description: Designs a person listed}
+  TwinScheduleState:
+    description: Where a digital twin's schedule of cycles stands.
+    permissible_values:
+      ACTIVE: {description: Submitting its cycles}
+      PAUSED: {description: "Stopped by a person, or because a cycle did not succeed; resuming submits that cycle again"}
+      COMPLETED: {description: Every cycle succeeded}
+  SchedulePace:
+    description: When a schedule submits its next cycle.
+    permissible_values:
+      REPLAY: {description: As soon as the cycle before it succeeded}
+      WALL_CLOCK: {description: Once the cycle's end and a lag have passed on the clock}
 
 slots:
   revision_id:
@@ -69,7 +108,7 @@ slots:
     description: Approved platform workflow and version, e.g. swmm.simulation@1 or gym.evaluate@1.
   tool_call_id:
     range: string
-    description: The agent tool-call (MLflow span) that submitted the run; links the finding to its trace.
+    description: Id of the agent tool call, as the client that made it names it. On a run it is the call that submitted the run.
   session_id:
     range: string
   manifest_sha256:
@@ -93,7 +132,7 @@ slots:
   trace_id:
     range: string
     required: true
-    description: MLflow trace id of the agent run that produced the finding.
+    description: Id of the trace that holds the agent's ordered tool calls - the MCP journal id, or an MLflow trace id where MLflow records the agent.
   finding_kind:
     range: FindingKind
     required: true
@@ -121,59 +160,339 @@ slots:
   verifier_passed:
     range: boolean
     required: true
+  tool_calls:
+    range: ToolCall
+    multivalued: true
+    description: The tool calls behind the finding, in the order they were made.
+  verifier_report:
+    range: VerifierReport
+    inlined: true
+    description: What the verifier checked and found for each number the statement cites.
+  in_session:
+    range: AgentSession
+    description: The agent session a tool call belongs to.
+  tool:
+    range: Tool
+    description: The registered tool that was called.
+  effect:
+    range: ToolEffect
+    description: What the call was allowed to change.
+  sequence:
+    range: integer
+    description: Position of the call in its session, from 1.
+  arguments_sha256:
+    range: Sha256Hex
+    description: SHA-256 of the call's arguments as canonical JSON.
+  result_sha256:
+    range: Sha256Hex
+    description: SHA-256 of the call's result as canonical JSON.
   review_state:
     range: ReviewState
   reviewed_by:
     range: Agent
   candidate_index:
     range: integer
-  parameters:
-    range: string
-    description: JSON of decision variables.
+    description: The candidate's evaluation number in its study, from 1.
+  decision_values:
+    range: DecisionValue
+    multivalued: true
+    inlined_as_list: true
+    description: The candidate's design, one entry per component of the decision vector.
   objective_values:
-    range: string
-    description: JSON of objective name to value.
+    range: ObjectiveValue
+    multivalued: true
+    inlined_as_list: true
+    description: The candidate's score on each objective.
   is_pareto:
     range: boolean
+  study_manifest:
+    range: PlatformStudyManifest
+    inlined: true
+    description: The study's definition, evaluations and result (platform study manifest).
+  session_view:
+    range: PlatformAgentSessionView
+    inlined: true
+    description: The session's expiry and delegated budget (platform agent session view).
+  approval_view:
+    range: PlatformApprovalView
+    inlined: true
+    description: The request and why it needs a person (platform approval view).
+  approval_id:
+    range: string
+    description: hydrocouple.platform approval id.
+  approval_state:
+    range: ApprovalState
+    description: Whether a person approved, rejected or has yet to decide.
+  derived_in_study:
+    range: Study
+    description: The study whose evaluation chose this revision's design.
+  chosen_evaluation:
+    range: integer
+    description: The evaluation of derived_in_study whose design this revision holds.
+  of_scenario:
+    range: Scenario
+    description: The scenario of its revision that a run executes.
+  catalog_path:
+    range: string
+    description: Engine catalog path of an element field, e.g. subcatchment.width.
+  override_element_id:
+    range: string
+    description: The model element's own id.
+  base_value:
+    range: float
+    description: The value the revision holds, before the override.
+  override_value:
+    range: float
+    description: The value the scenario writes (a boolean as 1 or 0).
+  override_unit:
+    range: string
+    description: The unit of the value, in the model's unit system, when it is known.
+  events:
+    range: ForcingEvent
+    multivalued: true
+    description: The events of an event set.
+  event_aggregation:
+    range: EventAggregation
+    description: How the events' scores combine.
+  return_period_years:
+    range: float
+    description: The event's average recurrence interval, in years.
+  event_weight:
+    range: float
+    description: The event's weight in a weighted aggregation.
+  study_kind:
+    range: StudyKind
+    description: How the study chose its candidates.
+  search_algorithm:
+    range: string
+    description: "The sampling design or search that drew the candidates, from the manifest's optimization: lhs, sobol, random_search, grid_search, alternatives, nsga2, ..."
+  acceptance_rule:
+    range: AcceptanceRule
+    inlined: true
+    description: Which evaluations are behavioural, as the study declares it or as a parameter set applied it.
+  scored_over:
+    range: EventSet
+    description: The events each candidate of the study is scored on.
+  metric_values:
+    range: MetricValue
+    multivalued: true
+    inlined_as_list: true
+    description: Every value the evaluator reported for the candidate, objective or not, as reported (a maximized objective is not negated).
+  members:
+    range: Candidate
+    multivalued: true
+    description: The candidates a parameter set accepts.
+  schedule_id:
+    range: string
+    description: hydrocouple.platform schedule id.
+  schedule_view:
+    range: PlatformScheduleView
+    inlined: true
+    description: The schedule's cadence, state and cycle history (platform schedule view).
+  schedule_state:
+    range: TwinScheduleState
+  schedule_pace:
+    range: SchedulePace
+  cycle_minutes:
+    range: float
+    description: The model time each cycle covers.
+  in_schedule:
+    range: Schedule
+    description: The schedule whose cycle a run is.
+  cycle_number:
+    range: integer
+    description: Which cycle of its schedule a run is, from 0.
+  cycle_end:
+    range: datetime
+    description: The model time (UTC wall clock) a twin cycle runs to and records its state at.
+  resumed_from:
+    range: ResultArtifact
+    description: The saved state of an earlier attempt this attempt continued from (its provenance's resumed_from).
 
 classes:
   Revision:
     is_a: Entity
     mixins: [Attributed, Dataset]
     description: An immutable model revision identified by its platform manifest or by a local input bundle and its checksum. Each SWMM element belongs to one revision.
-    slots: [revision_id, of_composition, revision_manifest, manifest_sha256, input_sha256, bundle_sha256, mapping_release]
+    slots: [revision_id, of_composition, revision_manifest, manifest_sha256, input_sha256, bundle_sha256, mapping_release, was_derived_from, derived_in_study, chosen_evaluation]
+    slot_usage:
+      was_derived_from: {description: "The revision this one was made from (its manifest's derived_from)."}
     exact_mappings: [prov:Entity]
 
   Run:
     is_a: DerivedEntity
     mixins: [Attributed]
     description: A request to execute a workflow on a revision on a target (platform run request plus the job spec the control plane built from it).
-    slots: [run_id, of_revision, of_study, workflow, started_at, ended_at, was_associated_with, used, tool_call_id, session_id, run_request, job_spec]
+    slots: [run_id, of_revision, of_study, of_scenario, workflow, started_at, ended_at, was_associated_with, used, tool_call_id, session_id, run_request, job_spec, in_schedule, cycle_number, cycle_end]
     broad_mappings: [prov:Plan]
 
   Attempt:
     is_a: Entity
     mixins: [Attributed, Activity, Dataset]
     description: One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest). Simulation results ingested as Observations of result_kind SIMULATION point here through was_generated_by.
-    slots: [was_generated_by, generated_at, attempt_id, of_run, attempt_manifest, manifest_sha256]
+    slots: [was_generated_by, generated_at, attempt_id, of_run, attempt_manifest, manifest_sha256, resumed_from]
     exact_mappings: [prov:Activity]
+
+  Schedule:
+    is_a: Entity
+    mixins: [Attributed]
+    description: The cycles of a digital twin on one revision, each a run continuing from the state the cycle before it saved (platform schedule view). Its runs name it in in_schedule; the setpoints proposed for it are Setpoints with for_schedule.
+    slots: [schedule_id, of_revision, workflow, schedule_state, schedule_pace, cycle_minutes, schedule_view]
+    slot_usage:
+      schedule_id: {required: true}
 
   Study:
     is_a: DerivedEntity
     mixins: [Attributed, Activity]
-    description: "An ask/tell optimisation over an evaluator pool (platform study view): objectives, budget, state and the Pareto set."
-    slots: [study_id, of_revision, workflow, session_id, study_view]
+    description: "An ask/tell optimisation, sampling design or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, from the platform, its view."
+    slots: [study_id, of_revision, workflow, session_id, study_view, study_manifest, study_kind, search_algorithm, acceptance_rule, scored_over]
 
   Candidate:
     is_a: DerivedEntity
-    description: One evaluated design or policy in a study, with its decision variables and objective values.
-    slots: [of_study, candidate_index, parameters, objective_values, is_pareto, of_run]
+    description: One evaluated design or policy in a study, with its decision variables, objective values and metrics. was_generated_by is its study.
+    slots: [of_study, candidate_index, decision_values, objective_values, metric_values, is_pareto, of_run]
+
+  MetricValue:
+    description: One value the evaluator reported for a candidate.
+    attributes:
+      name: {range: string, required: true, description: "The reward term, or <term>@<event> for one event of an event set."}
+      value: {range: float, description: The value as the term reports it; absent when it was not finite.}
+
+  AcceptanceRule:
+    description: Which evaluations of a study are behavioural - every threshold met, then the best fraction by one objective.
+    attributes:
+      thresholds: {range: AcceptanceThreshold, multivalued: true, inlined_as_list: true, description: Bounds every member meets.}
+      best_fraction: {range: float, description: Keep only the best this fraction of the study's successful evaluations.}
+      ranked_by: {range: string, description: "The objective ranking best_fraction; the study's first objective when absent."}
+
+  AcceptanceThreshold:
+    description: A bound on one metric of an evaluation.
+    attributes:
+      metric: {range: string, required: true, description: "A metric name, e.g. kge_C11."}
+      at_least: {range: float, description: The lowest value accepted.}
+      at_most: {range: float, description: The highest value accepted.}
+
+  ParameterSet:
+    is_a: DerivedEntity
+    description: A calibration's behavioural set - the candidates of one study that its acceptance rule accepts. was_derived_from is the study.
+    slots: [of_study, members, acceptance_rule]
+    slot_usage:
+      of_study: {required: true, description: The study the members were evaluated in.}
+      members: {required: true}
+      acceptance_rule: {required: true}
+
+  DecisionValue:
+    description: One component of a candidate's decision vector.
+    attributes:
+      dimension: {range: string, required: true, description: "The design dimension's key, e.g. subcatchment.width."}
+      label: {range: string, description: "The component, e.g. field_design:S1."}
+      value: {range: float, required: true, description: The component's value in the field's units.}
+
+  ObjectiveValue:
+    description: A candidate's score on one objective.
+    attributes:
+      name: {range: string, required: true}
+      direction: {range: string, description: "minimize or maximize; absent on rows migrated from 0.2, which did not record it."}
+      value: {range: float, required: true, description: "The cost as the study minimised it: a maximized objective is negated."}
+
+  Scenario:
+    is_a: Entity
+    description: A variant of a revision - the revision plus element field overrides - as a swmm.simulation@2 run executes it. Its overrides are ScenarioOverride rows.
+    slots: [of_revision]
+    slot_usage:
+      of_revision: {required: true, description: The base revision the overrides apply to.}
+
+  ScenarioOverride:
+    is_a: Entity
+    description: One field value a scenario writes over its revision, by engine catalog path, before the model initializes.
+    slots: [of_scenario, catalog_path, override_element_id, override_value, base_value, override_unit]
+    slot_usage:
+      of_scenario: {required: true}
+      catalog_path: {required: true}
+      override_element_id: {required: true}
+      override_value: {required: true}
+
+  EventSet:
+    is_a: Entity
+    description: A set of forcing events (design storms, historical periods) a design or policy is scored over, and how their scores combine.
+    slots: [events, event_aggregation]
+    slot_usage:
+      events: {required: true}
+      event_aggregation: {required: true}
+
+  ForcingEvent:
+    is_a: Entity
+    description: One forcing event of an event set - a rainfall or inflow series over a period - with its return period and weight.
+    slots: [return_period_years, event_weight, started_at, ended_at, used]
+    slot_usage:
+      used: {description: The input artifacts (series files) that hold the event.}
+
+  Approval:
+    is_a: Entity
+    mixins: [Activity]
+    description: A request outside an agent session's budget and what a person decided (platform approval view). was_associated_with is the person who decided, never an AI agent.
+    slots: [approval_id, of_run, of_study, approval_state, approval_view]
+    slot_usage:
+      approval_id: {required: true}
+      approval_state: {required: true}
 
   AgentFinding:
     is_a: DerivedEntity
     mixins: [Attributed]
     description: What an agent surfaced to a person, with the trace, tools, evidence and assumptions behind it and the verifier's verdict. Recommendations are proposals only.
-    slots: [trace_id, finding_kind, question, statement, subjects, evidence, tools_used, assumptions, verifier_passed, review_state, reviewed_by]
+    slots: [trace_id, finding_kind, question, statement, subjects, evidence, tools_used, tool_calls, assumptions, verifier_passed, verifier_report, review_state, reviewed_by]
+
+  AgentSession:
+    is_a: Entity
+    mixins: [Activity]
+    description: One session of an AI agent - a client and a model that a person started. The agent that worked in it is was_associated_with, an Agent of kind AI_AGENT that acts on that person's behalf. The platform names the session in the actor of every run it submits.
+    slots: [session_id, session_view]
+    slot_usage:
+      session_id: {required: true}
+      was_associated_with: {required: true}
+    attributes:
+      client: {range: string, description: "The agent client, for example openswmm.mcp."}
+      client_version: {range: string}
+      model: {range: string, description: The language model the client reported.}
+    exact_mappings: [prov:Activity]
+
+  Tool:
+    is_a: Entity
+    description: A tool an agent can call, as its server registers it.
+    attributes:
+      tool_name: {range: string, required: true}
+      tool_version: {range: string, description: Version of the server that registers the tool.}
+      read_only: {range: boolean, description: True when the server declares that the tool changes nothing.}
+
+  ToolCall:
+    is_a: Entity
+    mixins: [Activity]
+    description: One call an agent made to a tool. The arguments and the result are kept as checksums, not as content.
+    slots: [tool_call_id, in_session, tool, effect, sequence, arguments_sha256, result_sha256]
+    slot_usage:
+      tool_call_id: {required: true}
+      in_session: {required: true}
+    exact_mappings: [prov:Activity]
+
+  VerifierReport:
+    description: The verifier's account of a finding - each cited number, where it was looked up and what was found there.
+    attributes:
+      verifier: {range: string, required: true, description: Name and version of the verifier.}
+      checked_at: {range: datetime, required: true}
+      claims: {range: VerifiedClaim, multivalued: true, inlined_as_list: true}
+      uncited: {range: string, multivalued: true, description: Numbers the statement writes that no claim covers. They were not checked.}
+
+  VerifiedClaim:
+    description: One number a finding's statement cites, checked against the artifact it cites.
+    attributes:
+      evidence: {range: IRI, required: true, description: The result artifact the number is cited from.}
+      locator: {range: string, required: true, description: "Where the number is in the artifact: table/row/column of a run summary."}
+      stated: {range: string, required: true, description: The number as the statement writes it.}
+      stated_unit: {range: string}
+      found: {range: float, description: The value in the artifact; absent when the locator resolves to nothing.}
+      found_unit: {range: string}
+      passed: {range: boolean, required: true}
+      reason: {range: string, description: Why the claim failed.}
 
   IngestionActivity:
     description: A particular import of a revision under a versioned mapping profile.

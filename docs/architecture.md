@@ -104,6 +104,26 @@ sequenceDiagram
 | What was computed and why | `analysis.*` (attempt manifests with provenance), `ml.prediction` | Every answer cites attempt, model version, table version |
 | What is allowed | `water_agents.tool_catalog`, Unity Catalog grants, AI Gateway, platform budgets | The agent can only call what is `active`; proposals need human approval |
 
+## Identifiers for platform records
+
+`loaders/platform_to_rows.py` builds every identifier from what the platform's manifests state, so the same manifests always give the same rows.
+
+| Thing | Identifier | From |
+| --- | --- | --- |
+| Revision | `wsys:revision/<utility>/<system>/<sha256>` | SHA-256 of the revision manifest file, the value an attempt records as `revision_manifest_sha256` |
+| Input file | `<revision>/file/<path>` | Package path in the revision manifest |
+| Run | `wsys:run/<run id>` | `provenance.run_id` |
+| Attempt | `wsys:attempt/<run id>/<attempt number>` | `provenance.attempt_number` |
+| Result artifact | `<attempt>/artifact/<path>` | Artifact path in the attempt manifest; its bytes are named by `artifact_sha256` |
+| Person | `wsys:agent/person/<subject>` | `actor.human_subject` |
+| AI agent | `wsys:agent/ai/<agent session id>` | One agent per session, because the person it acts for is set per session |
+| Agent session | `wsys:session/<agent session id>` | `actor.agent_session_id` |
+| Tool call | `<session>/call/<tool call id>` | `actor.tool_call_id`, or a line of the MCP journal |
+| Engine | `wsys:agent/software/openswmm/<version>` | `runtime.engine`; the same identifier `swmm_to_rows` gives a local run |
+| Finding | `wsys:finding/<sha256>` | SHA-256 of its trace id, statement and claims |
+
+Path parts are percent-encoded. A run's `was_generated_by` is the tool call that submitted it, or `wsys:job/<job id>` when a person submitted it directly. A revision loaded from the platform and the same model loaded by `swmm_to_rows` have different identifiers; they share `input_sha256` when the package has one model file.
+
 ## Reading the generated figures
 
 - [Module map](diagrams/modules.md) — which schema files import which.

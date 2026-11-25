@@ -8,3 +8,5 @@ A LinkML-authored ontology for collection and stormwater systems that generates 
 - [Relations](diagrams/relations.md) — what may connect to what.
 
 Source: [HydroCouple/water-ontology](https://github.com/HydroCouple/water-ontology).
+
+[Trace a result to its source](lineage.md) follows one depth observation back to the retained model and output.

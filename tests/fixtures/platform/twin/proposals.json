@@ -1,0 +1,180 @@
+[
+  {
+    "proposal_id": "spp_9c4f8a33289085a77edb",
+    "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+    "state": "APPLIED",
+    "link": "ORIF",
+    "property": "link.target_setting",
+    "value": 0.2,
+    "effective_from": "2024-01-01T00:40:00",
+    "issued_at": "2024-01-01T00:40:00",
+    "run_id": "run_093dcff21eab7ce9536e",
+    "proposed_by": {
+      "kind": "forecast",
+      "run_id": "run_093dcff21eab7ce9536e"
+    },
+    "note": null,
+    "decided_by": "alice",
+    "decided_at": "2026-11-20T16:41:34.412680-05:00",
+    "decision_note": null,
+    "applied_run_id": "run_9d965f9247d2fb207b72",
+    "applied_at": "2024-01-01T00:40:00",
+    "created_at": "2026-11-20T16:41:34.222341-05:00"
+  },
+  {
+    "proposal_id": "spp_c0802e0aa3187f3b2cdc",
+    "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+    "state": "APPLIED",
+    "link": "ORIF",
+    "property": "link.target_setting",
+    "value": 0.5,
+    "effective_from": "2024-01-01T01:30:00",
+    "issued_at": null,
+    "run_id": null,
+    "proposed_by": {
+      "kind": "agent",
+      "tool_call_id": null,
+      "human_subject": "alice",
+      "agent_session_id": "ags_e110ffe38d66011a2d80"
+    },
+    "note": "open the orifice halfway before the second storm",
+    "decided_by": "alice",
+    "decided_at": "2026-11-20T16:41:34.418118-05:00",
+    "decision_note": null,
+    "applied_run_id": "run_6ce913f231ac112230b8",
+    "applied_at": "2024-01-01T01:30:05.485000",
+    "created_at": "2026-11-20T16:41:34.402683-05:00"
+  },
+  {
+    "proposal_id": "spp_7b22f809c39c3dc26477",
+    "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+    "state": "APPLIED",
+    "link": "ORIF",
+    "property": "link.target_setting",
+    "value": 0.2,
+    "effective_from": "2024-01-01T01:20:00",
+    "issued_at": "2024-01-01T01:20:00",
+    "run_id": "run_9d965f9247d2fb207b72",
+    "proposed_by": {
+      "kind": "forecast",
+      "run_id": "run_9d965f9247d2fb207b72"
+    },
+    "note": null,
+    "decided_by": "alice",
+    "decided_at": "2026-11-20T16:41:35.760571-05:00",
+    "decision_note": null,
+    "applied_run_id": "run_6ce913f231ac112230b8",
+    "applied_at": "2024-01-01T01:20:00",
+    "created_at": "2026-11-20T16:41:35.593991-05:00"
+  },
+  {
+    "proposal_id": "spp_c4970c1700832d3a4773",
+    "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+    "state": "REJECTED",
+    "link": "ORIF",
+    "property": "link.target_setting",
+    "value": 0.4,
+    "effective_from": "2024-01-01T01:50:00",
+    "issued_at": "2024-01-01T01:20:00",
+    "run_id": "run_9d965f9247d2fb207b72",
+    "proposed_by": {
+      "kind": "forecast",
+      "run_id": "run_9d965f9247d2fb207b72"
+    },
+    "note": null,
+    "decided_by": "alice",
+    "decided_at": "2026-11-20T16:41:35.769482-05:00",
+    "decision_note": null,
+    "applied_run_id": null,
+    "applied_at": null,
+    "created_at": "2026-11-20T16:41:35.593992-05:00"
+  },
+  {
+    "proposal_id": "spp_b023d973f9b27a9d0f28",
+    "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+    "state": "APPLIED",
+    "link": "ORIF",
+    "property": "link.target_setting",
+    "value": 0.6,
+    "effective_from": "2024-01-01T02:00:00",
+    "issued_at": "2024-01-01T02:00:00",
+    "run_id": "run_6ce913f231ac112230b8",
+    "proposed_by": {
+      "kind": "forecast",
+      "run_id": "run_6ce913f231ac112230b8"
+    },
+    "note": null,
+    "decided_by": "alice",
+    "decided_at": "2026-11-20T16:41:37.082740-05:00",
+    "decision_note": null,
+    "applied_run_id": "run_d7f3c388d8a1259ef469",
+    "applied_at": "2024-01-01T02:00:00",
+    "created_at": "2026-11-20T16:41:36.983265-05:00"
+  },
+  {
+    "proposal_id": "spp_113e7fe13571db31c84e",
+    "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+    "state": "REJECTED",
+    "link": "ORIF",
+    "property": "link.target_setting",
+    "value": 0.8,
+    "effective_from": "2024-01-01T02:30:00",
+    "issued_at": "2024-01-01T02:00:00",
+    "run_id": "run_6ce913f231ac112230b8",
+    "proposed_by": {
+      "kind": "forecast",
+      "run_id": "run_6ce913f231ac112230b8"
+    },
+    "note": null,
+    "decided_by": "alice",
+    "decided_at": "2026-11-20T16:41:37.088628-05:00",
+    "decision_note": null,
+    "applied_run_id": null,
+    "applied_at": null,
+    "created_at": "2026-11-20T16:41:36.983267-05:00"
+  },
+  {
+    "proposal_id": "spp_295794fd7e91369f36fd",
+    "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+    "state": "PROPOSED",
+    "link": "ORIF",
+    "property": "link.target_setting",
+    "value": 0.6,
+    "effective_from": "2024-01-01T02:40:00",
+    "issued_at": "2024-01-01T02:40:00",
+    "run_id": "run_d7f3c388d8a1259ef469",
+    "proposed_by": {
+      "kind": "forecast",
+      "run_id": "run_d7f3c388d8a1259ef469"
+    },
+    "note": null,
+    "decided_by": null,
+    "decided_at": null,
+    "decision_note": null,
+    "applied_run_id": null,
+    "applied_at": null,
+    "created_at": "2026-11-20T16:41:38.225643-05:00"
+  },
+  {
+    "proposal_id": "spp_0a21e74a4e6bb4d47028",
+    "schedule_id": "sch_1ef4315d3d22a8dd58a3",
+    "state": "PROPOSED",
+    "link": "ORIF",
+    "property": "link.target_setting",
+    "value": 0.8,
+    "effective_from": "2024-01-01T03:20:00",
+    "issued_at": "2024-01-01T02:40:00",
+    "run_id": "run_d7f3c388d8a1259ef469",
+    "proposed_by": {
+      "kind": "forecast",
+      "run_id": "run_d7f3c388d8a1259ef469"
+    },
+    "note": null,
+    "decided_by": null,
+    "decided_at": null,
+    "decision_note": null,
+    "applied_run_id": null,
+    "applied_at": null,
+    "created_at": "2026-11-20T16:41:38.225645-05:00"
+  }
+]
