@@ -1,6 +1,7 @@
 """Cross-layer regression tests for governed SWMM snapshots."""
 
 from contextlib import closing
+from datetime import datetime
 import json
 from pathlib import Path
 import shutil
@@ -167,8 +168,11 @@ def test_native_pollutograph_matches_every_report_period():
     ]
     samples = [r for r in records if r["property_iri"].endswith("/concentration")]
     with engine.OutputReader(str(output)) as reader:
-        assert [r["phenomenon_time"] for r in samples] == [
-            str(t) for t in reader.period_times
+        # The same instants: how an engine prints them (to the second or the microsecond)
+        # depends on its release, and the committed rows keep the one they were made with.
+        instant = datetime.fromisoformat
+        assert [instant(r["phenomenon_time"]) for r in samples] == [
+            instant(str(t)) for t in reader.period_times
         ]
         native = reader.node_series("O1", int(engine.OutNodeVar.POLLUT_BASE))
         assert [r["value"] for r in samples] == pytest.approx(
