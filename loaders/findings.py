@@ -8,9 +8,16 @@ A claim is one number the statement cites:
      "locator": "node_flooding/J10/total_flood_volume"}
 
 `quoted` is the number exactly as the statement writes it. `evidence` is a
-result artifact in the rows folder that is a run summary, and `locator` is
-table/row/column in it (table/column for a table with one row); a row is named
-by its element id, and each part is percent-encoded.
+result artifact in the rows folder, and `locator` says where in it:
+
+  - a run summary: table/row/column (table/column for a table with one row); a
+    row is named by its element id;
+  - a study's evaluation records (one JSON record per line, the object of a
+    study chunk): evaluation/<n>/<objectives|metrics|decisions>/<name>, with a
+    last /<i> for the i-th component (from 0) of a decision.
+
+Each part is percent-encoded. Evaluation records carry no units, so a claim on
+one states none.
 
 A claim passes when all of these hold:
 
@@ -45,9 +52,14 @@ def read_rows(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()] if path.exists() else []
 
 
-def lookup(summary: dict, locator: str):
-    """(value, unit) at table/row/column of a run summary; raises LookupError with the reason."""
+def lookup(summary, locator: str):
+    """(value, unit) at the locator of a run summary or of evaluation records; raises
+    LookupError with the reason."""
     parts = [unquote(p) for p in locator.split("/")]
+    if parts[0] == "evaluation":
+        return lookup_record(summary, parts)
+    if not isinstance(summary, dict) or "tables" not in summary:
+        raise LookupError("the artifact is not a run summary")
     table = summary["tables"].get(parts[0])
     if table is None or len(parts) not in (2, 3):
         raise LookupError(f"no table '{parts[0]}'" if table is None else "a locator is table/row/column or table/column")
@@ -59,6 +71,40 @@ def lookup(summary: dict, locator: str):
     if parts[-1] not in rows[0]:
         raise LookupError(f"no column '{parts[-1]}'")
     return rows[0][parts[-1]], table["columns"].get(parts[-1], {}).get("unit")
+
+
+def lookup_record(records, parts: list[str]):
+    """(value, None) at evaluation/<n>/<section>/<name>[/<i>] of evaluation records."""
+    if not isinstance(records, list) or len(parts) not in (4, 5):
+        raise LookupError("an evaluation locator is evaluation/<n>/<section>/<name>[/<i>] of evaluation records")
+    try:
+        number = int(parts[1])
+    except ValueError:
+        raise LookupError(f"'{parts[1]}' is not an evaluation number") from None
+    found = [r for r in records if isinstance(r, dict) and r.get("evaluation") == number]
+    if len(found) != 1:
+        raise LookupError(f"{len(found)} records are evaluation {number}")
+    section = found[0].get(parts[2])
+    if parts[2] not in ("objectives", "metrics", "decisions") or not isinstance(section, dict):
+        raise LookupError(f"no section '{parts[2]}'")
+    if parts[3] not in section:
+        raise LookupError(f"no '{parts[3]}' in {parts[2]}")
+    value = section[parts[3]]
+    if len(parts) == 5:
+        try:
+            value = value[int(parts[4])]
+        except (TypeError, ValueError, IndexError):
+            raise LookupError(f"no component {parts[4]} of '{parts[3]}'") from None
+    return value, None
+
+
+def document(path: Path):
+    """A JSON document, or the records of a JSON-lines file as a list."""
+    text = path.read_text(encoding="utf-8")
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return [json.loads(line) for line in text.splitlines() if line.strip()]
 
 
 def check(claim: dict, statement: str, artifacts: dict[str, dict], rows_dir: Path) -> dict:
@@ -83,7 +129,7 @@ def check(claim: dict, statement: str, artifacts: dict[str, dict], rows_dir: Pat
     if file_digest(path) != artifact["artifact_sha256"]:
         return failed("the artifact's file does not have the checksum its row states")
     try:
-        found, unit = lookup(json.loads(path.read_text(encoding="utf-8")), claim["locator"])
+        found, unit = lookup(document(path), claim["locator"])
     except LookupError as exc:
         return failed(f"the locator does not resolve: {exc}")
     if isinstance(found, bool) or not isinstance(found, (int, float)):

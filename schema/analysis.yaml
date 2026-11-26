@@ -170,7 +170,16 @@ slots:
     description: What the verifier checked and found for each number the statement cites.
   in_session:
     range: AgentSession
-    description: The agent session a tool call belongs to.
+    description: The agent session a tool call belongs to; on a study, the session whose agent created it.
+  recorded_in:
+    range: ResultArtifact
+    description: The result artifact holding a candidate's evaluation record, the object of the study chunk that evaluated it, identified by its checksum.
+  proposed_by_call:
+    range: ToolCall
+    description: The agent tool call that proposed a candidate (submitted the batch it was in).
+  evaluated_by:
+    range: Attempt
+    description: The evaluator pool task attempt that evaluated a candidate.
   tool:
     range: Tool
     description: The registered tool that was called.
@@ -345,12 +354,12 @@ classes:
     is_a: DerivedEntity
     mixins: [Attributed, Activity]
     description: "An ask/tell optimisation, sampling design or alternatives analysis, locally or over an evaluator pool: its manifest (definition, evaluations, result) and, from the platform, its view."
-    slots: [study_id, of_revision, workflow, session_id, study_view, study_manifest, study_kind, search_algorithm, acceptance_rule, scored_over]
+    slots: [study_id, of_revision, workflow, session_id, study_view, study_manifest, study_kind, search_algorithm, acceptance_rule, scored_over, tool_call_id, in_session]
 
   Candidate:
     is_a: DerivedEntity
-    description: One evaluated design or policy in a study, with its decision variables, objective values and metrics. was_generated_by is its study.
-    slots: [of_study, candidate_index, decision_values, objective_values, metric_values, is_pareto, of_run]
+    description: One evaluated design or policy in a study, with its decision variables, objective values and metrics. was_generated_by is its study. From a platform study's lineage it also names the record it is in, the attempt that evaluated it and the tool call that proposed it.
+    slots: [of_study, candidate_index, decision_values, objective_values, metric_values, is_pareto, of_run, recorded_in, evaluated_by, proposed_by_call]
 
   MetricValue:
     description: One value the evaluator reported for a candidate.

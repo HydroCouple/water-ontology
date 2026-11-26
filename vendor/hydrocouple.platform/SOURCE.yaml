@@ -1,4 +1,4 @@
 repo: HydroCouple/hydrocouple.platform
-branch: dev
-commit: e016891126166b744bc57955e00b4c3672382adc
+branch: m7-2026-11-26
+commit: 6e11e7b522e09c0f5d6e97ea014644aed8ede7cc
 path: src/hydrocouple_platform/schemas/platform

@@ -4,7 +4,7 @@ title: Water Systems Ontology — hydrocouple.platform contracts (generated)
 description: GENERATED from hydrocouple.platform JSON Schemas by generators/platform_to_linkml.py; do not edit. Top-level
   contracts become Platform* classes, $defs become inlined component classes. The curated analysis module (schema/analysis.yaml)
   embeds these as manifests.
-version: platform-d8c0d36923d0
+version: platform-89bc719ba68f
 license: Apache-2.0
 prefixes:
   wsys: https://w3id.org/wsys/
@@ -182,6 +182,8 @@ enums:
         description: platform value 'NOT_READY'
       TARGET_REVOKED:
         description: platform value 'TARGET_REVOKED'
+      ESTIMATE_REQUIRED:
+        description: platform value 'ESTIMATE_REQUIRED'
 classes:
   PlatformRevisionManifest:
     description: RevisionManifest
@@ -385,6 +387,12 @@ classes:
   PlatformRunRequest:
     description: RunRequest
     attributes:
+      estimate_id:
+        description: The estimate this submission follows; required above the organization's require_estimate_above_evaluations
+        range: string
+        slot_uri: hcp:PlatformRunRequest.estimate_id
+        annotations:
+          json_property: estimate_id
       estimated_runtime_seconds:
         description: Estimated Runtime Seconds
         range: float
@@ -1879,6 +1887,21 @@ classes:
         required: true
         annotations:
           json_property: expires_at
+      remaining:
+        description: what the budget leaves of each; null where it sets no limit
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: remaining
+        slot_uri: hcp:PlatformAgentSessionView.remaining
+      used:
+        description: runs submitted, evaluations reserved by its studies, attempts and pool tasks active, estimated spend
+          committed
+        range: string
+        annotations:
+          json_object: 'true'
+          json_property: used
+        slot_uri: hcp:PlatformAgentSessionView.used
     annotations:
       json_schema_id: https://hydrocouple.org/schema/platform/agent-session-view-1.json
       platform_contract: 'true'
@@ -1928,6 +1951,12 @@ classes:
         slot_uri: hcp:PlatformBudget.max_runs
         annotations:
           json_property: max_runs
+      max_wall_time_seconds:
+        description: Max Wall Time Seconds
+        range: integer
+        slot_uri: hcp:PlatformBudget.max_wall_time_seconds
+        annotations:
+          json_property: max_wall_time_seconds
     annotations:
       json_schema_id: Budget
       platform_contract: 'true'

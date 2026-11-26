@@ -60,6 +60,9 @@ classDiagram
     MetricValue metric_values
     boolean is_pareto
     Run of_run
+    ResultArtifact recorded_in
+    Attempt evaluated_by
+    ToolCall proposed_by_call
   }
   class DecisionValue {
     string dimension*
@@ -175,6 +178,8 @@ classDiagram
     string search_algorithm
     AcceptanceRule acceptance_rule
     EventSet scored_over
+    string tool_call_id
+    AgentSession in_session
   }
   class Tool {
     string tool_name*
@@ -227,6 +232,9 @@ classDiagram
   Candidate *-- "*" ObjectiveValue : objective_values
   Candidate *-- "*" MetricValue : metric_values
   Candidate --> "1" Run : of_run
+  Candidate --> "1" ResultArtifact : recorded_in
+  Candidate --> "1" Attempt : evaluated_by
+  Candidate --> "1" ToolCall : proposed_by_call
   Entity <|-- EventSet
   EventSet --> "*" ForcingEvent : events
   Entity <|-- ForcingEvent
@@ -265,6 +273,7 @@ classDiagram
   Study *-- "1" PlatformStudyManifest : study_manifest
   Study *-- "1" AcceptanceRule : acceptance_rule
   Study --> "1" EventSet : scored_over
+  Study --> "1" AgentSession : in_session
   Entity <|-- Tool
   Entity <|-- ToolCall
   ToolCall --> "1" AgentSession : in_session
@@ -282,7 +291,7 @@ classDiagram
 | `AgentSession` | Entity | One session of an AI agent - a client and a model that a person started. The agent that worked in it is was_associated_with, an Agent of kind AI_AGENT that acts on that person's behalf. The platform names the session in the actor of every run it submits. |
 | `Approval` | Entity | A request outside an agent session's budget and what a person decided (platform approval view). was_associated_with is the person who decided, never an AI agent. |
 | `Attempt` | Entity | One execution attempt of a run with its artifacts, provenance and quality (platform attempt manifest). Simulation results ingested as Observations of result_kind SIMULATION point here through was_generated_by. |
-| `Candidate` | DerivedEntity | One evaluated design or policy in a study, with its decision variables, objective values and metrics. was_generated_by is its study. |
+| `Candidate` | DerivedEntity | One evaluated design or policy in a study, with its decision variables, objective values and metrics. was_generated_by is its study. From a platform study's lineage it also names the record it is in, the attempt that evaluated it and the tool call that proposed it. |
 | `DecisionValue` |  | One component of a candidate's decision vector. |
 | `EventSet` | Entity | A set of forcing events (design storms, historical periods) a design or policy is scored over, and how their scores combine. |
 | `ForcingEvent` | Entity | One forcing event of an event set - a rainfall or inflow series over a period - with its return period and weight. |

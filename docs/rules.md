@@ -47,6 +47,8 @@
 | `input_record_revision` | ERROR | An input record belongs to an existing revision. |
 | `finding_evidence_exists` | ERROR | Everything a finding cites as evidence is a known entity. |
 | `finding_reviewed_by_a_person` | ERROR | A finding is never reviewed by an AI agent, or by the agent it is attributed to. |
+| `candidate_record_known` | ERROR | A candidate's evaluation record and the attempt that evaluated it are known rows. |
+| `candidate_proposer_known` | ERROR | The tool call a candidate names as its proposer is a known tool call. |
 | `tool_call_in_a_session` | ERROR | A tool call belongs to a known agent session. |
 | `agent_session_acts_for_someone` | ERROR | The agent of an agent session is an AI agent that acts on behalf of someone. |
 | `scenario_override_writable` | ERROR | A scenario overrides only writable float, int or bool element fields of the engine catalog. |

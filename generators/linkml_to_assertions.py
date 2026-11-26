@@ -115,6 +115,18 @@ JOIN {self.t('analysis', 'run')} r ON r.iri = a.of_run JOIN {self.t('analysis', 
             (self.t("reference", "finding_lineage"), "Every piece of evidence a finding cites, with the lineage of the result artifact it is.", f"""
 SELECT e.finding_iri, e.trace_id, e.verifier_passed, e.evidence_iri, l.*
 FROM ({self.cited()}) e LEFT JOIN {artifact} l ON l.artifact_iri = e.evidence_iri""".strip()),
+            (self.t("reference", "candidate_lineage"), "Every study candidate with the record it is in, the attempt that evaluated it, and the tool call, agent session, agent and person that proposed it.", f"""
+SELECT c.iri AS candidate_iri, c.candidate_index, s.iri AS study_iri, s.study_id,
+       x.iri AS record_iri, x.artifact_sha256 AS record_sha256,
+       a.iri AS attempt_iri, a.attempt_id, a.manifest_sha256 AS attempt_manifest_sha256, r.iri AS run_iri, r.run_id,
+       t.iri AS proposed_by, t.tool_call_id, n.iri AS session_iri, g.iri AS agent_iri, g.acts_on_behalf_of AS person_iri
+FROM {self.t('analysis', 'candidate')} c JOIN {self.t('analysis', 'study')} s ON s.iri = c.of_study
+LEFT JOIN {self.t('analysis', 'result_artifact')} x ON x.iri = c.recorded_in
+LEFT JOIN {self.t('analysis', 'attempt')} a ON a.iri = c.evaluated_by
+LEFT JOIN {self.t('analysis', 'run')} r ON r.iri = a.of_run
+LEFT JOIN {self.t('analysis', 'tool_call')} t ON t.iri = c.proposed_by_call
+LEFT JOIN {self.t('analysis', 'agent_session')} n ON n.iri = t.in_session
+LEFT JOIN {self.t('reference', 'agent')} g ON g.iri = n.was_associated_with""".strip()),
         ]
 
     # -- rules -----------------------------------------------------------------
@@ -259,6 +271,17 @@ WHERE x.iri IS NULL""")
 SELECT f.iri AS focus_iri, concat('finding was reviewed by ', f.reviewed_by) AS message
 FROM {finding} f LEFT JOIN {agent} a ON a.iri = f.reviewed_by
 WHERE f.reviewed_by IS NOT NULL AND (a.agent_kind = 'AI_AGENT' OR f.reviewed_by = f.was_attributed_to)""")
+        candidate = self.t("analysis", "candidate")
+        self.add("candidate_record_known", "ERROR", "A candidate's evaluation record and the attempt that evaluated it are known rows.", f"""
+SELECT c.iri AS focus_iri, CASE WHEN x.iri IS NULL THEN concat('record ', c.recorded_in, ' is not in analysis.result_artifact')
+                                ELSE concat('attempt ', c.evaluated_by, ' is not in analysis.attempt') END AS message
+FROM {candidate} c LEFT JOIN {self.t('analysis', 'result_artifact')} x ON x.iri = c.recorded_in
+LEFT JOIN {self.t('analysis', 'attempt')} a ON a.iri = c.evaluated_by
+WHERE (c.recorded_in IS NOT NULL AND x.iri IS NULL) OR (c.evaluated_by IS NOT NULL AND a.iri IS NULL)""")
+        self.add("candidate_proposer_known", "ERROR", "The tool call a candidate names as its proposer is a known tool call.", f"""
+SELECT c.iri AS focus_iri, concat('tool call ', c.proposed_by_call, ' is not in analysis.tool_call') AS message
+FROM {candidate} c LEFT JOIN {self.t('analysis', 'tool_call')} t ON t.iri = c.proposed_by_call
+WHERE c.proposed_by_call IS NOT NULL AND t.iri IS NULL""")
         self.add("tool_call_in_a_session", "ERROR", "A tool call belongs to a known agent session.", f"""
 SELECT c.iri AS focus_iri, concat('session ', c.in_session, ' is not in analysis.agent_session') AS message
 FROM {self.t('analysis', 'tool_call')} c LEFT JOIN {self.t('analysis', 'agent_session')} s ON s.iri = c.in_session
