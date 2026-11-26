@@ -17,6 +17,8 @@ classDiagram
     string agent_session_id*
     PlatformBudget budget*
     datetime expires_at*
+    string remaining
+    string used
   }
   class PlatformApprovalView {
     string approval_id*
@@ -59,6 +61,7 @@ classDiagram
     float max_estimated_spend
     integer max_evaluations
     integer max_runs
+    integer max_wall_time_seconds
   }
   class PlatformComponentInstance {
     string component_info_id*
@@ -218,6 +221,7 @@ classDiagram
     integer total_bytes*
   }
   class PlatformRunRequest {
+    string estimate_id
     float estimated_runtime_seconds
     string parameters
     string profile

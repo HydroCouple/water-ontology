@@ -188,6 +188,7 @@ flowchart TB
   Attempt -- of_run --> Run
   Candidate -- of_study --> Study
   Candidate -- of_run --> Run
+  Candidate -- evaluated_by --> Attempt
   ComponentConnection -- composition --> Composition
   ComponentConnection -- provider --> Output
   ComponentConnection -- consumer --> Input
@@ -434,6 +435,9 @@ flowchart TB
   Attributed -- dc_creator --> Agent
   Candidate -- of_study --> Study
   Candidate -- of_run --> Run
+  Candidate -- recorded_in --> ResultArtifact
+  Candidate -- evaluated_by --> Attempt
+  Candidate -- proposed_by_call --> ToolCall
   Cell2D -- mesh --> Mesh2D
   ComponentConnection -- composition --> Composition
   ComponentConnection -- provider --> Output
@@ -485,6 +489,7 @@ flowchart TB
   Setpoint -- decided_by --> Agent
   Study -- of_revision --> Revision
   Study -- scored_over --> EventSet
+  Study -- in_session --> AgentSession
   Subcatchment -- system --> WaterSystem
   SwmmElement -- revision --> Revision
   SwmmLink -- from_node --> SwmmNode

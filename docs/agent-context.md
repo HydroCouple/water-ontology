@@ -215,6 +215,8 @@ The validator enforces these; open violations are in `reference.ontology_violati
 - An input record belongs to an existing revision.
 - Everything a finding cites as evidence is a known entity.
 - A finding is never reviewed by an AI agent, or by the agent it is attributed to.
+- A candidate's evaluation record and the attempt that evaluated it are known rows.
+- The tool call a candidate names as its proposer is a known tool call.
 - A tool call belongs to a known agent session.
 - The agent of an agent session is an AI agent that acts on behalf of someone.
 - A scenario overrides only writable float, int or bool element fields of the engine catalog.

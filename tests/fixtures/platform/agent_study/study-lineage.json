@@ -1,0 +1,280 @@
+{
+  "schema": "hydrocouple.platform/study-lineage/1",
+  "study_id": "std_b6bb399a48ded171e19a",
+  "run_id": "run_e1e701201e5cc7926018",
+  "state": "COMPLETED",
+  "organization_id": "org_6e31cc28ae0676f76e5b",
+  "project_id": "prj_3ada532721999fc873f5",
+  "revision_id": "rev_7de35c8dbb4b6d4ddfe2",
+  "revision_manifest_sha256": "c9f9783002f617ac0ab36a178cb1e0cfc3146430c61abfe66a79f31694ef0521",
+  "target_id": "tgt_084723c7bdd99324efcf",
+  "actor": {
+    "model": "scripted",
+    "agent_client": "openswmm.mcp tests",
+    "tool_call_id": "tc_6b256397d35041d98161c0d07ea80c8e",
+    "human_subject": "alice",
+    "agent_session_id": "ags_0a43a6f97d9ab7fa8554",
+    "conversation_ref": "walkthrough",
+    "agent_client_version": "0"
+  },
+  "definition": {
+    "seed": 5,
+    "workflow": "gym.evaluate",
+    "dimensions": [
+      {
+        "low": 100.0,
+        "high": 3000.0,
+        "label": "field_design:S1",
+        "choices": null
+      },
+      {
+        "low": 100.0,
+        "high": 3000.0,
+        "label": "field_design:S2",
+        "choices": null
+      }
+    ],
+    "objectives": [
+      {
+        "name": "flooding_volume",
+        "direction": "minimize"
+      }
+    ],
+    "on_failure": "fail",
+    "failure_penalty": 1000000000000.0,
+    "workflow_version": "1",
+    "idle_timeout_seconds": 600,
+    "evaluation_timeout_seconds": 600
+  },
+  "workload": {
+    "workflow": "gym.evaluate",
+    "parameters": {
+      "study": {
+        "seed": 5,
+        "study_id": "std_b6bb399a48ded171e19a",
+        "dimensions": [
+          {
+            "low": 100.0,
+            "high": 3000.0,
+            "label": "field_design:S1",
+            "choices": null
+          },
+          {
+            "low": 100.0,
+            "high": 3000.0,
+            "label": "field_design:S2",
+            "choices": null
+          }
+        ],
+        "objectives": [
+          {
+            "name": "flooding_volume",
+            "direction": "minimize"
+          }
+        ]
+      },
+      "threads": 1,
+      "workers": 1,
+      "env_config": {
+        "events": [],
+        "env_type": "cip",
+        "inp_path": "model/model.inp",
+        "n_points": null,
+        "out_path": null,
+        "rpt_path": null,
+        "wrappers": [],
+        "tune_full": false,
+        "objectives": null,
+        "ideal_point": null,
+        "observations": {
+          "fields": {},
+          "link_flows": [],
+          "node_heads": [],
+          "cell_fields": [],
+          "link_depths": [],
+          "node_depths": [
+            "J1"
+          ],
+          "link_volumes": [],
+          "node_inflows": [],
+          "node_volumes": [],
+          "include_clock": false,
+          "link_settings": [],
+          "node_overflows": [],
+          "rainfall_gages": [],
+          "link_capacities": [],
+          "link_velocities": [],
+          "subcatch_runoff": [],
+          "vertex_depths_2d": [],
+          "node_lateral_inflows": [],
+          "subcatch_groundwater": [],
+          "link_pollutant_concentration": {},
+          "node_pollutant_concentration": {}
+        },
+        "reward_terms": [
+          {
+            "kind": "flooding_volume",
+            "params": {}
+          }
+        ],
+        "market_config": null,
+        "policy_bounds": null,
+        "structure_ids": null,
+        "policy_factory": null,
+        "reference_point": null,
+        "schedule_bounds": null,
+        "design_factories": [
+          {
+            "kind": "field_design",
+            "params": {
+              "ids": [
+                "S1",
+                "S2"
+              ],
+              "low": 100.0,
+              "high": 3000.0,
+              "path": "subcatchment.width"
+            }
+          }
+        ],
+        "event_aggregation": "mean",
+        "max_episode_steps": null,
+        "runtime_factories": [],
+        "control_interval_steps": 1,
+        "control_interval_seconds": null
+      },
+      "idle_timeout_seconds": 600,
+      "max_steps_per_episode": 10000,
+      "evaluation_timeout_seconds": 600
+    },
+    "workflow_version": "1"
+  },
+  "runtime": {
+    "image": null,
+    "threads": 1,
+    "architecture": null
+  },
+  "max_evaluations": 6,
+  "pool_size": 1,
+  "counts": {
+    "submitted": 6,
+    "completed": 6,
+    "failed": 0
+  },
+  "batches": [
+    {
+      "batch_id": "bat_5045d8de13c43f21f386",
+      "sequence": 1,
+      "offset": 0,
+      "size": 4,
+      "candidates_sha256": "c99a20ec30cb5c8dad8c5e14618b7e66ff5c0670170dd325ffea2981a768ab6a",
+      "state": "DONE",
+      "actor": {
+        "model": "scripted",
+        "user_id": "usr_10af748ea4f9d9a609f5",
+        "agent_client": "openswmm.mcp tests",
+        "tool_call_id": "tc_6b256397d35041d98161c0d07ea80c8e",
+        "human_subject": "alice",
+        "agent_session_id": "ags_0a43a6f97d9ab7fa8554",
+        "conversation_ref": "walkthrough",
+        "agent_client_version": "0"
+      }
+    },
+    {
+      "batch_id": "bat_5bd9757fe79f9c86f418",
+      "sequence": 2,
+      "offset": 4,
+      "size": 2,
+      "candidates_sha256": "50a55c21754c08c6385c56080036f3c918e289a96869a611de6c8d183218c2d2",
+      "state": "DONE",
+      "actor": {
+        "model": "scripted",
+        "user_id": "usr_10af748ea4f9d9a609f5",
+        "agent_client": "openswmm.mcp tests",
+        "tool_call_id": "tc_6b256397d35041d98161c0d07ea80c8e",
+        "human_subject": "alice",
+        "agent_session_id": "ags_0a43a6f97d9ab7fa8554",
+        "conversation_ref": "walkthrough",
+        "agent_client_version": "0"
+      }
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_id": "chk_e9cfd6d85dd09754fb1b",
+      "batch_id": "bat_5045d8de13c43f21f386",
+      "start": 0,
+      "stop": 2,
+      "state": "DONE",
+      "lease_number": 1,
+      "deliveries": 1,
+      "attempt_id": "att_ca65074d97c521dfd3c3",
+      "object": {
+        "key": "runs/org_6e31cc28ae0676f76e5b/prj_3ada532721999fc873f5/run_e1e701201e5cc7926018/att_ca65074d97c521dfd3c3/evaluations/chk_e9cfd6d85dd09754fb1b-1.jsonl",
+        "sha256": "ff1f221ff934962a58be6802ec2cd0bf1128bbb1aa90651e1cd2c88f56191e01",
+        "size": 864
+      }
+    },
+    {
+      "chunk_id": "chk_6964a462e40a91c5a4fa",
+      "batch_id": "bat_5045d8de13c43f21f386",
+      "start": 2,
+      "stop": 4,
+      "state": "DONE",
+      "lease_number": 1,
+      "deliveries": 1,
+      "attempt_id": "att_ca65074d97c521dfd3c3",
+      "object": {
+        "key": "runs/org_6e31cc28ae0676f76e5b/prj_3ada532721999fc873f5/run_e1e701201e5cc7926018/att_ca65074d97c521dfd3c3/evaluations/chk_6964a462e40a91c5a4fa-1.jsonl",
+        "sha256": "68308351bc378c0c956c9057ef16d9540769d63ab93d3951bc8108dd03a2b751",
+        "size": 866
+      }
+    },
+    {
+      "chunk_id": "chk_77b6699555e98c7259b8",
+      "batch_id": "bat_5bd9757fe79f9c86f418",
+      "start": 0,
+      "stop": 1,
+      "state": "DONE",
+      "lease_number": 1,
+      "deliveries": 1,
+      "attempt_id": "att_ca65074d97c521dfd3c3",
+      "object": {
+        "key": "runs/org_6e31cc28ae0676f76e5b/prj_3ada532721999fc873f5/run_e1e701201e5cc7926018/att_ca65074d97c521dfd3c3/evaluations/chk_77b6699555e98c7259b8-1.jsonl",
+        "sha256": "c354aec2cbfef644ece802f69be56ce679a0f359d30499a9fce0316c12f4d1c9",
+        "size": 431
+      }
+    },
+    {
+      "chunk_id": "chk_e7e982967ef275d781db",
+      "batch_id": "bat_5bd9757fe79f9c86f418",
+      "start": 1,
+      "stop": 2,
+      "state": "DONE",
+      "lease_number": 1,
+      "deliveries": 1,
+      "attempt_id": "att_ca65074d97c521dfd3c3",
+      "object": {
+        "key": "runs/org_6e31cc28ae0676f76e5b/prj_3ada532721999fc873f5/run_e1e701201e5cc7926018/att_ca65074d97c521dfd3c3/evaluations/chk_e7e982967ef275d781db-1.jsonl",
+        "sha256": "213d7d8cdc4bb8b2b5af6c3d514ef8d671dfe0a44f870231f95c1522f25074a4",
+        "size": 431
+      }
+    }
+  ],
+  "pool": [
+    {
+      "job_id": "job_b59a6bb28714cef12611",
+      "state": "RUNNING",
+      "attempts": [
+        {
+          "attempt_id": "att_ca65074d97c521dfd3c3",
+          "number": 1,
+          "state": "RUNNING",
+          "failure_class": null,
+          "attempt_manifest_sha256": null
+        }
+      ]
+    }
+  ],
+  "manifest_sha256": "b7f27321541ecd48aacd9631422636b8266a4dc62ef611b1056f95f98906a54b"
+}

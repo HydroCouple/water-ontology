@@ -25,6 +25,16 @@ the checksum in the manifest and copied to artifacts/<sha256>.json, so a
 finding can cite a number in it. Nothing is read from the control plane, and
 no other artifact is copied.
 
+A platform study whose folder also holds its lineage (study-lineage.json and
+evaluation-lineage.jsonl, as hydrocouple.platform's run_platform_study writes
+them) adds the study's run, its pool task attempts and one ResultArtifact per
+chunk of evaluation records; each candidate names the record it is in, the
+attempt that evaluated it and the tool call that proposed it, and the study the
+tool call that created it. Chunk objects downloaded into chunks/<chunk id>.jsonl
+are checked against the lineage's checksums and copied to artifacts/, so a
+finding can cite an evaluation's numbers. The lineage must be the one the study
+manifest names (its checksum).
+
 A journal is the openswmm.mcp tool-call journal (one JSON line per call). Each
 call becomes a ToolCall row with its tool, effect, position and checksums, in
 the agent session the line names: the platform's, or for a local session the
@@ -247,22 +257,8 @@ class PlatformLoader(Rows):
             if row["iri"] == revision:
                 row["revision_id"] = row["label"] = p["revision_id"]
 
-        person = self.once("Agent", {"iri": f"wsys:agent/person/{part(actor['human_subject'])}", "label": actor["human_subject"],
-                                     "agent_kind": "PERSON", "external_identity": actor["human_subject"]})
-        asked_by, generated_by = person, f"wsys:job/{part(p['job_id'])}"
-        if actor.get("agent_session_id"):
-            session_id, client = actor["agent_session_id"], actor.get("agent_client")
-            version = actor.get("agent_client_version")
-            asked_by = self.once("Agent", {"iri": f"wsys:agent/ai/{part(session_id)}", "label": client or session_id, "agent_kind": "AI_AGENT",
-                                           "external_identity": f"{client}@{version}" if client and version else client or session_id,
-                                           "acts_on_behalf_of": person})
-            session = self.once("AgentSession", {"iri": f"wsys:session/{part(session_id)}", "label": session_id, "session_id": session_id,
-                                                 "was_associated_with": asked_by, "client": client, "client_version": version,
-                                                 "model": actor.get("model")})
-            if actor.get("tool_call_id"):
-                generated_by = self.once("ToolCall", {"iri": f"{session}/call/{part(actor['tool_call_id'])}", "label": actor["tool_call_id"],
-                                                      "tool_call_id": actor["tool_call_id"], "in_session": session,
-                                                      "was_associated_with": asked_by})
+        who = self.actor(actor)
+        asked_by, generated_by = who["asked_by"], who["tool_call"] or f"wsys:job/{part(p['job_id'])}"
         engine = p["runtime"].get("engine")
         name, version = ("openswmm", engine) if engine else (SOURCE, p["runtime"]["platform"])
         software = self.once("Agent", {"iri": f"wsys:agent/software/{name}/{part(version)}", "label": f"{name} {version}",
@@ -309,6 +305,81 @@ class PlatformLoader(Rows):
                 self.add_forecast(attempt, json.loads(source.read_text(encoding="utf-8")), p["finished_at"])
         self.attempts.append(attempt)
         return attempt
+
+    def actor(self, actor: dict) -> dict[str, str | None]:
+        """Rows for who asked: the person and, for an AI agent session, its agent, the session
+        and the tool call; returns their IRIs (asked_by is the agent when there is one)."""
+        person = self.once("Agent", {"iri": f"wsys:agent/person/{part(actor['human_subject'])}", "label": actor["human_subject"],
+                                     "agent_kind": "PERSON", "external_identity": actor["human_subject"]})
+        who: dict[str, str | None] = {"person": person, "asked_by": person, "session": None, "tool_call": None}
+        if actor.get("agent_session_id"):
+            session_id, client = actor["agent_session_id"], actor.get("agent_client")
+            version = actor.get("agent_client_version")
+            who["asked_by"] = self.once("Agent", {"iri": f"wsys:agent/ai/{part(session_id)}", "label": client or session_id,
+                                                  "agent_kind": "AI_AGENT",
+                                                  "external_identity": f"{client}@{version}" if client and version else client or session_id,
+                                                  "acts_on_behalf_of": person})
+            who["session"] = self.once("AgentSession", {"iri": f"wsys:session/{part(session_id)}", "label": session_id,
+                                                        "session_id": session_id, "was_associated_with": who["asked_by"],
+                                                        "client": client, "client_version": version, "model": actor.get("model")})
+            if actor.get("tool_call_id"):
+                who["tool_call"] = self.once("ToolCall", {"iri": f"{who['session']}/call/{part(actor['tool_call_id'])}",
+                                                          "label": actor["tool_call_id"], "tool_call_id": actor["tool_call_id"],
+                                                          "in_session": who["session"], "was_associated_with": who["asked_by"]})
+        return who
+
+    def add_study_lineage(self, study: str, revision: str | None, folder: Path, runtime: dict) -> dict:
+        """A platform study's lineage beside its manifest: its run, pool attempts and chunk
+        artifacts. Returns the study's own fields and, per evaluation, its candidate's."""
+        lineage = json.loads((folder / "study-lineage.json").read_text(encoding="utf-8"))
+        body = {k: v for k, v in lineage.items() if k != "manifest_sha256"}
+        digest = hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+        if digest != lineage["manifest_sha256"] or lineage["manifest_sha256"] != runtime.get("lineage_manifest_sha256"):
+            raise ValueError(f"{folder / 'study-lineage.json'} is not the lineage the study manifest names (checksum differs)")
+        creator, run_id = self.actor(lineage["actor"]), lineage["run_id"]
+        definition = lineage["definition"]
+        run = self.once("Run", {"iri": f"wsys:run/{part(run_id)}", "label": run_id, "run_id": run_id, "of_revision": revision,
+                                "of_study": study, "workflow": f"{definition['workflow']}@{definition['workflow_version']}",
+                                "was_generated_by": creator["tool_call"] or f"wsys:job/{part(run_id)}",
+                                "was_attributed_to": creator["asked_by"],
+                                "session_id": lineage["actor"].get("agent_session_id"),
+                                "tool_call_id": lineage["actor"].get("tool_call_id")})
+        for task in lineage["pool"]:
+            for a in task["attempts"]:
+                self.attempt_iris[a["attempt_id"]] = self.once("Attempt", {
+                    "iri": f"wsys:attempt/{part(run_id)}/{part(a['attempt_id'])}", "label": a["attempt_id"],
+                    "attempt_id": a["attempt_id"], "of_run": run, "manifest_sha256": a["attempt_manifest_sha256"]})
+        chunks: dict[str, str] = {}
+        for c in lineage["chunks"]:
+            obj = c.get("object")
+            if obj is None:
+                continue
+            where, source = obj["key"], folder / "chunks" / f"{c['chunk_id']}.jsonl"
+            if source.is_file():
+                if file_digest(source) != obj["sha256"]:
+                    raise ValueError(f"{source} is not the object the lineage lists (checksum differs)")
+                where = f"artifacts/{obj['sha256']}.json"
+                self.copies[Path(where).name] = source
+            chunks[c["chunk_id"]] = self.once("ResultArtifact", {
+                "iri": f"{study}/chunk/{part(c['chunk_id'])}", "label": c["chunk_id"], "artifact_sha256": obj["sha256"],
+                "was_generated_by": self.attempt_iris.get(c["attempt_id"]) or f"wsys:attempt/{part(run_id)}/{part(c['attempt_id'])}",
+                "was_derived_from": [revision] if revision else None,
+                "distributions": [{"access_url": where, "byte_size": obj["size"], "media_type": "application/x-ndjson",
+                                   "integrity_checksum": {"algorithm": SHA256, "digest": obj["sha256"]}}]})
+        candidates: dict[int, dict] = {}
+        records = folder / "evaluation-lineage.jsonl"
+        for text in records.read_text(encoding="utf-8").splitlines():
+            rec = json.loads(text)
+            chunk = next((c for c in lineage["chunks"] if c["chunk_id"] == rec["chunk_id"]), None)
+            if chunk is None or (chunk.get("object") or {}).get("sha256") != rec.get("object_sha256"):
+                raise ValueError(f"{records}: evaluation {rec['evaluation']} names a chunk the lineage does not")
+            proposer = self.actor(rec["proposed_by"]) if rec.get("proposed_by") else {}
+            candidates[rec["evaluation"]] = {"recorded_in": chunks[rec["chunk_id"]],
+                                             "evaluated_by": self.attempt_iris.get(rec["attempt_id"]),
+                                             "proposed_by_call": proposer.get("tool_call")}
+        return {"study": {"was_generated_by": creator["tool_call"] or run, "tool_call_id": lineage["actor"].get("tool_call_id"),
+                          "in_session": creator["session"]},
+                "candidates": candidates}
 
     def asset(self, kind: str, element: str) -> str:
         """The asset IRI loaders.swmm_to_rows gives a model element of this system."""
@@ -473,9 +544,14 @@ class PlatformLoader(Rows):
         revision = self.revisions.get(runtime.get("revision_manifest_sha256"))
         optimization = definition["optimization"]
         algorithm = optimization["algorithm"]
+        lineage = {"study": {}, "candidates": {}}
+        if runtime.get("lineage") and (path.parent / runtime["lineage"]).is_file():
+            lineage = self.add_study_lineage(iri, revision, path.parent, runtime)
         self.once("Study", {"iri": iri, "label": study_id, "study_id": study_id, "of_revision": revision,
                             "workflow": f"{definition['workflow']}@{definition['workflow_version']}",
-                            "was_generated_by": f"wsys:job/{part(job)}",
+                            "was_generated_by": lineage["study"].get("was_generated_by") or f"wsys:job/{part(job)}",
+                            "tool_call_id": lineage["study"].get("tool_call_id"),
+                            "in_session": lineage["study"].get("in_session"),
                             "study_manifest": self.embed("PlatformStudyManifest", manifest),
                             "study_kind": STUDY_KINDS.get(algorithm, "OPTIMIZATION"), "search_algorithm": algorithm,
                             "acceptance_rule": acceptance(optimization.get("acceptance")),
@@ -493,7 +569,8 @@ class PlatformLoader(Rows):
                 "objective_values": [{"name": n, "direction": directions[n], "value": float(v)}
                                      for n, v in e["objectives"].items()],
                 "metric_values": [{"name": n} if v is None else {"name": n, "value": float(v)}
-                                  for n, v in sorted((e.get("metrics") or {}).items())] or None})
+                                  for n, v in sorted((e.get("metrics") or {}).items())] or None,
+                **lineage["candidates"].get(e["evaluation"], {})})
         return iri
 
     def add_event_set(self, study: str, env_config: dict, revision: str | None) -> str | None:
