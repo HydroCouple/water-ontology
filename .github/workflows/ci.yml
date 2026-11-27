@@ -52,6 +52,11 @@ jobs:
       - run: make docs-site
       - uses: actions/upload-artifact@v4
         with: { name: documentation, path: dist/ }
+      # The Pages artifact is uploaded here so it is listed before the deploy job starts;
+      # uploaded in the deploy job, deploy-pages sometimes read the listing before it.
+      - uses: actions/upload-pages-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with: { path: dist/sphinx }
 
   # Publish the themed Sphinx site (the HydroCouple manuals' look and Documentation menu) that
   # docs-preview built. Pages must use "GitHub Actions" as its source.
@@ -65,10 +70,5 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     concurrency: { group: pages, cancel-in-progress: false }
     steps:
-      - uses: actions/download-artifact@v5
-        with: { name: documentation, path: dist }
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
-        with: { path: dist/sphinx }
       - id: deploy
         uses: actions/deploy-pages@v5
